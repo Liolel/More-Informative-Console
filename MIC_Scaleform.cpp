@@ -281,15 +281,19 @@ public:
 		if (!pForm )
 			return;*/
 
-		GFxValue fxValue1, fxValue2, fxValue3;
-		fxValue1.SetString("a");
-		fxValue2.SetString("b");
-		fxValue3.SetString("c");
+		for (int i = 0; i < 6; i++)
+		{
+			GFxValue fxValue1, fxValue2, fxValue3, fxValue4;
+			CreateExtraInfoEntry(&fxValue1, movie, "Test", "a");
+			CreateExtraInfoEntry(&fxValue2, movie, "Test", "b");
+			CreateExtraInfoEntry(&fxValue3, movie, "Test", "c");
+			CreateExtraInfoEntry(&fxValue4, movie, "Test", "d");
+			args->result->PushBack(&fxValue1);
+			args->result->PushBack(&fxValue2);
+			args->result->PushBack(&fxValue3);
+			args->result->PushBack(&fxValue4);
 
-		args->result->PushBack(&fxValue1);
-		args->result->PushBack(&fxValue2);
-		args->result->PushBack(&fxValue3);
-
+		}
 		/**
 		scaleformExtend::CommonItemData(pFxVal, pForm);
 		if (bExtra) {
@@ -301,6 +305,19 @@ public:
 		//scaleformExtend::FormListData(pFxVal, movieView, pForm, bExtra, bRecursive);
 	}
 
+	void CreateExtraInfoEntry(GFxValue * valueArray, GFxMovieView * movie, std::string extraInfoName, std::string extraInfoContents)
+	{
+		movie->CreateArray(valueArray);
+
+		GFxValue GFxExtraInfoName, GFxExtraInfoContents;
+
+		GFxExtraInfoName.SetString(extraInfoName.c_str());
+		GFxExtraInfoContents.SetString(extraInfoContents.c_str());
+
+		valueArray->PushBack(&GFxExtraInfoName);
+		valueArray->PushBack(&GFxExtraInfoContents);
+
+	}
 };
 
 //// core hook
