@@ -286,13 +286,10 @@ public:
 
 			}
 
-			if (/*pBaseForm->GetFormType() == kFormType_NPC
-				&&*/ pRef->GetFormType() == kFormType_Character)
+			if (pBaseForm->GetFormType() == kFormType_NPC
+				&& pRef->GetFormType() == kFormType_Character)
 			{
-				GetCharacterData(args->result, movie, pRef);
-				//GFxValue  test;
-				//CreateExtraInfoEntry(&test, movie, "Character", "");
-				//resultArray->PushBack(&test);
+				GetCharacterData(args->result, movie, pRef, pBaseForm);
 			}
 		}
 	}
@@ -421,19 +418,19 @@ public:
 
 		switch (pBaseForm->GetFormType())
 		{
-		case kFormType_NPC:
-		{
-			TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
-			if (pNPC)
+			case kFormType_NPC:
 			{
-				if (pNPC->fullName.name.data)
+				TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
+				if (pNPC)
 				{
-					name = pNPC->fullName.name.data;
+					if (pNPC->fullName.name.data)
+					{
+						name = pNPC->fullName.name.data;
+					}
 				}
-			}
 
-			break;
-		}
+				break;
+			}
 		}
 
 		return name;
@@ -454,10 +451,12 @@ public:
 		}
 	}
 
-	void GetCharacterData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm )
+	void GetCharacterData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm, TESForm* pBaseForm)
 	{
 		Actor * pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
-		if (pActor)
+		TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
+
+		if (pActor && pNPC)
 		{
 
 			/*
@@ -523,22 +522,68 @@ public:
 			GetActorValue(&actorValueStamina, movie, pActor, actorValueStaminahIndex);
 			resultArray->PushBack(&actorValueStamina);
 			
-			/*
-			movieView->CreateArray(&actorValues);
+			//Get all actor values in a subarray
+			GFxValue actorValueArrayEntry;
+			CreateExtraInfoEntry(&actorValueArrayEntry, movie, "Actor Values", "");
 
-			
+			GFxValue actorValueArray;
+			movie->CreateArray(&actorValueArray);
+
 			for (int i = 0; i < ActorValueList::kNumActorValues; i++)
 			{
 
 				GFxValue actorValue;
-				movieView->CreateObject(&actorValue);
-				RegisterNumber(&actorValue, "current", pActor->actorValueOwner.GetCurrent(i));
-				RegisterNumber(&actorValue, "maximum", pActor->actorValueOwner.GetMaximum(i));
-				RegisterNumber(&actorValue, "base", pActor->actorValueOwner.GetBase(i));
-				actorValues.PushBack(&actorValue);
+				GetActorValue(&actorValue, movie, pActor, i);
+				actorValueArray.PushBack(&actorValue);
 			}
 
-			pFxVal->SetMember("actorValues", &actorValues); */
+	
+			actorValueArrayEntry.PushBack(&actorValueArray);
+			resultArray->PushBack(&actorValueArrayEntry);
+
+			//Level stuff
+
+			const int level = CALL_MEMBER_FN(pActor, GetLevel)();
+
+			GFxValue levelEntry;
+
+			CreateExtraInfoEntry(&levelEntry, movie, "Level", IntToString(level));
+			resultArray->PushBack(&levelEntry);
+
+			GFxValue isPcLeveledEntry;
+
+			bool isLevelMult = (pNPC->actorData.flags & TESActorBaseData::kFlag_PCLevelMult) == TESActorBaseData::kFlag_PCLevelMult;
+			if (isLevelMult)
+			{
+				CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "True");
+
+				GFxValue levelMultSubArray;
+				movie->CreateArray(&levelMultSubArray);
+				
+				double levelMult = (double)pNPC->actorData.level / 1000.0;
+				int minLevel = pNPC->actorData.minLevel;
+				int maxLevel = pNPC->actorData.maxLevel;
+
+				GFxValue levelMultEntry, minLevelEntry, maxLevelEntry;
+
+				CreateExtraInfoEntry(&levelMultEntry, movie, "Level Mult", DoubleToString(levelMult));
+				levelMultSubArray.PushBack(&levelMultEntry);
+
+				CreateExtraInfoEntry(&minLevelEntry, movie, "Min level", IntToString(minLevel));
+				levelMultSubArray.PushBack(&minLevelEntry);
+
+				CreateExtraInfoEntry(&maxLevelEntry, movie, "Max Level", IntToString(maxLevel));
+				levelMultSubArray.PushBack(&maxLevelEntry);
+
+				isPcLeveledEntry.PushBack(&levelMultSubArray);
+			}
+			else
+			{
+				CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "False");
+			}
+
+			resultArray->PushBack(&isPcLeveledEntry);
+
 		}
 		/*PlayerCharacter* pPC = DYNAMIC_CAST(pForm, TESForm, PlayerCharacter);
 		if (pPC)
@@ -933,6 +978,13 @@ public:
 	}
 
 	std::string FloatToString(float number)
+	{
+		std::ostringstream ss;
+		ss << number;
+		return ss.str();
+	}
+
+	std::string DoubleToString(double number)
 	{
 		std::ostringstream ss;
 		ss << number;
