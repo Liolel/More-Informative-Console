@@ -124,6 +124,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MIC_Scaleform.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\common\common_vc14.sln" />
@@ -150,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="..\skse64\GameReferences.h" />
     <ClInclude Include="MIC_Scaleform.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
