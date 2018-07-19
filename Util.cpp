@@ -2,6 +2,8 @@
 
 #include <sstream>
 #include <vector>
+#include "GameObjects.h"
+#include "GameForms.h"
 
 boolean printDebugMessages = true;
 
@@ -458,6 +460,78 @@ std::string GetEffectTypeName(int id)
 
 	return effectTypeName;
 }
+
+std::string GetSpellTypeName(int spellType)
+{
+	std::string spellTypeName = "";
+
+	switch (spellType)
+	{
+	case SpellItem::kTypeSpell:	spellTypeName = "Spell";
+		break;
+	case SpellItem::kTypeDisease: spellTypeName = "Disease";
+		break;
+	case SpellItem::kTypePower:	spellTypeName = "Power";
+		break;
+	case SpellItem::kTypeLesserPower: spellTypeName = "Lesser Power";
+		break;
+	case SpellItem::kTypeAbility: spellTypeName = "Ability";
+		break;
+	case SpellItem::kTypePoison: spellTypeName = "Poison";
+		break;
+	case SpellItem::kTypeAddition: spellTypeName = "Addiction";
+		break;
+	case SpellItem::kTypeVoice: spellTypeName = "Voice";
+		break;
+	default: spellTypeName = "Unknown type";
+		break;
+	}
+
+	return spellTypeName;
+}
+
+std::string GetCastingTypeName(int castingType)
+{
+	std::string castingTypeName = "";
+
+	switch (castingType)
+	{
+	case EffectSetting::Properties::kCastingType_Concentration: castingTypeName = "Concentration";
+		break;
+	case EffectSetting::Properties::kCastingType_ConstantEffect: castingTypeName = "Constant Effect";
+		break;
+	case EffectSetting::Properties::kCastingType_FireAndForget: castingTypeName = "Fire and Forget";
+		break;
+	default: castingTypeName = "Unknown type";
+		break;
+	}
+
+	return castingTypeName;
+}
+
+std::string GetDeliveryTypeName(int deliveryType)
+{
+	std::string deliveryTypeName = "";
+
+	switch (deliveryType)
+	{
+	case EffectSetting::Properties::kDeliveryType_Aimed: deliveryTypeName = "Aimed";
+		break;
+	case EffectSetting::Properties::kDeliveryType_Contact: deliveryTypeName = "Contact";
+		break;
+	case EffectSetting::Properties::kDeliveryType_Self: deliveryTypeName = "Self";
+		break;
+	case EffectSetting::Properties::kDeliveryType_TargetActor: deliveryTypeName = "Target Actor";
+		break;
+	case EffectSetting::Properties::kDeliveryType_TargetLocation: deliveryTypeName = "Target Location";
+		break;
+	default: deliveryTypeName = "Unknown type";
+		break;
+	}
+
+	return deliveryTypeName;
+}
+
 
 
 std::string IntToString(int number)

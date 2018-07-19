@@ -921,6 +921,13 @@ public:
 			CreateExtraInfoEntry(&resistenceEntry, movie, "Primary AV", GetActorValueName(resistence));
 			resultArray->PushBack(&resistenceEntry);
 			
+
+			//delivery type
+			GFxValue deliveryTypeEntry;
+
+			CreateExtraInfoEntry(&deliveryTypeEntry, movie, "Delivery Type", GetDeliveryTypeName(pEffectSetting->properties.deliveryType));
+			resultArray->PushBack(&deliveryTypeEntry);
+
 			//Hostile Flag
 			GFxValue hostileEntry;
 			
@@ -1057,17 +1064,47 @@ public:
 							magicEffectsEntry.PushBack(&magicEffectsArray);
 							resultArray->PushBack(&magicEffectsEntry);
 
+							DebugMessage("GetSpellData: Done general magic item code");
 					}
-					/*
+					
 					SpellItem * pSpellItem = DYNAMIC_CAST(pMagicItem, MagicItem, SpellItem);
 					if (pSpellItem)
 					{
-						RegisterNumber(pFxVal, "spellType", pSpellItem->data.type);
-						RegisterNumber(pFxVal, "trueCost", pSpellItem->GetMagickaCost());
+						DebugMessage("GetSpellData: Starting spell item code");
 
+						//spell type
+						GFxValue spellTypeEntry;
+
+						CreateExtraInfoEntry(&spellTypeEntry, movie, "Spell Type", GetSpellTypeName(pSpellItem->data.type));
+						resultArray->PushBack(&spellTypeEntry);
+
+						//casting type
+						GFxValue castingTypeEntry;
+
+						CreateExtraInfoEntry(&castingTypeEntry, movie, "Cast Type", GetCastingTypeName(pSpellItem->data.castType) );
+						resultArray->PushBack(&castingTypeEntry);
+
+						//spell cost
+						GFxValue spellCostEntry;
+
+						CreateExtraInfoEntry(&spellCostEntry, movie, "True Cost", IntToString(pSpellItem->GetMagickaCost()));
+						resultArray->PushBack(&spellCostEntry);
+
+						//cast time
+						GFxValue castTimeEntry;
+
+						CreateExtraInfoEntry(&castTimeEntry, movie, "Cast Time", FloatToString(pSpellItem->data.castTime));
+						resultArray->PushBack(&castTimeEntry);
+
+						//RegisterNumber(pFxVal, "spellType", pSpellItem->data.type);
+						//RegisterNumber(pFxVal, "trueCost", pSpellItem->GetMagickaCost());
+
+						/*
 						BGSEquipSlot * equipSlot = pSpellItem->equipType.GetEquipSlot();
 						if (equipSlot)
-							RegisterNumber(pFxVal, "equipSlot", equipSlot->formID);
+							RegisterNumber(pFxVal, "equipSlot", equipSlot->formID); */
+
+						DebugMessage("GetSpellData: Ending spell item code");
 					}
 					/*
 					AlchemyItem * pAlchemyItem = DYNAMIC_CAST(pMagicItem, MagicItem, AlchemyItem);
