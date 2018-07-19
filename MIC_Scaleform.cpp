@@ -508,6 +508,23 @@ public:
 					}
 				}
 			}
+
+			case kFormType_Spell:
+			case kFormType_ScrollItem:
+			case kFormType_Ingredient:
+			case kFormType_Potion:
+			case kFormType_Enchantment:
+			{
+				MagicItem * pMagicItem = DYNAMIC_CAST(pBaseForm, TESForm, MagicItem);
+				if (pMagicItem)
+				{
+					if (pMagicItem->fullName.name.data)
+					{
+						name = pMagicItem->fullName.name.data;
+					}
+				}
+
+			}
 		}
 
 		DebugMessage("GetExtraData: GetName End");
@@ -536,240 +553,269 @@ public:
 
 	void GetCharacterData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm, TESForm* pBaseForm)
 	{
-		DebugMessage("GetExtraData: GetCharacter info start");
+		DebugMessage("GetCharacterData: GetCharacter info start");
 
 		Actor * pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
 		TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
-
 		if (pActor && pNPC)
 		{
-			DebugMessage("GetExtraData: GetCharacter info casts worked");
+			TESActorBase *pActorBase = DYNAMIC_CAST(pNPC, TESNPC, TESActorBase);
 
-			/*
-			// Spells as Array
-			GFxValue addedSpells;
-			movieView->CreateArray(&addedSpells);
-
-			for (int i = 0; i < pActor->addedSpells.Length(); i++)
+			if (pActorBase)
 			{
-				GFxValue spell;
-				movieView->CreateObject(&spell);
-				scaleformExtend::FormData(&spell, movieView, pActor->addedSpells.Get(i), bRecursive ? bExtra : false, bRecursive);
-				addedSpells.PushBack(&spell);
-			}
+				DebugMessage("GetCharacterData: GetCharacter info casts worked");
 
-			pFxVal->SetMember("spells", &addedSpells);*/
+				//Spells
+				GFxValue allSpellsEntry;
 
+				CreateExtraInfoEntry(&allSpellsEntry, movie, "Spells", "");
 
-			// ActiveEffects as Array
-			GFxValue activeEffectsEntry;
+				GFxValue SpellsArray;
+				movie->CreateArray(&SpellsArray);
 
-			CreateExtraInfoEntry(&activeEffectsEntry, movie, "Effects", "");
+				DebugMessage("GetCharacterData: Starting Added Spells");
 
-			GFxValue activeEffectsArray;
-			movie->CreateArray(&activeEffectsArray);
-
-			tList<ActiveEffect> * effects = pActor->magicTarget.GetActiveEffects();
-
-			DebugMessage("GetExtraData: Active Effects Gotten");
-
-			if (effects)
-			{
-				for (int i = 0; i < effects->Count(); i++)
+				//Added Spells
+				for (int i = 0; i < pActor->addedSpells.Length(); i++)
 				{
-					DebugMessage("GetExtraData: Starting Active Effect");
+					GFxValue spellEntry;
 
-					ActiveEffect * pEffect = effects->GetNthItem(i);
+					SpellItem* spell = pActor->addedSpells.Get(i);
+					GetSpellDataWrapper(&spellEntry, movie, spell, "Added Spell");
 
-					GFxValue effectEntry;
-
-					if (pEffect->effect && pEffect->effect->mgef)
-					{
-						DebugMessage("GetExtraData: Active Effect MGEF found");
-
-						std::string effectName, effectActive;
-
-						EffectSetting * mgef = pEffect->effect->mgef;
-
-						if (mgef->fullName.name.data)
-						{
-							effectName = mgef->fullName.name.data;
-						}
-
-						else
-						{
-							effectName = "Unknown Effect";
-						}
-
-						if ( (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive)
-						{
-							effectActive = "Inactive";
-						}	
-
-						else
-						{
-							effectActive = "Active";
-						}
-
-						CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
-
-						GFxValue effectEntrySubArray;
-
-						movie->CreateArray(&effectEntrySubArray);
-
-						TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
-
-						if (effectBaseForm)
-						{
-							DebugMessage("GetExtraData: Active Effect MGEF base form found");
-
-							GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
-
-							//Magnitude
-							GFxValue magnitudeEntry;
-
-							float magnitude = pEffect->magnitude;
-							CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
-							effectEntrySubArray.PushBack(&magnitudeEntry);
-
-							//Duration
-							GFxValue durationEntry;
-
-							float duration = pEffect->duration;
-							CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
-							effectEntrySubArray.PushBack(&durationEntry);
-
-
-							//Magnitude
-							GFxValue elapsedEntry;
-
-							float elapsed = pEffect->elapsed;
-							CreateExtraInfoEntry(&elapsedEntry, movie, "Elapsed", FloatToString(elapsed));
-							effectEntrySubArray.PushBack(&elapsedEntry);
-
-							GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
-
-							effectEntry.PushBack(&effectEntrySubArray);
-						}
-					}
-
-					else
-					{
-						CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
-					}
-
-					activeEffectsArray.PushBack(&effectEntry);
-
-
-					DebugMessage("GetExtraData: Ending Active Effect");
-
-					/*if (pEffect->item)
-						scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */ 
-
-					//RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
-
-					// ActiveEffect
-					//if (pEffect->effect && pEffect->effect->mgef)
-					//	scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
-
-					//activeEffects.PushBack(&effect);
+					SpellsArray.PushBack(&spellEntry);
 				}
+
+				DebugMessage("GetCharacterData: Starting Base Spells");
+
+				//Actor Base Spells
+				int numberOfBaseSpells = pActorBase->spellList.GetSpellCount();
+
+				for (int i = 0; i < numberOfBaseSpells; i++)
+				{
+					GFxValue spellEntry;
+
+					SpellItem* spell = pActorBase->spellList.GetNthSpell(i);
+					GetSpellDataWrapper(&spellEntry, movie, spell, "Base Spell");
+
+					SpellsArray.PushBack(&spellEntry);
+				}
+
+				allSpellsEntry.PushBack(&SpellsArray);
+
+				resultArray->PushBack(&allSpellsEntry);
+
+				DebugMessage("GetCharacterData: GetCharacter Done with spells");
+
+				// ActiveEffects as Array
+				GFxValue activeEffectsEntry;
+
+				CreateExtraInfoEntry(&activeEffectsEntry, movie, "Effects", "");
+
+				GFxValue activeEffectsArray;
+				movie->CreateArray(&activeEffectsArray);
+
+				tList<ActiveEffect> * effects = pActor->magicTarget.GetActiveEffects();
+
+				DebugMessage("GetCharacterData: Active Effects Gotten");
+
+				if (effects)
+				{
+					for (int i = 0; i < effects->Count(); i++)
+					{
+						DebugMessage("GetCharacterData: Starting Active Effect");
+
+						ActiveEffect * pEffect = effects->GetNthItem(i);
+
+						GFxValue effectEntry;
+
+						if (pEffect->effect && pEffect->effect->mgef)
+						{
+							DebugMessage("GetCharacterData: Active Effect MGEF found");
+
+							std::string effectName, effectActive;
+
+							EffectSetting * mgef = pEffect->effect->mgef;
+
+							if (mgef->fullName.name.data)
+							{
+								effectName = mgef->fullName.name.data;
+							}
+
+							else
+							{
+								effectName = "Unknown Effect";
+							}
+
+							if ((pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive)
+							{
+								effectActive = "Inactive";
+							}
+
+							else
+							{
+								effectActive = "Active";
+							}
+
+							CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
+
+							GFxValue effectEntrySubArray;
+
+							movie->CreateArray(&effectEntrySubArray);
+
+							TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
+
+							if (effectBaseForm)
+							{
+								DebugMessage("GetCharacterData: Active Effect MGEF base form found");
+
+								GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
+
+								//Magnitude
+								GFxValue magnitudeEntry;
+
+								float magnitude = pEffect->magnitude;
+								CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
+								effectEntrySubArray.PushBack(&magnitudeEntry);
+
+								//Duration
+								GFxValue durationEntry;
+
+								float duration = pEffect->duration;
+								CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
+								effectEntrySubArray.PushBack(&durationEntry);
+
+
+								//Magnitude
+								GFxValue elapsedEntry;
+
+								float elapsed = pEffect->elapsed;
+								CreateExtraInfoEntry(&elapsedEntry, movie, "Elapsed", FloatToString(elapsed));
+								effectEntrySubArray.PushBack(&elapsedEntry);
+
+								GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
+
+								effectEntry.PushBack(&effectEntrySubArray);
+							}
+						}
+
+						else
+						{
+							CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
+						}
+
+						activeEffectsArray.PushBack(&effectEntry);
+
+
+						DebugMessage("GetCharacterData: Ending Active Effect");
+
+						/*if (pEffect->item)
+							scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
+
+							//RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
+
+							// ActiveEffect
+							//if (pEffect->effect && pEffect->effect->mgef)
+							//	scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
+
+							//activeEffects.PushBack(&effect);
+					}
+				}
+
+				activeEffectsEntry.PushBack(&activeEffectsArray);
+				resultArray->PushBack(&activeEffectsEntry);
+
+
+				DebugMessage("GetExtraData: Active Effects Done");
+
+				GFxValue actorValueHealth;
+
+				GetActorValue(&actorValueHealth, movie, pActor, actorValueHealthIndex);
+				resultArray->PushBack(&actorValueHealth);
+
+				GFxValue actorValueMagicka;
+
+				GetActorValue(&actorValueMagicka, movie, pActor, actorValueMagickaIndex);
+				resultArray->PushBack(&actorValueMagicka);
+
+				GFxValue actorValueStamina;
+
+				GetActorValue(&actorValueStamina, movie, pActor, actorValueStaminahIndex);
+				resultArray->PushBack(&actorValueStamina);
+
+				//Get all actor values in a subarray
+				GFxValue actorValueArrayEntry;
+				CreateExtraInfoEntry(&actorValueArrayEntry, movie, "Actor Values", "");
+
+				GFxValue actorValueArray;
+				movie->CreateArray(&actorValueArray);
+
+				for (int i = 0; i < ActorValueList::kNumActorValues; i++)
+				{
+
+					GFxValue actorValue;
+					GetActorValue(&actorValue, movie, pActor, i);
+					actorValueArray.PushBack(&actorValue);
+				}
+
+
+				actorValueArrayEntry.PushBack(&actorValueArray);
+				resultArray->PushBack(&actorValueArrayEntry);
+
+				DebugMessage("GetExtraData: GetCharacter actor values gotten");
+
+
+				//Level stuff
+
+				const int level = CALL_MEMBER_FN(pActor, GetLevel)();
+
+				GFxValue levelEntry;
+
+				CreateExtraInfoEntry(&levelEntry, movie, "Level", IntToString(level));
+				resultArray->PushBack(&levelEntry);
+
+				DebugMessage("GetExtraData: GetCharacter level gotten");
+
+
+				GFxValue isPcLeveledEntry;
+
+				bool isLevelMult = (pNPC->actorData.flags & TESActorBaseData::kFlag_PCLevelMult) == TESActorBaseData::kFlag_PCLevelMult;
+				if (isLevelMult)
+				{
+					DebugMessage("GetExtraData: GetCharacter pc level mult set");
+
+
+					CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "True");
+
+					GFxValue levelMultSubArray;
+					movie->CreateArray(&levelMultSubArray);
+
+					double levelMult = (double)pNPC->actorData.level / 1000.0;
+					int minLevel = pNPC->actorData.minLevel;
+					int maxLevel = pNPC->actorData.maxLevel;
+
+					GFxValue levelMultEntry, minLevelEntry, maxLevelEntry;
+
+					CreateExtraInfoEntry(&levelMultEntry, movie, "Level Mult", DoubleToString(levelMult));
+					levelMultSubArray.PushBack(&levelMultEntry);
+
+					CreateExtraInfoEntry(&minLevelEntry, movie, "Min level", IntToString(minLevel));
+					levelMultSubArray.PushBack(&minLevelEntry);
+
+					CreateExtraInfoEntry(&maxLevelEntry, movie, "Max Level", IntToString(maxLevel));
+					levelMultSubArray.PushBack(&maxLevelEntry);
+
+					isPcLeveledEntry.PushBack(&levelMultSubArray);
+				}
+				else
+				{
+					DebugMessage("GetExtraData: GetCharacter pc level mult not set");
+
+					CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "False");
+				}
+
+				resultArray->PushBack(&isPcLeveledEntry);
 			}
-
-			activeEffectsEntry.PushBack(&activeEffectsArray);
-			resultArray->PushBack(&activeEffectsEntry);
-			
-
-			DebugMessage("GetExtraData: Active Effects Done");
-
-			GFxValue actorValueHealth;
-
-			GetActorValue(&actorValueHealth, movie, pActor, actorValueHealthIndex);
-			resultArray->PushBack(&actorValueHealth);
-
-			GFxValue actorValueMagicka;
-
-			GetActorValue(&actorValueMagicka, movie, pActor, actorValueMagickaIndex);
-			resultArray->PushBack(&actorValueMagicka);
-
-			GFxValue actorValueStamina;
-
-			GetActorValue(&actorValueStamina, movie, pActor, actorValueStaminahIndex);
-			resultArray->PushBack(&actorValueStamina);
-			
-			//Get all actor values in a subarray
-			GFxValue actorValueArrayEntry;
-			CreateExtraInfoEntry(&actorValueArrayEntry, movie, "Actor Values", "");
-
-			GFxValue actorValueArray;
-			movie->CreateArray(&actorValueArray);
-
-			for (int i = 0; i < ActorValueList::kNumActorValues; i++)
-			{
-
-				GFxValue actorValue;
-				GetActorValue(&actorValue, movie, pActor, i);
-				actorValueArray.PushBack(&actorValue);
-			}
-
-	
-			actorValueArrayEntry.PushBack(&actorValueArray);
-			resultArray->PushBack(&actorValueArrayEntry);
-
-			DebugMessage("GetExtraData: GetCharacter actor values gotten");
-
-
-			//Level stuff
-
-			const int level = CALL_MEMBER_FN(pActor, GetLevel)();
-
-			GFxValue levelEntry;
-
-			CreateExtraInfoEntry(&levelEntry, movie, "Level", IntToString(level));
-			resultArray->PushBack(&levelEntry);
-
-			DebugMessage("GetExtraData: GetCharacter level gotten");
-
-
-			GFxValue isPcLeveledEntry;
-
-			bool isLevelMult = (pNPC->actorData.flags & TESActorBaseData::kFlag_PCLevelMult) == TESActorBaseData::kFlag_PCLevelMult;
-			if (isLevelMult)
-			{
-				DebugMessage("GetExtraData: GetCharacter pc level mult set");
-
-
-				CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "True");
-
-				GFxValue levelMultSubArray;
-				movie->CreateArray(&levelMultSubArray);
-				
-				double levelMult = (double)pNPC->actorData.level / 1000.0;
-				int minLevel = pNPC->actorData.minLevel;
-				int maxLevel = pNPC->actorData.maxLevel;
-
-				GFxValue levelMultEntry, minLevelEntry, maxLevelEntry;
-
-				CreateExtraInfoEntry(&levelMultEntry, movie, "Level Mult", DoubleToString(levelMult));
-				levelMultSubArray.PushBack(&levelMultEntry);
-
-				CreateExtraInfoEntry(&minLevelEntry, movie, "Min level", IntToString(minLevel));
-				levelMultSubArray.PushBack(&minLevelEntry);
-
-				CreateExtraInfoEntry(&maxLevelEntry, movie, "Max Level", IntToString(maxLevel));
-				levelMultSubArray.PushBack(&maxLevelEntry);
-
-				isPcLeveledEntry.PushBack(&levelMultSubArray);
-			}
-			else
-			{
-				DebugMessage("GetExtraData: GetCharacter pc level mult not set");
-
-				CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "False");
-			}
-
-			resultArray->PushBack(&isPcLeveledEntry);
-
 		}
 		/*PlayerCharacter* pPC = DYNAMIC_CAST(pForm, TESForm, PlayerCharacter);
 		if (pPC)
@@ -874,11 +920,27 @@ public:
 
 			CreateExtraInfoEntry(&resistenceEntry, movie, "Primary AV", GetActorValueName(resistence));
 			resultArray->PushBack(&resistenceEntry);
+			
+			//Hostile Flag
+			GFxValue hostileEntry;
+			
+			bool hostile = (pEffectSetting->properties.flags & EffectSetting::Properties::kEffectType_Hostile) == EffectSetting::Properties::kEffectType_Hostile;
+
+			if (hostile)
+			{
+				CreateExtraInfoEntry(&hostileEntry, movie, "Hostile", "true");
+			}
+
+			else
+			{
+				CreateExtraInfoEntry(&hostileEntry, movie, "Hostile", "false");
+			}
+			resultArray->PushBack(&hostileEntry);
 			/*			
 			
 			
 			
-			//RegisterNumber(pFxVal, "effectFlags", pEffectSetting->properties.flags); //I probally want the hostile flag at minimum. Need to create my own mask to extract the right bit
+			//RegisterNumber(pFxVal, "effectFlags", pEffectSetting->properties.flags); //I added the hostile flag. Need to check what else to add
 			RegisterNumber(pFxVal, "deliveryType", pEffectSetting->properties.deliveryType); //do these next 3 when I add spells
 			RegisterNumber(pFxVal, "castTime", pEffectSetting->properties.castingTime);
 			RegisterNumber(pFxVal, "delayTime", pEffectSetting->properties.delayTime);
@@ -888,6 +950,189 @@ public:
 		DebugMessage("GetExtraData: GetMagicEffectData End");
 	}
 
+	void GetSpellData( GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm )
+	{
+		/*
+				case kFormType_Spell:
+				case kFormType_ScrollItem:
+				case kFormType_Ingredient:
+				case kFormType_Potion:
+				case kFormType_Enchantment:
+				{ */
+					MagicItem * pMagicItem = DYNAMIC_CAST(pBaseForm, TESForm, MagicItem);
+					if (pMagicItem)
+					{
+							DebugMessage("GetSpellData: Starting Effect Data Effect");
+					
+							GFxValue magicEffectsEntry;
+
+							CreateExtraInfoEntry(&magicEffectsEntry, movie, "Magic Effects", "");
+
+							GFxValue magicEffectsArray;
+							movie->CreateArray(&magicEffectsArray);
+
+							int numEffects = pMagicItem->effectItemList.count;
+
+							for (int i = 0; i < numEffects; i++)
+							{
+
+
+							MagicItem::EffectItem * pEffect = pMagicItem->effectItemList[i];
+							
+							GFxValue effectEntry;
+
+							if (pEffect && pEffect->mgef)
+							{
+								DebugMessage("GetSpellData: Active Effect MGEF found");
+
+								std::string effectName, effectActive;
+
+								EffectSetting * mgef = pEffect->mgef;
+
+								if (mgef->fullName.name.data)
+								{
+									effectName = mgef->fullName.name.data;
+								}
+
+								else
+								{
+									effectName = "Unknown Effect";
+								}
+
+								CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
+
+								GFxValue effectEntrySubArray;
+
+								movie->CreateArray(&effectEntrySubArray);
+
+								TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
+
+								if (effectBaseForm)
+								{
+									DebugMessage("GetExtraData: Active Effect MGEF base form found");
+
+									GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
+
+									//Magnitude
+									GFxValue magnitudeEntry;
+
+									float magnitude = pEffect->magnitude;
+									CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
+									effectEntrySubArray.PushBack(&magnitudeEntry);
+
+									//Duration
+									GFxValue durationEntry;
+
+									float duration = pEffect->duration;
+									CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
+									effectEntrySubArray.PushBack(&durationEntry);
+
+
+									//Magnitude
+									GFxValue areaEntry;
+
+									float area = pEffect->area;
+									CreateExtraInfoEntry(&areaEntry, movie, "Area", FloatToString(area));
+									effectEntrySubArray.PushBack(&areaEntry);
+
+									GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
+
+									effectEntry.PushBack(&effectEntrySubArray);
+								}
+							}
+
+							else
+							{
+								CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
+							}
+
+							magicEffectsArray.PushBack(&effectEntry);
+
+
+							DebugMessage("GetSpellData: Ending Active Effect");
+
+
+							}
+
+							magicEffectsEntry.PushBack(&magicEffectsArray);
+							resultArray->PushBack(&magicEffectsEntry);
+
+					}
+					/*
+					SpellItem * pSpellItem = DYNAMIC_CAST(pMagicItem, MagicItem, SpellItem);
+					if (pSpellItem)
+					{
+						RegisterNumber(pFxVal, "spellType", pSpellItem->data.type);
+						RegisterNumber(pFxVal, "trueCost", pSpellItem->GetMagickaCost());
+
+						BGSEquipSlot * equipSlot = pSpellItem->equipType.GetEquipSlot();
+						if (equipSlot)
+							RegisterNumber(pFxVal, "equipSlot", equipSlot->formID);
+					}
+					/*
+					AlchemyItem * pAlchemyItem = DYNAMIC_CAST(pMagicItem, MagicItem, AlchemyItem);
+					if (pAlchemyItem)
+					{
+						if (pAlchemyItem->itemData.useSound) {
+							GFxValue useSound;
+							movieView->CreateObject(&useSound);
+							scaleformExtend::FormData(&useSound, movieView, pAlchemyItem->itemData.useSound, bRecursive ? bExtra : false, bRecursive);
+							pFxVal->SetMember("useSound", &useSound);
+						}
+					}
+
+					EnchantmentItem * pEnchantItem = DYNAMIC_CAST(pMagicItem, MagicItem, EnchantmentItem);
+					if (pEnchantItem)
+					{
+						RegisterNumber(pFxVal, "flags", (double)pMagicItem->flags);
+
+						GFxValue baseEnchant;
+						movieView->CreateObject(&baseEnchant);
+						scaleformExtend::FormData(&baseEnchant, movieView, pEnchantItem->data.baseEnchantment, bRecursive ? bExtra : false, bRecursive);
+						pFxVal->SetMember("baseEnchant", &baseEnchant);
+
+						GFxValue restrictions;
+						movieView->CreateObject(&restrictions);
+						scaleformExtend::FormData(&restrictions, movieView, pEnchantItem->data.restrictions, bRecursive ? bExtra : false, bRecursive);
+						pFxVal->SetMember("restrictions", &restrictions);
+					}
+				}	*/
+	}
+
+	//wrapper for getting both the common form data and the spell data for a spell
+	void GetSpellDataWrapper(GFxValue * spellEntry, GFxMovieView * movie, SpellItem* spell, std::string source)
+	{
+		DebugMessage("GetSpellDataWrapper: Starting spell");
+
+		TESForm *spellBaseForm = DYNAMIC_CAST(spell, SpellItem, TESForm);
+
+		if (spellBaseForm)
+		{
+			std::string spellName = "Unknown";
+
+			if (spell->fullName.name.data)
+			{
+				spellName = spell->fullName.name.data;
+			}
+
+			CreateExtraInfoEntry(spellEntry, movie, spellName, source);
+
+			GFxValue spellEntrySubArray;
+			movie->CreateArray(&spellEntrySubArray);
+
+			GetCommonFormData(&spellEntrySubArray, movie, spellBaseForm, nullptr);
+			GetSpellData(&spellEntrySubArray, movie, spellBaseForm);
+
+			spellEntry->PushBack(&spellEntrySubArray);
+		}
+
+		else
+		{
+			CreateExtraInfoEntry(spellEntry, movie, "Unknown Spell", source);
+		}
+
+		DebugMessage("GetSpellDataWrapper: Finished spell");
+	}
 };
 
 
