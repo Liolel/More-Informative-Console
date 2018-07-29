@@ -11,7 +11,9 @@ std::string GetDeliveryTypeName(int deliveryType);
 std::string GetName(TESForm* pBaseForm);
 int NumberOfItemInContainer(TESForm * item, TESContainer * container);
 bool HasItem(EntryDataList * inventory, TESForm * item);
-
+std::string GetFormTypeName(int formType);
+std::string GetArmorWeightClassName(int weightClass);
+std::string GetEquipSlotName(int slot);
 
 std::string IntToString(int number);
 std::string FloatToString(float number);

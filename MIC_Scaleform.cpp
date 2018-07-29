@@ -9,154 +9,6 @@
 #include <vector>
 #include <skse64\GameData.h>
 
-
-std::vector<std::string> FormTypes =
-{
-	"NONE",
-	"TES4",
-	"GRUP",
-	"GMST",
-	"KYWD",
-	"LCRT",
-	"AACT",
-	"TXST",
-	"MICN",
-	"GLOB",
-	"CLAS",
-	"FACT",
-	"HDPT",
-	"EYES",
-	"RACE",
-	"SOUN",
-	"ASPC",
-	"SKIL",
-	"MGEF",
-	"SCPT",
-	"LTEX",
-	"ENCH",
-	"SPEL",
-	"SCRL",
-	"ACTI",
-	"TACT",
-	"ARMO",
-	"BOOK",
-	"CONT",
-	"DOOR",
-	"INGR",
-	"LIGH",
-	"MISC",
-	"APPA",
-	"STAT",
-	"SCOL",
-	"MSTT",
-	"GRAS",
-	"TREE",
-	"FLOR",
-	"FURN",
-	"WEAP",
-	"AMMO",
-	"NPC_",
-	"LVLN",
-	"KEYM",
-	"ALCH",
-	"IDLM",
-	"NOTE",
-	"COBJ",
-	"PROJ",
-	"HAZD",
-	"SLGM",
-	"LVLI",
-	"WTHR",
-	"CLMT",
-	"SPGD",
-	"RFCT",
-	"REGN",
-	"NAVI",
-	"CELL",
-	"REFR",
-	"ACHR",
-	"PMIS",
-	"PARW",
-	"PGRE",
-	"PBEA",
-	"PFLA",
-	"PCON",
-	"PBAR",
-	"PHZD",
-	"WRLD",
-	"LAND",
-	"NAVM",
-	"TLOD",
-	"DIAL",
-	"INFO",
-	"QUST",
-	"IDLE",
-	"PACK",
-	"CSTY",
-	"LSCR",
-	"LVSP",
-	"ANIO",
-	"WATR",
-	"EFSH",
-	"TOFT",
-	"EXPL",
-	"DEBR",
-	"IMGS",
-	"IMAD",
-	"FLST",
-	"PERK",
-	"BPTD",
-	"ADDN",
-	"AVIF",
-	"CAMS",
-	"CPTH",
-	"VTYP",
-	"MATT",
-	"IPCT",
-	"IPDS",
-	"ARMA",
-	"ECZN",
-	"LCTN",
-	"MESH",
-	"RGDL",
-	"DOBJ",
-	"LGTM",
-	"MUSC",
-	"FSTP",
-	"FSTS",
-	"SMBN",
-	"SMQN",
-	"SMEN",
-	"DLBR",
-	"MUST",
-	"DLVW",
-	"WOOP",
-	"SHOU",
-	"EQUP",
-	"RELA",
-	"SCEN",
-	"ASTP",
-	"OTFT",
-	"ARTO",
-	"MATO",
-	"MOVT",
-	"SNDR",
-	"DUAL",
-	"SNCT",
-	"SOPM",
-	"COLL",
-	"CLFM",
-	"REVB",
-	"LENS",
-	"LSPR",
-	"VOLI",
-	"Unknown8A",
-	"Alias",
-	"ReferenceAlias",
-	"LocAlias",
-	"ActiveMagicEffect"
-};
-
 const int actorValueHealthIndex = 24;
 const int actorValueMagickaIndex = 25;
 const int actorValueStaminahIndex = 26;
@@ -188,7 +40,7 @@ public:
 				DebugMessage("GetReferenceInfo: pBase passed");
 				sprintf_s(sResult.get(), MAX_PATH, "%08X", pRef->formID);
 				RegisterString(args->result, args->movie, "refFormID", sResult.get());
-				RegisterString(args->result, args->movie, "refFormType", FormTypes[pRef->formType].c_str());
+				RegisterString(args->result, args->movie, "refFormType", GetFormTypeName(pRef->formType).c_str());
 
 				const char* pRefName = CALL_MEMBER_FN(pRef, GetReferenceName)();
 				RegisterString(args->result, args->movie, "referenceName", pRefName);
@@ -229,7 +81,7 @@ public:
 				DebugMessage("GetReferenceInfo: In non FF actor base form");
 				sprintf_s(sResult.get(), MAX_PATH, "%08X", pBaseForm->formID);
 				RegisterString(args->result, args->movie, "baseFormID", sResult.get());
-				RegisterString(args->result, args->movie, "baseFormType", FormTypes[pBaseForm->formType].c_str());
+				RegisterString(args->result, args->movie, "baseFormType", GetFormTypeName(pBaseForm->formType).c_str());
 
 
 
@@ -315,11 +167,18 @@ public:
 			GetCharacterData(resultArray, movie, pRefForm, pBaseForm);
 		}
 
-		if (pBaseForm->GetFormType() == kFormType_EffectSetting )
+		else if (pBaseForm->GetFormType() == kFormType_EffectSetting )
 		{
 			DebugMessage("GetExtraData: Get Form Data magic effect found");
-			GetCharacterData(resultArray, movie, pRefForm, pBaseForm);
+			GetMagicEffectData(resultArray, movie, pBaseForm);
 		}
+
+		else if (pBaseForm->GetFormType() == kFormType_Armor)
+		{
+			DebugMessage("GetExtraData: Get Form Data armor found");
+			GetArmorData(resultArray, movie, pBaseForm);
+		}
+
 
 		//get inventory
 		if (pRefForm != nullptr
@@ -423,6 +282,13 @@ public:
 		GFxValue  formIDArray;
 		CreateExtraInfoEntry(&formIDArray, movie, "Base form ID", formID);
 		resultArray->PushBack(&formIDArray);
+
+		//base form type
+		std::string baseFormType = GetFormTypeName(pBaseForm->GetFormType());
+
+		GFxValue  formTypeEntry;
+		CreateExtraInfoEntry(&formTypeEntry, movie, "Base form Type", baseFormType);
+		resultArray->PushBack(&formTypeEntry);
 
 		//ref formid
 		if (pRefForm != nullptr)
@@ -1225,6 +1091,13 @@ public:
 
 					CreateExtraInfoEntry(&inventoryItemEntry, movie, name, IntToString(itemCount));
 
+					GFxValue inventoryItemEntrySubArray;
+					movie->CreateArray(&inventoryItemEntrySubArray);
+
+					GetFormData(&inventoryItemEntrySubArray, movie, itemForm, nullptr);
+
+					inventoryItemEntry.PushBack(&inventoryItemEntrySubArray);
+
 					inventorySubArray.PushBack(&inventoryItemEntry);
 				}
 				
@@ -1272,6 +1145,13 @@ public:
 						CreateExtraInfoEntry(&inventoryItemEntry, movie, name, FormIDToString(itemForm->formID));
 					}
 
+					GFxValue inventoryItemEntrySubArray;
+					movie->CreateArray(&inventoryItemEntrySubArray);
+
+					GetFormData(&inventoryItemEntrySubArray, movie, itemForm, nullptr);
+
+					inventoryItemEntry.PushBack(&inventoryItemEntrySubArray);
+
 					inventorySubArray.PushBack(&inventoryItemEntry);
 				}
 
@@ -1285,6 +1165,75 @@ public:
 		resultArray->PushBack(&inventoryEntry);
 
 		DebugMessage("GetInventory: GetInventory End");
+	}
+
+	void GetArmorData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	{
+		TESObjectARMO * pArmor = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMO);
+
+		if (pArmor)
+		{
+			//value
+			int armorRating = pArmor->armorValTimes100 / 100;
+
+			GFxValue armorRatingEntry;
+
+			CreateExtraInfoEntry(&armorRatingEntry, movie, "Armor Rating", IntToString(armorRating));
+			resultArray->PushBack(&armorRatingEntry);
+
+			//value
+			int value = pArmor->value.value;
+
+			GFxValue valueEntry;
+
+			CreateExtraInfoEntry(&valueEntry, movie, "Value", IntToString(value));
+			resultArray->PushBack(&valueEntry);
+
+			//weight
+			int weight = pArmor->weight.weight;
+
+			GFxValue weightEntry;
+
+			CreateExtraInfoEntry(&weightEntry, movie, "Weight", IntToString(weight));
+			resultArray->PushBack(&weightEntry);
+
+			//weight class
+			int weightClass = pArmor->bipedObject.data.weightClass;
+
+			GFxValue weightClassEntry;
+
+			CreateExtraInfoEntry(&weightClassEntry, movie, "Armor Type", GetArmorWeightClassName( weightClass ) );
+			resultArray->PushBack(&weightClassEntry);
+
+			//Equip slots
+			int parts = pArmor->bipedObject.data.parts;
+
+			GFxValue equipSlotsEntry;
+
+			CreateExtraInfoEntry(&equipSlotsEntry, movie, "Equip Slots", "" );
+
+			GFxValue equipSlotsEntrySubArray;
+			movie->CreateArray(&equipSlotsEntrySubArray);
+
+			for (int i = 0; i <= 31; i++)
+			{
+				int mask = 1 << i;
+
+				if ( (parts & mask ) == mask )
+				{
+
+					std::string slotName = GetEquipSlotName(i);
+
+					GFxValue equipSlotEntry;
+
+					CreateExtraInfoEntry(&equipSlotEntry, movie, slotName, "");
+					equipSlotsEntrySubArray.PushBack(&equipSlotEntry);
+				}
+			}
+
+			equipSlotsEntry.PushBack(&equipSlotsEntrySubArray);
+			resultArray->PushBack(&equipSlotsEntry);
+		}
 	}
 
 	/*

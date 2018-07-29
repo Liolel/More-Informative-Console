@@ -11,6 +11,154 @@
 #include "GameBSExtraData.h"
 #include "GameExtraData.h"
 
+
+std::vector<std::string> FormTypes =
+{
+	"NONE",
+	"TES4",
+	"GRUP",
+	"GMST",
+	"KYWD",
+	"LCRT",
+	"AACT",
+	"TXST",
+	"MICN",
+	"GLOB",
+	"CLAS",
+	"FACT",
+	"HDPT",
+	"EYES",
+	"RACE",
+	"SOUN",
+	"ASPC",
+	"SKIL",
+	"MGEF",
+	"SCPT",
+	"LTEX",
+	"ENCH",
+	"SPEL",
+	"SCRL",
+	"ACTI",
+	"TACT",
+	"ARMO",
+	"BOOK",
+	"CONT",
+	"DOOR",
+	"INGR",
+	"LIGH",
+	"MISC",
+	"APPA",
+	"STAT",
+	"SCOL",
+	"MSTT",
+	"GRAS",
+	"TREE",
+	"FLOR",
+	"FURN",
+	"WEAP",
+	"AMMO",
+	"NPC_",
+	"LVLN",
+	"KEYM",
+	"ALCH",
+	"IDLM",
+	"NOTE",
+	"COBJ",
+	"PROJ",
+	"HAZD",
+	"SLGM",
+	"LVLI",
+	"WTHR",
+	"CLMT",
+	"SPGD",
+	"RFCT",
+	"REGN",
+	"NAVI",
+	"CELL",
+	"REFR",
+	"ACHR",
+	"PMIS",
+	"PARW",
+	"PGRE",
+	"PBEA",
+	"PFLA",
+	"PCON",
+	"PBAR",
+	"PHZD",
+	"WRLD",
+	"LAND",
+	"NAVM",
+	"TLOD",
+	"DIAL",
+	"INFO",
+	"QUST",
+	"IDLE",
+	"PACK",
+	"CSTY",
+	"LSCR",
+	"LVSP",
+	"ANIO",
+	"WATR",
+	"EFSH",
+	"TOFT",
+	"EXPL",
+	"DEBR",
+	"IMGS",
+	"IMAD",
+	"FLST",
+	"PERK",
+	"BPTD",
+	"ADDN",
+	"AVIF",
+	"CAMS",
+	"CPTH",
+	"VTYP",
+	"MATT",
+	"IPCT",
+	"IPDS",
+	"ARMA",
+	"ECZN",
+	"LCTN",
+	"MESH",
+	"RGDL",
+	"DOBJ",
+	"LGTM",
+	"MUSC",
+	"FSTP",
+	"FSTS",
+	"SMBN",
+	"SMQN",
+	"SMEN",
+	"DLBR",
+	"MUST",
+	"DLVW",
+	"WOOP",
+	"SHOU",
+	"EQUP",
+	"RELA",
+	"SCEN",
+	"ASTP",
+	"OTFT",
+	"ARTO",
+	"MATO",
+	"MOVT",
+	"SNDR",
+	"DUAL",
+	"SNCT",
+	"SOPM",
+	"COLL",
+	"CLFM",
+	"REVB",
+	"LENS",
+	"LSPR",
+	"VOLI",
+	"Unknown8A",
+	"Alias",
+	"ReferenceAlias",
+	"LocAlias",
+	"ActiveMagicEffect"
+};
+
 boolean printDebugMessages = true;
 
 void DebugMessage(std::string message)
@@ -704,12 +852,213 @@ std::string GetName(TESForm* pBaseForm)
 
 			break;
 		}
-		
+
+		case kFormType_Container:
+		{
+			TESObjectCONT * pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
+			DebugMessage("GetExtraData: GetName Container");
+			if (pContainer)
+			{
+				if (pContainer->fullName.name.data)
+				{
+					name = pContainer->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Light:
+		{
+			TESObjectLIGH * pLight = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectLIGH);
+			DebugMessage("GetExtraData: GetName Light");
+			if (pLight)
+			{
+				if (pLight->fullName.name.data)
+				{
+					name = pLight->fullName.name.data;
+				}
+			}
+
+			break;
+		}
 	}
 
 	DebugMessage("GetExtraData: GetName End");
 
 	return name;
+}
+
+//Get the name of a equip slot. slot is based on the bit flag for the slot
+std::string GetEquipSlotName( int slot )
+{
+	std::string equipSlotName = "";
+
+	switch (slot)
+	{
+		case 0: 
+		{
+			equipSlotName = "Head";
+			break;
+		}
+		case 1: 
+		{
+			equipSlotName = "Hair";
+			break;
+		}
+		case 2:
+		{
+			equipSlotName = "Body";
+			break;
+		}
+		case 3:
+		{
+			equipSlotName = "Hands";
+			break;
+		}
+		case 4:
+		{
+			equipSlotName = "Forearms";
+			break;
+		}
+		case 5:
+		{
+			equipSlotName = "Amulet";
+			break;
+		}
+		case 6:
+		{
+			equipSlotName = "Ring";
+			break;
+		}
+		case 7:
+		{
+			equipSlotName = "Feet";
+			break;
+		}
+		case 8:
+		{
+			equipSlotName = "Calves";
+			break;
+		}
+		case 9:
+		{
+			equipSlotName = "Shield";
+			break;
+		}
+		case 10:
+		{
+			equipSlotName = "Tail";
+			break;
+		}
+		case 11:
+		{
+			equipSlotName = "Long hair";
+			break;
+		}
+		case 12:
+		{
+			equipSlotName = "Circlet";
+			break;
+		}
+		case 13:
+		{
+			equipSlotName = "Ears";
+			break;
+		}
+		case 14:
+		{
+			equipSlotName = "Slot 44";
+			break;
+		}
+		case 15:
+		{
+			equipSlotName = "Slot 45";
+			break;
+		}
+		case 16:
+		{
+			equipSlotName = "Slot 46";
+			break;
+		}
+		case 17:
+		{
+			equipSlotName = "Slot 47";
+			break;
+		}
+		case 18:
+		{
+			equipSlotName = "Slot 48";
+			break;
+		}
+		case 19:
+		{
+			equipSlotName = "Slot 49";
+			break;
+		}
+		case 20:
+		{
+			equipSlotName = "Decapitated head";
+			break;
+		}
+		case 21:
+		{
+			equipSlotName = "Decapitate";
+			break;
+		}
+		case 22:
+		{
+			equipSlotName = "Slot 52";
+			break;
+		}
+		case 23:
+		{
+			equipSlotName = "Slot 53";
+			break;
+		}
+		case 24:
+		{
+			equipSlotName = "Slot 54";
+			break;
+		}
+		case 25:
+		{
+			equipSlotName = "Slot 55";
+			break;
+		}
+		case 26:
+		{
+			equipSlotName = "Slot 56";
+			break;
+		}
+		case 27:
+		{
+			equipSlotName = "Slot 57";
+			break;
+		}
+		case 28:
+		{
+			equipSlotName = "Slot 58";
+			break;
+		}
+		case 29:
+		{
+			equipSlotName = "Slot 59";
+			break;
+		}
+		case 30:
+		{
+			equipSlotName = "Slot 60";
+			break;
+		}
+		case 31:
+		{
+			equipSlotName = "FX01";
+			break;
+		}
+	}
+
+	return equipSlotName;
 }
 
 //returns the total amount the given item stored in the given container
@@ -728,6 +1077,30 @@ int NumberOfItemInContainer(TESForm * item, TESContainer * container)
 	}
 
 	return numberOfItemInContainer;
+}
+
+std::string GetFormTypeName(int formType)
+{
+	return FormTypes[formType];
+}
+
+std::string GetArmorWeightClassName(int weightClass)
+{
+	std::string weightClassName = "";
+
+	switch (weightClass)
+	{
+	case BGSBipedObjectForm::kWeight_None: weightClassName = "Clothing";
+		break;
+	case BGSBipedObjectForm::kWeight_Light: weightClassName = "Light";
+		break;
+	case BGSBipedObjectForm::kWeight_Heavy: weightClassName = "Heavy";
+		break;
+	default: weightClassName = "Unkown";
+		break;
+	}
+
+	return weightClassName;
 }
 
 //returns true if the given item is present in the EntryDataList
