@@ -882,6 +882,21 @@ std::string GetName(TESForm* pBaseForm)
 
 			break;
 		}
+
+		case kFormType_Shout:
+		{
+			TESShout * pShout = DYNAMIC_CAST(pBaseForm, TESForm, TESShout);
+			DebugMessage("GetExtraData: GetName Shout");
+			if (pShout)
+			{
+				if (pShout->fullName.name.data)
+				{
+					name = pShout->fullName.name.data;
+				}
+			}
+
+			break;
+		}
 	}
 
 	DebugMessage("GetExtraData: GetName End");
@@ -1147,4 +1162,26 @@ std::string FormIDToString(int formID)
 	std::unique_ptr<char[]>	sResult(new char[MAX_PATH]);
 	sprintf_s(sResult.get(), MAX_PATH, "%08X", formID);
 	return sResult.get();
+}
+
+//get the smallest bit that is 1 in the flags passed
+int GetSmallestBitFlag(int flags)
+{
+	int smallestFlag = -1;
+
+	int i = 0;
+
+	while (i < 32 && smallestFlag == -1)
+	{
+		int mask = 1 << i;
+
+		if ( (flags & mask) == mask )
+		{
+			smallestFlag = i;
+		}
+
+		i++;
+	}
+
+	return smallestFlag;
 }

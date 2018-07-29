@@ -4,6 +4,7 @@
 #include "GameData.h"
 #include "GameBSExtraData.h"
 #include "GameExtraData.h"
+#include "PapyrusActor.cpp"
 #include "Util.h"
 #include <memory>
 #include <vector>
@@ -173,6 +174,12 @@ public:
 			GetMagicEffectData(resultArray, movie, pBaseForm);
 		}
 
+		else if (pBaseForm->GetFormType() == kFormType_Spell)
+		{
+			DebugMessage("GetExtraData: Get Form Data spell found");
+			GetSpellData(resultArray, movie, pBaseForm);
+		}
+
 		else if (pBaseForm->GetFormType() == kFormType_Armor)
 		{
 			DebugMessage("GetExtraData: Get Form Data armor found");
@@ -197,6 +204,13 @@ public:
 			if (pBaseForm->GetFormType() == kFormType_NPC)
 			{
 					DebugMessage("GetFormData: Inventory npc");
+
+					Actor* pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
+
+					if (pActor)
+					{
+						GetEquipment(resultArray, movie, inventoryExtraData, pActor);
+					}
 
 					TESActorBase *pActorBase = DYNAMIC_CAST(pBaseForm, TESForm, TESActorBase);
 
@@ -1052,6 +1066,116 @@ public:
 		DebugMessage("GetSpellDataWrapper: Finished spell");
 	}
 
+	void GetEquipment(GFxValue * resultArray, GFxMovieView * movie, ExtraContainerChanges* pContainerChanges, Actor * pActor)
+	{
+		DebugMessage("GetEquipment: GetEquipment Start");
+
+		GFxValue equipmentEntry;
+
+		CreateExtraInfoEntry(&equipmentEntry, movie, "Equipment", "");
+
+		GFxValue equipmentSubArray;
+
+		movie->CreateArray(&equipmentSubArray);
+
+		//weapons and shouts
+
+		//left hand
+		TESForm * leftHand = pActor->GetEquippedObject( true );
+
+		if (leftHand != nullptr)
+		{
+			GFxValue leftHandEntry;
+			std::string name = GetName(leftHand);
+
+			CreateExtraInfoEntry(&leftHandEntry, movie, "Left Hand:", name);
+
+			GFxValue leftHandSubArray;
+			movie->CreateArray(&leftHandSubArray);
+
+			GetFormData(&leftHandSubArray, movie, leftHand, nullptr);
+			leftHandEntry.PushBack(&leftHandSubArray);
+			equipmentSubArray.PushBack(&leftHandEntry);
+		}
+		
+		//right hand
+		TESForm * rightHand = pActor->GetEquippedObject(false);
+
+		if (rightHand != nullptr)
+		{
+			GFxValue rightHandEntry;
+			std::string name = GetName(rightHand);
+
+			CreateExtraInfoEntry(&rightHandEntry, movie, "Right Hand:", name);
+
+			GFxValue rightHandSubArray;
+			movie->CreateArray(&rightHandSubArray);
+
+			GetFormData(&rightHandSubArray, movie, rightHand, nullptr);
+			rightHandEntry.PushBack(&rightHandSubArray);
+			equipmentSubArray.PushBack(&rightHandEntry);
+		}
+
+		//shout
+		TESForm * shout = pActor->equippedShout;
+
+		if (shout != nullptr)
+		{
+			GFxValue ShoutEntry;
+			std::string name = GetName(shout);
+
+			CreateExtraInfoEntry(&ShoutEntry, movie, "Shout:", name);
+
+			GFxValue shoutSubArray;
+			movie->CreateArray(&shoutSubArray);
+
+			GetFormData(&shoutSubArray, movie, shout, nullptr);
+			ShoutEntry.PushBack(&shoutSubArray);
+			equipmentSubArray.PushBack(&ShoutEntry);
+		}
+
+		//check each equip slot
+		for( int i = 0; i < 32; i++)
+		{
+			DebugMessage("GetEquipment: Starting EquipSlot item");
+
+			int mask = 1 << i;
+
+			MatchBySlot matcher(mask);
+			EquipData eqD = pContainerChanges->FindEquipped(matcher);
+
+			if( eqD.pForm != nullptr)
+			{
+				DebugMessage("GetEquipment: EquipSlot item Found");
+
+				TESForm * equipedItem = eqD.pForm;
+
+				GFxValue equipedItemEntry;
+				std::string name = GetName(equipedItem);
+				std::string slotName = GetEquipSlotName(i);
+
+				CreateExtraInfoEntry(&equipedItemEntry, movie, slotName, name);
+
+				GFxValue equipedItemEntrySubArray;
+				movie->CreateArray(&equipedItemEntrySubArray);
+
+				GetFormData(&equipedItemEntrySubArray, movie, equipedItem, nullptr);
+				equipedItemEntry.PushBack(&equipedItemEntrySubArray);
+				equipmentSubArray.PushBack(&equipedItemEntry);
+				
+			}
+
+			DebugMessage("GetEquipment: Ending EquipSlot item");
+		}
+
+
+		equipmentEntry.PushBack(&equipmentSubArray);
+
+		resultArray->PushBack(&equipmentEntry);
+
+		DebugMessage("GetEquipment: GetEquipment End");
+	}
+
 	void GetInventory(GFxValue * resultArray, GFxMovieView * movie, EntryDataList * inventory, TESContainer * baseContainer)
 	{
 		DebugMessage("GetInventory: GetInventory Start");
@@ -1072,8 +1196,8 @@ public:
 			{
 				DebugMessage("GetInventory: Starting inventory item");
 
-
 				InventoryEntryData * item = i.Get();
+
 
 				int itemCount = item->countDelta;
 				TESForm *itemForm = item->type;
@@ -1244,16 +1368,6 @@ public:
 
 		switch (pForm->GetFormType())
 		{
-		case kFormType_Armor:
-		{
-			TESObjectARMO * pArmor = DYNAMIC_CAST(pForm, TESForm, TESObjectARMO);
-			if (pArmor)
-			{
-				RegisterNumber(pFxVal, "partMask", pArmor->bipedObject.data.parts);
-				RegisterNumber(pFxVal, "weightClass", pArmor->bipedObject.data.weightClass);
-			}
-		}
-		break;
 
 		case kFormType_Ammo:
 		{

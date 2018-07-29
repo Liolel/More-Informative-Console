@@ -19,3 +19,5 @@ std::string IntToString(int number);
 std::string FloatToString(float number);
 std::string DoubleToString(double number);
 std::string FormIDToString(int formID);
+
+int GetSmallestBitFlag(int flags);
