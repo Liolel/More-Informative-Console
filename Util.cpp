@@ -2,8 +2,14 @@
 
 #include <sstream>
 #include <vector>
+#include <memory>
 #include "GameObjects.h"
 #include "GameForms.h"
+#include "GameRTTI.h"
+#include "GameObjects.h"
+#include "GameData.h"
+#include "GameBSExtraData.h"
+#include "GameExtraData.h"
 
 boolean printDebugMessages = true;
 
@@ -533,6 +539,213 @@ std::string GetDeliveryTypeName(int deliveryType)
 }
 
 
+std::string GetName(TESForm* pBaseForm)
+{
+	DebugMessage("GetExtraData: GetName Start");
+
+	std::string name = "";
+
+	switch (pBaseForm->GetFormType())
+	{
+		case kFormType_NPC:
+		{
+			DebugMessage("GetExtraData: GetName NPC");
+
+			TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
+			if (pNPC)
+			{
+				if (pNPC->fullName.name.data)
+				{
+					name = pNPC->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_EffectSetting:
+		{
+			DebugMessage("GetExtraData: GetName Magic Effect");
+
+			EffectSetting * pEffectSetting = DYNAMIC_CAST(pBaseForm, TESForm, EffectSetting);
+			if (pEffectSetting)
+			{
+				if (pEffectSetting->fullName.name.data)
+				{
+					name = pEffectSetting->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Spell:
+		case kFormType_ScrollItem:
+		case kFormType_Ingredient:
+		case kFormType_Potion:
+		case kFormType_Enchantment:
+		{
+			DebugMessage("GetExtraData: GetName Spell");
+
+			MagicItem * pMagicItem = DYNAMIC_CAST(pBaseForm, TESForm, MagicItem);
+			if (pMagicItem)
+			{
+				if (pMagicItem->fullName.name.data)
+				{
+					name = pMagicItem->fullName.name.data;
+				}
+			}
+
+
+			break;
+		}
+		case kFormType_Armor:
+		{
+			DebugMessage("GetExtraData: GetName Armor");
+			TESObjectARMO * pArmor = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMO);
+
+			if (pArmor)
+			{
+				if (pArmor->fullName.name.data)
+				{
+					name = pArmor->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Ammo:
+		{
+			DebugMessage("GetExtraData: GetName Ammo");
+			TESAmmo * pAmmo = DYNAMIC_CAST(pBaseForm, TESForm, TESAmmo);
+			if (pAmmo)
+			{
+				if (pAmmo->fullName.name.data)
+				{
+					name = pAmmo->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Weapon:
+		{
+			TESObjectWEAP * pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
+			DebugMessage("GetExtraData: GetName Weapon");
+			if (pWeapon)
+			{
+				if (pWeapon->fullName.name.data)
+				{
+					name = pWeapon->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_SoulGem:
+		{
+			TESSoulGem * pSoul = DYNAMIC_CAST(pBaseForm, TESForm, TESSoulGem);
+			DebugMessage("GetExtraData: GetName Soul Gem");
+			if (pSoul)
+			{
+				if (pSoul->fullName.name.data)
+				{
+					name = pSoul->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Book:
+		{
+			TESObjectBOOK * pBook = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectBOOK);
+			DebugMessage("GetExtraData: GetName Book");
+			if (pBook)
+			{
+				if (pBook->fullName.name.data)
+				{
+					name = pBook->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Misc:
+		{
+			TESObjectMISC * pMisc = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectMISC);
+			DebugMessage("GetExtraData: GetName Misc Item");
+			if (pMisc)
+			{
+				if (pMisc->fullName.name.data)
+				{
+					name = pMisc->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Key:
+		{
+			TESKey * pKey = DYNAMIC_CAST(pBaseForm, TESForm, TESKey);
+			DebugMessage("GetExtraData: GetName Key Item");
+			if (pKey)
+			{
+				if (pKey->fullName.name.data)
+				{
+					name = pKey->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+		
+	}
+
+	DebugMessage("GetExtraData: GetName End");
+
+	return name;
+}
+
+//returns the total amount the given item stored in the given container
+int NumberOfItemInContainer(TESForm * item, TESContainer * container)
+{
+	int numberOfItemInContainer = 0;
+
+	for (int i = 0; i < container->numEntries; i++)
+	{
+		TESForm *itemForm = container->entries[i]->form;
+
+		if (itemForm == item)
+		{
+			numberOfItemInContainer += container->entries[i]->count;
+		}
+	}
+
+	return numberOfItemInContainer;
+}
+
+//returns true if the given item is present in the EntryDataList
+bool HasItem(EntryDataList * inventory, TESForm * item)
+{
+	bool hasItem = false;
+
+	for (EntryDataList::Iterator it = inventory->Begin(); !it.End(); ++it)
+	{
+		InventoryEntryData * e = it.Get();
+		if (e && e->type == item)
+		{
+			hasItem = true;
+		}
+	}
+
+	return hasItem;
+}
 
 std::string IntToString(int number)
 {
@@ -553,4 +766,12 @@ std::string DoubleToString(double number)
 	std::ostringstream ss;
 	ss << number;
 	return ss.str();
+}
+
+std::string FormIDToString(int formID)
+{
+	std::ostringstream ss;
+	std::unique_ptr<char[]>	sResult(new char[MAX_PATH]);
+	sprintf_s(sResult.get(), MAX_PATH, "%08X", formID);
+	return sResult.get();
 }

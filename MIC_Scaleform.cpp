@@ -2,6 +2,8 @@
 #include "GameRTTI.h"
 #include "GameObjects.h"
 #include "GameData.h"
+#include "GameBSExtraData.h"
+#include "GameExtraData.h"
 #include "Util.h"
 #include <memory>
 #include <vector>
@@ -298,7 +300,7 @@ public:
 	}
 
 	//general wrapper for all get form methods
-	void GetFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESForm* pRefForm)
+	void GetFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESObjectREFR* pRefForm)
 	{
 		DebugMessage("GetExtraData: Get Form Data Start");
 		
@@ -317,6 +319,51 @@ public:
 		{
 			DebugMessage("GetExtraData: Get Form Data magic effect found");
 			GetCharacterData(resultArray, movie, pRefForm, pBaseForm);
+		}
+
+		//get inventory
+		if (pRefForm != nullptr
+			&& pRefForm->extraData.HasType(kExtraData_ContainerChanges))
+		{
+			DebugMessage("GetFormData: Found Inventory Start");
+
+
+			ExtraContainerChanges * inventoryExtraData = static_cast<ExtraContainerChanges*> ( pRefForm->extraData.GetByType(kExtraData_ContainerChanges) );
+			EntryDataList * inventory = inventoryExtraData->data->objList;
+
+			DebugMessage("GetFormData: Got Inventory");
+
+			TESContainer * pContainer = nullptr;
+
+			if (pBaseForm->GetFormType() == kFormType_NPC)
+			{
+					DebugMessage("GetFormData: Inventory npc");
+
+					TESActorBase *pActorBase = DYNAMIC_CAST(pBaseForm, TESForm, TESActorBase);
+
+					if (pActorBase)
+					{
+						pContainer = &pActorBase->container;
+						DebugMessage("GetFormData: Inventory npc container gotten");
+
+					}
+			}
+
+			if (pBaseForm->GetFormType() == kFormType_Container)
+			{
+				DebugMessage("GetFormData: Inventory container");
+
+				TESObjectCONT *pContainerForm = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
+
+				if (pContainerForm)
+				{
+					DebugMessage("GetFormData: Inventory cpntainer container gotten");
+					pContainer = &pContainerForm->container;
+				}
+			}
+
+			GetInventory(resultArray, movie, inventory, pContainer);
+
 		}
 
 		DebugMessage("GetExtraData: Get Form Data End");
@@ -343,6 +390,24 @@ public:
 
 		std::unique_ptr<char[]>	sResult(new char[MAX_PATH]);
 
+		if (pBaseForm->formType == kFormType_NPC && pBaseForm->formID >= 0xFF000000)
+		{
+			DebugMessage("GetCommonFormData: Inside FF actor if");
+			TESNPC* pBaseActor = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
+
+			if (pBaseActor)
+			{
+				DebugMessage("GetCommonFormData: Inside second FF actor if");
+				TESNPC* pBaseActorTemplate = pBaseActor->GetRootTemplate();
+
+				if (pBaseActorTemplate)
+				{
+					pBaseForm = DYNAMIC_CAST(pBaseActorTemplate, TESNPC, TESForm);
+				}
+			}
+		}
+
+
 		//name
 		std::string name = GetName(pBaseForm);
 
@@ -351,13 +416,24 @@ public:
 
 		resultArray->PushBack(&nameArray);
 
-		//formid
+		//base formid
 		sprintf_s(sResult.get(), MAX_PATH, "%08X", pBaseForm->formID);
 		std::string formID = sResult.get();
 
 		GFxValue  formIDArray;
 		CreateExtraInfoEntry(&formIDArray, movie, "Base form ID", formID);
 		resultArray->PushBack(&formIDArray);
+
+		//ref formid
+		if (pRefForm != nullptr)
+		{
+			sprintf_s(sResult.get(), MAX_PATH, "%08X", pRefForm->formID);
+			std::string refFormID = sResult.get();
+
+			GFxValue  formIDArray;
+			CreateExtraInfoEntry(&formIDArray, movie, "Ref form ID", refFormID);
+			resultArray->PushBack(&formIDArray);
+		}
 
 		//mod location info
 
@@ -469,67 +545,6 @@ public:
 		}
 
 		DebugMessage("GetExtraData: GetFormLocationData End");
-	}
-
-	std::string GetName(TESForm* pBaseForm)
-	{
-		DebugMessage("GetExtraData: GetName Start");
-
-		std::string name = "";
-
-		switch (pBaseForm->GetFormType())
-		{
-			case kFormType_NPC:
-			{
-				DebugMessage("GetExtraData: GetName NPC");
-
-				TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
-				if (pNPC)
-				{
-					if (pNPC->fullName.name.data)
-					{
-						name = pNPC->fullName.name.data;
-					}
-				}
-
-				break;
-			}
-
-			case kFormType_EffectSetting:
-			{
-				DebugMessage("GetExtraData: GetName Magic Effect");
-
-				EffectSetting * pEffectSetting = DYNAMIC_CAST(pBaseForm, TESForm, EffectSetting);
-				if (pEffectSetting)
-				{
-					if (pEffectSetting->fullName.name.data)
-					{
-						name = pEffectSetting->fullName.name.data;
-					}
-				}
-			}
-
-			case kFormType_Spell:
-			case kFormType_ScrollItem:
-			case kFormType_Ingredient:
-			case kFormType_Potion:
-			case kFormType_Enchantment:
-			{
-				MagicItem * pMagicItem = DYNAMIC_CAST(pBaseForm, TESForm, MagicItem);
-				if (pMagicItem)
-				{
-					if (pMagicItem->fullName.name.data)
-					{
-						name = pMagicItem->fullName.name.data;
-					}
-				}
-
-			}
-		}
-
-		DebugMessage("GetExtraData: GetName End");
-
-		return name;
 	}
 
 	void GetModInfoData(GFxValue * resultArray, GFxMovieView * movie, FormModInfoData* modInfoData)
@@ -1170,6 +1185,212 @@ public:
 
 		DebugMessage("GetSpellDataWrapper: Finished spell");
 	}
+
+	void GetInventory(GFxValue * resultArray, GFxMovieView * movie, EntryDataList * inventory, TESContainer * baseContainer)
+	{
+		DebugMessage("GetInventory: GetInventory Start");
+
+		GFxValue inventoryEntry;
+
+		CreateExtraInfoEntry(&inventoryEntry, movie, "Inventory", "");
+
+		GFxValue inventorySubArray;
+
+		movie->CreateArray(&inventorySubArray);
+
+		//go through the inventory (these are anything changed from the base form)
+		if (inventory != nullptr
+			&& inventory->Count() > 0)
+		{
+			for (EntryDataList::Iterator i = inventory->Begin(); !i.End(); ++i)
+			{
+				DebugMessage("GetInventory: Starting inventory item");
+
+
+				InventoryEntryData * item = i.Get();
+
+				int itemCount = item->countDelta;
+				TESForm *itemForm = item->type;
+
+				if (baseContainer != nullptr)
+				{
+					itemCount = itemCount + NumberOfItemInContainer(itemForm, baseContainer);
+				}
+
+				if (itemCount > 0)
+				{
+					std::string name = GetName(itemForm);
+
+					GFxValue inventoryItemEntry;
+
+					CreateExtraInfoEntry(&inventoryItemEntry, movie, name, IntToString(itemCount));
+
+					inventorySubArray.PushBack(&inventoryItemEntry);
+				}
+				
+				DebugMessage("GetInventory: Ending inventory item");
+				
+			}
+		}
+
+		//go through the items in the base form
+		if (baseContainer != nullptr)
+		{
+			for (int i = 0; i < baseContainer->numEntries; i++)
+			{
+
+				DebugMessage("GetInventory: Starting container item");
+
+				TESForm *itemForm = baseContainer->entries[i]->form;
+
+				//only display items which have not changed from the base form
+				bool displayItem = true;
+
+				if (inventory != nullptr)
+				{
+					displayItem = !HasItem(inventory, itemForm);
+				}
+
+				if (displayItem
+					&& itemForm->GetFormType() != kFormType_LeveledItem)
+				{
+
+					DebugMessage("GetInventory: Displaying container item");
+					int itemCount = baseContainer->entries[i]->count;
+
+					std::string name = GetName(itemForm);
+
+					GFxValue inventoryItemEntry;
+
+					if (name != "")
+					{
+						CreateExtraInfoEntry(&inventoryItemEntry, movie, name, IntToString(itemCount));
+					}
+
+					else
+					{
+						CreateExtraInfoEntry(&inventoryItemEntry, movie, name, FormIDToString(itemForm->formID));
+					}
+
+					inventorySubArray.PushBack(&inventoryItemEntry);
+				}
+
+
+				DebugMessage("GetInventory: Ending container item");
+			}
+		}
+
+		inventoryEntry.PushBack(&inventorySubArray);
+
+		resultArray->PushBack(&inventoryEntry);
+
+		DebugMessage("GetInventory: GetInventory End");
+	}
+
+	/*
+	void StandardItemData(GFxValue * pFxVal, TESForm * pForm, InventoryEntryData * pEntry)
+	{
+		if (!pForm || !pFxVal || !pFxVal->IsObject())
+			return;
+
+		switch (pForm->GetFormType())
+		{
+		case kFormType_Armor:
+		{
+			TESObjectARMO * pArmor = DYNAMIC_CAST(pForm, TESForm, TESObjectARMO);
+			if (pArmor)
+			{
+				RegisterNumber(pFxVal, "partMask", pArmor->bipedObject.data.parts);
+				RegisterNumber(pFxVal, "weightClass", pArmor->bipedObject.data.weightClass);
+			}
+		}
+		break;
+
+		case kFormType_Ammo:
+		{
+			TESAmmo * pAmmo = DYNAMIC_CAST(pForm, TESForm, TESAmmo);
+			if (pAmmo)
+			{
+				RegisterNumber(pFxVal, "flags", pAmmo->settings.flags);
+			}
+		}
+		break;
+
+		case kFormType_Weapon:
+		{
+			TESObjectWEAP * pWeapon = DYNAMIC_CAST(pForm, TESForm, TESObjectWEAP);
+			if (pWeapon)
+			{
+				RegisterNumber(pFxVal, "subType", pWeapon->type()); // DEPRECATED
+				RegisterNumber(pFxVal, "weaponType", pWeapon->type());
+				RegisterNumber(pFxVal, "speed", pWeapon->speed());
+				RegisterNumber(pFxVal, "reach", pWeapon->reach());
+				RegisterNumber(pFxVal, "stagger", pWeapon->stagger());
+				RegisterNumber(pFxVal, "critDamage", pWeapon->critDamage());
+				RegisterNumber(pFxVal, "minRange", pWeapon->minRange());
+				RegisterNumber(pFxVal, "maxRange", pWeapon->maxRange());
+				RegisterNumber(pFxVal, "baseDamage", pWeapon->damage.GetAttackDamage());
+
+				BGSEquipSlot * equipSlot = pWeapon->equipType.GetEquipSlot();
+				if (equipSlot)
+					RegisterNumber(pFxVal, "equipSlot", equipSlot->formID);
+			}
+		}
+		break;
+
+		case kFormType_SoulGem:
+		{
+			TESSoulGem	* soulGem = DYNAMIC_CAST(pForm, TESForm, TESSoulGem);
+			if (soulGem)
+			{
+				RegisterNumber(pFxVal, "gemSize", soulGem->gemSize);
+				RegisterNumber(pFxVal, "soulSize", pEntry ? CALL_MEMBER_FN(pEntry, GetSoulLevel)() : soulGem->soulSize);
+			}
+		}
+		break;
+
+		case kFormType_Potion:
+		{
+			AlchemyItem * pAlchemy = DYNAMIC_CAST(pForm, TESForm, AlchemyItem);
+			if (pAlchemy)
+			{
+				RegisterNumber(pFxVal, "flags", pAlchemy->itemData.flags);
+			}
+		}
+		break;
+
+		case kFormType_Book:
+		{
+			TESObjectBOOK * pBook = DYNAMIC_CAST(pForm, TESForm, TESObjectBOOK);
+			if (pBook)
+			{
+				RegisterNumber(pFxVal, "flags", pBook->data.flags);
+				RegisterNumber(pFxVal, "bookType", pBook->data.type);
+				switch (pBook->data.GetSanitizedType())
+				{
+				case TESObjectBOOK::Data::kType_Skill:
+					RegisterNumber(pFxVal, "teachesSkill", pBook->data.teaches.skill);
+					break;
+
+				case TESObjectBOOK::Data::kType_Spell:
+				{
+					double formID = -1;
+
+					if (pBook->data.teaches.spell)
+						formID = pBook->data.teaches.spell->formID;
+
+					RegisterNumber(pFxVal, "teachesSpell", formID);
+				}
+				break;
+				}
+			}
+		}
+		break;
+
+		default:
+			break;
+		}
+	}*/
 };
 
 
