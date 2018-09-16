@@ -24,7 +24,7 @@ public:
 		int numModsModifyingRef;
 
 		DebugMessage("GetReferenceInfo: Called");
-		ASSERT(args->numArgs >= 1);
+		//ASSERT(args->numArgs >= 1);
 
 		TESObjectREFR* pRef = nullptr;
 		LookupREFRByHandle(g_consoleHandle, &pRef);
@@ -186,6 +186,23 @@ public:
 			GetArmorData(resultArray, movie, pBaseForm);
 		}
 
+		else if (pBaseForm->GetFormType() == kFormType_Weapon)
+		{
+			DebugMessage("GetExtraData: Get Form Data Weapon found");
+			GetWeaponData(resultArray, movie, pBaseForm);
+		}
+
+		else if (pBaseForm->GetFormType() == kFormType_Ammo)
+		{
+			DebugMessage("GetExtraData: Get Form Data Ammo found");
+			GetAmmoData(resultArray, movie, pBaseForm);
+		}
+
+		else if (pBaseForm->GetFormType() == kFormType_Container)
+		{
+			DebugMessage("GetExtraData: Get Form Data Container found");
+			GetContainerData(resultArray, movie, pBaseForm);
+		}
 
 		//get inventory
 		if (pRefForm != nullptr
@@ -659,6 +676,29 @@ public:
 
 				DebugMessage("GetExtraData: GetCharacter actor values gotten");
 
+				//Handle Flags
+				int essentialFlag = 0x02;
+				int protectedFlag = 0x800;
+
+				GFxValue protectionEntry;
+
+
+				if ( (pNPC->actorData.flags & essentialFlag) == essentialFlag )
+				{
+					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "Essential" );
+				}
+
+				else if( (pNPC->actorData.flags & protectedFlag) == protectedFlag)
+				{
+					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "Protected");
+				}
+
+				else
+				{
+					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "None");
+				}
+
+				resultArray->PushBack(&protectionEntry);
 
 				//Level stuff
 
@@ -710,6 +750,9 @@ public:
 				}
 
 				resultArray->PushBack(&isPcLeveledEntry);
+
+
+				//Perks
 			}
 		}
 		/*PlayerCharacter* pPC = DYNAMIC_CAST(pForm, TESForm, PlayerCharacter);
@@ -1360,6 +1403,157 @@ public:
 		}
 	}
 
+	void GetWeaponData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	{
+		TESObjectWEAP * pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
+		if (pWeapon)
+		{
+			//animation type
+			int animationType = pWeapon->type();
+
+			GFxValue antimationTypeEntry;
+
+			CreateExtraInfoEntry(&antimationTypeEntry, movie, "Animation type", GetWeaponAnimationTypeName(animationType));
+			resultArray->PushBack(&antimationTypeEntry);
+
+			//damage
+			int damage = pWeapon->damage.GetAttackDamage();
+
+			GFxValue damageEntry;
+
+			CreateExtraInfoEntry(&damageEntry, movie, "Damage", IntToString(damage));
+			resultArray->PushBack(&damageEntry);
+
+			//speed
+			float speed = pWeapon->speed();
+
+			GFxValue speedEntry;
+
+			CreateExtraInfoEntry(&speedEntry, movie, "Speed", FloatToString(speed));
+			resultArray->PushBack(&speedEntry);
+
+			//reach
+			float reach = pWeapon->reach();
+
+			GFxValue reachEntry;
+
+			CreateExtraInfoEntry(&reachEntry, movie, "Reach", FloatToString(reach));
+			resultArray->PushBack(&reachEntry);
+
+			//stagger
+			float stagger = pWeapon->stagger();
+
+			GFxValue staggerEntry;
+
+			CreateExtraInfoEntry(&staggerEntry, movie, "Stagger", FloatToString(stagger));
+			resultArray->PushBack(&staggerEntry);
+
+
+			//crit damage
+			int critDamage = pWeapon->critDamage();
+
+			GFxValue critDamageEntry;
+
+			CreateExtraInfoEntry(&critDamageEntry, movie, "Crit damage", IntToString(critDamage));
+			resultArray->PushBack(&critDamageEntry);
+
+			/*RegisterNumber(pFxVal, "minRange", pWeapon->minRange());
+			RegisterNumber(pFxVal, "maxRange", pWeapon->maxRange()); Data for npc AI*/	
+
+			BGSEquipSlot * equipSlot = pWeapon->equipType.GetEquipSlot();
+			if (equipSlot)
+			{
+				std::string equipSlotName = GetEquipTypeName( equipSlot->formID );
+
+				GFxValue equipSlotEntry;
+
+				CreateExtraInfoEntry(&equipSlotEntry, movie, "Equip slot", equipSlotName);
+				resultArray->PushBack(&equipSlotEntry);
+			}
+
+			//value
+			int value = pWeapon->value.value;
+
+			GFxValue valueEntry;
+
+			CreateExtraInfoEntry(&valueEntry, movie, "Value", IntToString(value));
+			resultArray->PushBack(&valueEntry);
+
+			//weight
+			int weight = pWeapon->weight.weight;
+
+			GFxValue weightEntry;
+
+			CreateExtraInfoEntry(&weightEntry, movie, "Weight", IntToString(weight));
+			resultArray->PushBack(&weightEntry);
+
+		}
+	}
+
+	void GetAmmoData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	{
+		TESAmmo * pAmmo = DYNAMIC_CAST(pBaseForm, TESForm, TESAmmo);
+		if (pAmmo)
+		{
+			//damage
+			float damage = pAmmo->settings.damage;
+
+			GFxValue damageEntry;
+
+			CreateExtraInfoEntry(&damageEntry, movie, "Damage", FloatToString(damage));
+			resultArray->PushBack(&damageEntry);
+
+
+			//value
+			int value = pAmmo->value.value;
+
+			GFxValue valueEntry;
+
+			CreateExtraInfoEntry(&valueEntry, movie, "Value", IntToString(value));
+			resultArray->PushBack(&valueEntry);
+
+		}
+	}
+
+
+	void GetContainerData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	{
+		TESObjectCONT * pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
+		if (pContainer)
+		{
+			int respawnsFlag = 0x02;
+
+			GFxValue safeContainerEntry;
+
+			if ((pContainer->unkB8 & respawnsFlag) == respawnsFlag)
+			{
+				CreateExtraInfoEntry(&safeContainerEntry, movie, "Safe Container", "No");
+			}
+
+			else
+			{
+					CreateExtraInfoEntry(&safeContainerEntry, movie, "Safe Container", "Yes");
+			}
+
+			resultArray->PushBack(&safeContainerEntry);
+
+			GFxValue safeContainerEntry2;
+
+			if ((pContainer->unkB9 & respawnsFlag) == respawnsFlag)
+			{
+				CreateExtraInfoEntry(&safeContainerEntry2, movie, "Safe Container2", "No");
+			}
+
+			else
+			{
+				CreateExtraInfoEntry(&safeContainerEntry2, movie, "Safe Container2", "Yes");
+			}
+
+			resultArray->PushBack(&safeContainerEntry2);
+		}
+	}
+
+
 	/*
 	void StandardItemData(GFxValue * pFxVal, TESForm * pForm, InventoryEntryData * pEntry)
 	{
@@ -1369,36 +1563,6 @@ public:
 		switch (pForm->GetFormType())
 		{
 
-		case kFormType_Ammo:
-		{
-			TESAmmo * pAmmo = DYNAMIC_CAST(pForm, TESForm, TESAmmo);
-			if (pAmmo)
-			{
-				RegisterNumber(pFxVal, "flags", pAmmo->settings.flags);
-			}
-		}
-		break;
-
-		case kFormType_Weapon:
-		{
-			TESObjectWEAP * pWeapon = DYNAMIC_CAST(pForm, TESForm, TESObjectWEAP);
-			if (pWeapon)
-			{
-				RegisterNumber(pFxVal, "subType", pWeapon->type()); // DEPRECATED
-				RegisterNumber(pFxVal, "weaponType", pWeapon->type());
-				RegisterNumber(pFxVal, "speed", pWeapon->speed());
-				RegisterNumber(pFxVal, "reach", pWeapon->reach());
-				RegisterNumber(pFxVal, "stagger", pWeapon->stagger());
-				RegisterNumber(pFxVal, "critDamage", pWeapon->critDamage());
-				RegisterNumber(pFxVal, "minRange", pWeapon->minRange());
-				RegisterNumber(pFxVal, "maxRange", pWeapon->maxRange());
-				RegisterNumber(pFxVal, "baseDamage", pWeapon->damage.GetAttackDamage());
-
-				BGSEquipSlot * equipSlot = pWeapon->equipType.GetEquipSlot();
-				if (equipSlot)
-					RegisterNumber(pFxVal, "equipSlot", equipSlot->formID);
-			}
-		}
 		break;
 
 		case kFormType_SoulGem:

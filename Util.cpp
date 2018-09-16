@@ -159,7 +159,7 @@ std::vector<std::string> FormTypes =
 	"ActiveMagicEffect"
 };
 
-boolean printDebugMessages = true;
+boolean printDebugMessages = false;
 
 void DebugMessage(std::string message)
 {
@@ -1075,6 +1075,117 @@ std::string GetEquipSlotName( int slot )
 
 	return equipSlotName;
 }
+
+//Get the name of a equip slot. slot is based on the bit flag for the slot
+std::string GetWeaponAnimationTypeName(int weaponType)
+{
+	std::string weaponTypeName = "";
+
+	switch (weaponType)
+	{
+		case TESObjectWEAP::GameData::kType_HandToHandMelee:
+		{
+			weaponTypeName = "Hand to Hand";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_OneHandSword:
+		{
+			weaponTypeName = "One handed sword";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_OneHandDagger:
+		{
+			weaponTypeName = "Dagger";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_OneHandAxe:
+		{
+			weaponTypeName = "One handed axe";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_TwoHandSword:
+		{
+			weaponTypeName = "Two handed sword";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_TwoHandAxe:
+		{
+			weaponTypeName = "Two handed axe";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_Bow:
+		{
+			weaponTypeName = "Bow";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_Staff:
+		{
+			weaponTypeName = "Staff";
+			break;
+		}
+
+		case TESObjectWEAP::GameData::kType_CrossBow:
+		{
+			weaponTypeName = "Crossbow";
+			break;
+		}
+	}
+	return weaponTypeName;
+}
+
+//Get the name of a equip type 
+std::string GetEquipTypeName(int formID)
+{
+	std::string equipTypeName = "";
+
+	switch (formID)
+	{
+		case 0x00013F42:
+		{
+			equipTypeName = "Right Hand";
+			break;
+		}
+		case 0x00013F43:
+		{
+			equipTypeName = "Left Hand";
+			break;
+		}
+		case 0x00013F44:
+		{
+			equipTypeName = "Either Hand";
+			break;
+		}
+		case 0x00013F45:
+		{
+			equipTypeName = "Both Hands";
+			break;
+		}
+		case 0x000141E8:
+		{
+			equipTypeName = "Shield";
+			break;
+		}
+		case 0x00025BEE:
+		{
+			equipTypeName = "Voice";
+			break;
+		}
+		case 0x00035698:
+		{
+			equipTypeName = "Potion";
+			break;
+		}
+	}
+	return equipTypeName;
+}
+
 
 //returns the total amount the given item stored in the given container
 int NumberOfItemInContainer(TESForm * item, TESContainer * container)

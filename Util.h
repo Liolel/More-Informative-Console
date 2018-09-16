@@ -14,6 +14,8 @@ bool HasItem(EntryDataList * inventory, TESForm * item);
 std::string GetFormTypeName(int formType);
 std::string GetArmorWeightClassName(int weightClass);
 std::string GetEquipSlotName(int slot);
+std::string GetWeaponAnimationTypeName(int weaponType);
+std::string GetEquipTypeName(int formID);
 
 std::string IntToString(int number);
 std::string FloatToString(float number);
