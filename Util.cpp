@@ -780,8 +780,8 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Weapon:
 		{
-			TESObjectWEAP * pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
 			DebugMessage("GetExtraData: GetName Weapon");
+			TESObjectWEAP * pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
 			if (pWeapon)
 			{
 				if (pWeapon->fullName.name.data)
@@ -795,8 +795,8 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_SoulGem:
 		{
-			TESSoulGem * pSoul = DYNAMIC_CAST(pBaseForm, TESForm, TESSoulGem);
 			DebugMessage("GetExtraData: GetName Soul Gem");
+			TESSoulGem * pSoul = DYNAMIC_CAST(pBaseForm, TESForm, TESSoulGem);
 			if (pSoul)
 			{
 				if (pSoul->fullName.name.data)
@@ -810,8 +810,8 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Book:
 		{
-			TESObjectBOOK * pBook = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectBOOK);
 			DebugMessage("GetExtraData: GetName Book");
+			TESObjectBOOK * pBook = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectBOOK);
 			if (pBook)
 			{
 				if (pBook->fullName.name.data)
@@ -825,8 +825,8 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Misc:
 		{
-			TESObjectMISC * pMisc = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectMISC);
 			DebugMessage("GetExtraData: GetName Misc Item");
+			TESObjectMISC * pMisc = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectMISC);
 			if (pMisc)
 			{
 				if (pMisc->fullName.name.data)
@@ -840,8 +840,8 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Key:
 		{
-			TESKey * pKey = DYNAMIC_CAST(pBaseForm, TESForm, TESKey);
 			DebugMessage("GetExtraData: GetName Key Item");
+			TESKey * pKey = DYNAMIC_CAST(pBaseForm, TESForm, TESKey);
 			if (pKey)
 			{
 				if (pKey->fullName.name.data)
@@ -855,8 +855,8 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Container:
 		{
-			TESObjectCONT * pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
 			DebugMessage("GetExtraData: GetName Container");
+			TESObjectCONT * pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
 			if (pContainer)
 			{
 				if (pContainer->fullName.name.data)
@@ -870,8 +870,8 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Light:
 		{
-			TESObjectLIGH * pLight = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectLIGH);
 			DebugMessage("GetExtraData: GetName Light");
+			TESObjectLIGH * pLight = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectLIGH);
 			if (pLight)
 			{
 				if (pLight->fullName.name.data)
@@ -885,13 +885,28 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Shout:
 		{
-			TESShout * pShout = DYNAMIC_CAST(pBaseForm, TESForm, TESShout);
 			DebugMessage("GetExtraData: GetName Shout");
+			TESShout * pShout = DYNAMIC_CAST(pBaseForm, TESForm, TESShout);
 			if (pShout)
 			{
 				if (pShout->fullName.name.data)
 				{
 					name = pShout->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Perk:
+		{
+			DebugMessage("GetExtraData: GetName Perk");
+			BGSPerk * pPerk = DYNAMIC_CAST(pBaseForm, TESForm, BGSPerk);
+			if (pPerk)
+			{
+				if (pPerk->fullName.name.data)
+				{
+					name = pPerk->fullName.name.data;
 				}
 			}
 

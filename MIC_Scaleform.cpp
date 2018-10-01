@@ -9,10 +9,12 @@
 #include <memory>
 #include <vector>
 #include <skse64\GameData.h>
+#include "PapyrusActorValueInfo.h"
 
 const int actorValueHealthIndex = 24;
 const int actorValueMagickaIndex = 25;
 const int actorValueStaminahIndex = 26;
+const int playerBaseFormID = 0x7;
 
 class MICScaleform_GetReferenceInfo : public GFxFunctionHandler
 {
@@ -469,6 +471,14 @@ public:
 
 		Actor * pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
 		TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
+		PlayerCharacter* pPlayer = nullptr;
+
+		if (pBaseForm->formID == playerBaseFormID)
+		{
+			pPlayer = DYNAMIC_CAST(pRefForm, TESForm, PlayerCharacter);
+		}
+
+
 		if (pActor && pNPC)
 		{
 			TESActorBase *pActorBase = DYNAMIC_CAST(pNPC, TESNPC, TESActorBase);
@@ -702,7 +712,7 @@ public:
 
 				//Level stuff
 
-				const int level = CALL_MEMBER_FN(pActor, GetLevel)();
+				int level = CALL_MEMBER_FN(pActor, GetLevel)();
 
 				GFxValue levelEntry;
 
@@ -753,8 +763,117 @@ public:
 
 
 				//Perks
+				int numPerks = pActorBase->perkRanks.numPerkRanks;
+
+				DebugMessage("GetExtraData: Starting Perks");
+
+				GFxValue perks;
+				CreateExtraInfoEntry(&perks, movie, "Perks", "" );
+
+				GFxValue perkSubArray;
+				movie->CreateArray(&perkSubArray);
+
+				for (int i = 0; i < numPerks; i++)
+				{
+					DebugMessage("GetExtraData: Starting Perk num" + i);
+
+					BGSPerk *perk = pActorBase->perkRanks.perkRanks[i].perk;
+					//int rank = pActorBase->perkRanks.perkRanks[i].rank;
+
+					std::string name = GetName(perk);
+
+					GFxValue perkEntry;
+
+					CreateExtraInfoEntry(&perkEntry, movie, name, "");
+
+					GFxValue perkEntrySubArray;
+					movie->CreateArray(&perkEntrySubArray);
+
+					GetFormData(&perkEntrySubArray, movie, perk, nullptr);
+
+					//GFxValue perkEntryRank;
+
+					//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank) );
+					//perkEntrySubArray.PushBack(&perkEntryRank);
+
+					perkEntry.PushBack(&perkEntrySubArray);
+
+					perkSubArray.PushBack(&perkEntry);
+				}
+
+				if (pPlayer != nullptr) 
+				{
+					DebugMessage("GetExtraData: Starting Player Perks");
+
+					int numPlayerPerks = pPlayer->addedPerks.count;
+
+					for (int i = 0; i < numPlayerPerks; i++)
+					{
+						DebugMessage("GetExtraData: Starting Player Perk num" + i);
+
+						BGSPerk *perk = pPlayer->addedPerks[i]->perk;
+						//int rank = pPlayer->addedPerks[i]->rank;
+
+						std::string name = GetName(perk);
+
+						GFxValue perkEntry;
+
+						CreateExtraInfoEntry(&perkEntry, movie, name, "");
+
+						GFxValue perkEntrySubArray;
+						movie->CreateArray(&perkEntrySubArray);
+
+						GetFormData(&perkEntrySubArray, movie, perk, nullptr);
+
+						//GFxValue perkEntryRank;
+
+						//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank));
+						//perkEntrySubArray.PushBack(&perkEntryRank);
+
+						perkEntry.PushBack(&perkEntrySubArray);
+
+						perkSubArray.PushBack(&perkEntry);
+					}
+				}
+
+				perks.PushBack(&perkSubArray);
+
+				resultArray->PushBack(&perks);
+
+				DebugMessage("GetExtraData: Done with perks");
 			}
 		}
+
+		//apperance - currently height and weight
+		DebugMessage("GetExtraData: appearance Started");
+
+		GFxValue appearance;
+		CreateExtraInfoEntry(&appearance, movie, "Appearance", "");
+
+		GFxValue appearanceSubArray;
+		movie->CreateArray(&appearanceSubArray);
+
+		float weight = pNPC->weight;
+
+		GFxValue weightEntry;
+
+		CreateExtraInfoEntry(&weightEntry, movie, "Weight", FloatToString(weight));
+		appearanceSubArray.PushBack(&weightEntry);
+
+		float height = pNPC->height;
+
+		GFxValue heightEntry;
+
+		CreateExtraInfoEntry(&heightEntry, movie, "Height", FloatToString(height));
+		appearanceSubArray.PushBack(&heightEntry);
+
+		appearance.PushBack(&appearanceSubArray);
+
+		resultArray->PushBack(&appearance);
+
+		DebugMessage("GetExtraData: appearance Ended");
+
+
 		/*PlayerCharacter* pPC = DYNAMIC_CAST(pForm, TESForm, PlayerCharacter);
 		if (pPC)
 		{
@@ -1515,7 +1634,6 @@ public:
 		}
 	}
 
-
 	void GetContainerData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
 	{
 		TESObjectCONT * pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
@@ -1525,31 +1643,17 @@ public:
 
 			GFxValue safeContainerEntry;
 
-			if ((pContainer->unkB8 & respawnsFlag) == respawnsFlag)
+			if ((pContainer->unkB9 & respawnsFlag) == respawnsFlag)
 			{
 				CreateExtraInfoEntry(&safeContainerEntry, movie, "Safe Container", "No");
 			}
 
 			else
 			{
-					CreateExtraInfoEntry(&safeContainerEntry, movie, "Safe Container", "Yes");
+				CreateExtraInfoEntry(&safeContainerEntry, movie, "Safe Container", "Yes");
 			}
 
 			resultArray->PushBack(&safeContainerEntry);
-
-			GFxValue safeContainerEntry2;
-
-			if ((pContainer->unkB9 & respawnsFlag) == respawnsFlag)
-			{
-				CreateExtraInfoEntry(&safeContainerEntry2, movie, "Safe Container2", "No");
-			}
-
-			else
-			{
-				CreateExtraInfoEntry(&safeContainerEntry2, movie, "Safe Container2", "Yes");
-			}
-
-			resultArray->PushBack(&safeContainerEntry2);
 		}
 	}
 
