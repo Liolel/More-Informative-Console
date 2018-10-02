@@ -1,5 +1,18 @@
 #pragma once
 
+#include "GameObjects.h"
+#include "GameForms.h"
+#include "GameRTTI.h"
+#include "GameObjects.h"
+#include "GameData.h"
+#include "GameBSExtraData.h"
+#include "GameExtraData.h"
+
+namespace MICOptions
+{
+	extern boolean MICDebugMode; //Enables debugging code. Currently this just activates the logging features
+}
+
 void DebugMessage(std::string message);
 
 std::string GetActorValueName(int id);

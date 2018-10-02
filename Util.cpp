@@ -1,16 +1,15 @@
 #pragma once
 
+#include "Util.h"
 #include <sstream>
 #include <vector>
 #include <memory>
-#include "GameObjects.h"
-#include "GameForms.h"
-#include "GameRTTI.h"
-#include "GameObjects.h"
-#include "GameData.h"
-#include "GameBSExtraData.h"
-#include "GameExtraData.h"
 
+//MIC options
+namespace MICOptions
+{
+	boolean MICDebugMode = false; //Enables debugging code. Currently this just activates the logging features
+}
 
 std::vector<std::string> FormTypes =
 {
@@ -159,11 +158,10 @@ std::vector<std::string> FormTypes =
 	"ActiveMagicEffect"
 };
 
-boolean printDebugMessages = false;
 
 void DebugMessage(std::string message)
 {
-	if (printDebugMessages)
+	if (MICOptions::MICDebugMode)
 	{
 		_MESSAGE(message.c_str());
 	}
