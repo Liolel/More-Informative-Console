@@ -35,18 +35,11 @@ extern "C"
 		return true;
 	}
 
-	bool SKSEPlugin_Load(const SKSEInterface * skse)
+	void readINI()
 	{
-		_MESSAGE("Establishing interfaces...");
-
-		SKSEScaleformInterface::RegisterCallback callback = moreInformativeConsoleScaleForm::InstallHooks;
-
-		g_SKSEScaleformInterface = (SKSEScaleformInterface *)skse->QueryInterface(kInterface_Scaleform);
-		g_SKSEScaleformInterface->Register("MIC", callback);
-
 		//Read ini
 		const std::string& iniPath = GetRuntimeDirectory() + R"(Data\SKSE\plugins\MoreInformativeConsole.ini)";
-		
+
 		CSimpleIniA ini;
 		SI_Error iniError = ini.LoadFile(iniPath.c_str());
 
@@ -59,8 +52,23 @@ extern "C"
 		{
 			_MESSAGE("Reading in ini file");
 			MICOptions::MICDebugMode = ini.GetBoolValue("Debug", "EnableDebugLogging", false);
+			MICOptions::Transparency = (double)ini.GetLongValue("UI", "Transparency", false) / 100.0;
+			MICOptions::FieldsToDisplay = ini.GetLongValue("UI", "FieldsToDisplay", false);
+			MICOptions::Scale = (double)ini.GetLongValue("UI", "Scale", false) / 100.0;
+			MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
 		}
+	}
 
+	bool SKSEPlugin_Load(const SKSEInterface * skse)
+	{
+		_MESSAGE("Establishing interfaces...");
+
+		SKSEScaleformInterface::RegisterCallback callback = moreInformativeConsoleScaleForm::InstallHooks;
+
+		g_SKSEScaleformInterface = (SKSEScaleformInterface *)skse->QueryInterface(kInterface_Scaleform);
+		g_SKSEScaleformInterface->Register("MIC", callback);
+
+		readINI();
 
 		_MESSAGE("Plugin Initialization complete.");
 		return true;

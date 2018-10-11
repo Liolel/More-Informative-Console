@@ -11,6 +11,13 @@
 namespace MICOptions
 {
 	extern boolean MICDebugMode; //Enables debugging code. Currently this just activates the logging features
+
+	//extern int BackgroundColor; //Background color of the extra info window
+	extern double Transparency; //Transperency of the extra info window background
+	extern double Scale; //Scale of the extra info window
+	extern int FieldsToDisplay; //Number of text fields to display
+
+	extern int BaseInfoFormat; //How much information to display in the base info window
 }
 
 void DebugMessage(std::string message);

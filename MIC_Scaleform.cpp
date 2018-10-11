@@ -765,7 +765,7 @@ public:
 				//Perks
 				int numPerks = pActorBase->perkRanks.numPerkRanks;
 
-				DebugMessage("GetExtraData: Starting Perks");
+				DebugMessage("GetExtraData: Starting Perks - Total Number" + IntToString(numPerks) );
 
 				GFxValue perks;
 				CreateExtraInfoEntry(&perks, movie, "Perks", "" );
@@ -775,44 +775,13 @@ public:
 
 				for (int i = 0; i < numPerks; i++)
 				{
-					DebugMessage("GetExtraData: Starting Perk num" + i);
+					DebugMessage("GetExtraData: Starting Perk num" + IntToString(i));
 
 					BGSPerk *perk = pActorBase->perkRanks.perkRanks[i].perk;
-					//int rank = pActorBase->perkRanks.perkRanks[i].rank;
 
-					std::string name = GetName(perk);
-
-					GFxValue perkEntry;
-
-					CreateExtraInfoEntry(&perkEntry, movie, name, "");
-
-					GFxValue perkEntrySubArray;
-					movie->CreateArray(&perkEntrySubArray);
-
-					GetFormData(&perkEntrySubArray, movie, perk, nullptr);
-
-					//GFxValue perkEntryRank;
-
-					//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank) );
-					//perkEntrySubArray.PushBack(&perkEntryRank);
-
-					perkEntry.PushBack(&perkEntrySubArray);
-
-					perkSubArray.PushBack(&perkEntry);
-				}
-
-				if (pPlayer != nullptr) 
-				{
-					DebugMessage("GetExtraData: Starting Player Perks");
-
-					int numPlayerPerks = pPlayer->addedPerks.count;
-
-					for (int i = 0; i < numPlayerPerks; i++)
+					if (perk)
 					{
-						DebugMessage("GetExtraData: Starting Player Perk num" + i);
-
-						BGSPerk *perk = pPlayer->addedPerks[i]->perk;
-						//int rank = pPlayer->addedPerks[i]->rank;
+						//int rank = pActorBase->perkRanks.perkRanks[i].rank;
 
 						std::string name = GetName(perk);
 
@@ -827,12 +796,51 @@ public:
 
 						//GFxValue perkEntryRank;
 
-						//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank));
+						//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank) );
 						//perkEntrySubArray.PushBack(&perkEntryRank);
 
 						perkEntry.PushBack(&perkEntrySubArray);
 
 						perkSubArray.PushBack(&perkEntry);
+					}
+				}
+
+				if (pPlayer != nullptr) 
+				{
+					int numPlayerPerks = pPlayer->addedPerks.count;
+
+					DebugMessage("GetExtraData: Starting Player Perks - Total Number" + IntToString(numPlayerPerks) );
+
+					for (int i = 0; i < numPlayerPerks; i++)
+					{
+						DebugMessage("GetExtraData: Starting Player Perk num" + IntToString(i) );
+
+						BGSPerk *perk = pPlayer->addedPerks[i]->perk;
+
+						if (perk)
+						{
+							//int rank = pPlayer->addedPerks[i]->rank;
+
+							std::string name = GetName(perk);
+
+							GFxValue perkEntry;
+
+							CreateExtraInfoEntry(&perkEntry, movie, name, "");
+
+							GFxValue perkEntrySubArray;
+							movie->CreateArray(&perkEntrySubArray);
+
+							GetFormData(&perkEntrySubArray, movie, perk, nullptr);
+
+							//GFxValue perkEntryRank;
+
+							//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank));
+							//perkEntrySubArray.PushBack(&perkEntryRank);
+
+							perkEntry.PushBack(&perkEntrySubArray);
+
+							perkSubArray.PushBack(&perkEntry);
+						}
 					}
 				}
 
@@ -1724,6 +1732,18 @@ public:
 	}*/
 };
 
+class MICScaleform_GetIniOptions : public GFxFunctionHandler
+{
+public:
+	virtual void	Invoke(Args * args)
+	{
+		args->movie->CreateObject(args->result);
+		RegisterNumber(args->result, "Transparency", MICOptions::Transparency);
+		RegisterNumber(args->result, "Scale", MICOptions::Scale);
+		RegisterNumber(args->result, "FieldsToDisplay", MICOptions::FieldsToDisplay);
+		RegisterNumber(args->result, "BaseInfoFormat", MICOptions::BaseInfoFormat);
+	}
+};
 
 //// core hook
 bool moreInformativeConsoleScaleForm::InstallHooks(GFxMovieView * view, GFxValue * root)
@@ -1732,6 +1752,7 @@ bool moreInformativeConsoleScaleForm::InstallHooks(GFxMovieView * view, GFxValue
 
 	RegisterFunction <MICScaleform_GetReferenceInfo>(root, view, "MICScaleform_GetReferenceInfo");
 	RegisterFunction <MICScaleform_GetExtraData>(root, view, "MICScaleform_GetExtraData");
+	RegisterFunction <MICScaleform_GetIniOptions>(root, view, "MICScaleform_GetIniOptions");
 
 	return true;
 }
