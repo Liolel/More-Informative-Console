@@ -55,6 +55,14 @@ public:
 					numModsModifyingRef = refFormModInfo->size;
 
 					refFormFromMod = refFormModInfo->entries[0]->name;
+
+					//fix for weird bug where refs first defined in Skyrim.Esm aren't always detected properly
+					if ( ( (pRef->formID & 0xFF000000 ) == 0)
+						&& refFormFromMod != "Skyrim.esm")
+					{
+						refFormFromMod = "Skyrim.esm";
+					}
+
 					refFormLastChangedBy = refFormModInfo->entries[numModsModifyingRef - 1]->name;
 
 					RegisterString(args->result, args->movie, "refFormDefinedIn", refFormFromMod.c_str());
@@ -158,10 +166,10 @@ public:
 	void GetFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESObjectREFR* pRefForm)
 	{
 		DebugMessage("GetExtraData: Get Form Data Start");
-		
+
 		GetCommonFormData(resultArray, movie, pBaseForm, pRefForm);
 
-		if (pBaseForm != nullptr 
+		if (pBaseForm != nullptr
 			&& pBaseForm->GetFormType() == kFormType_NPC
 			&& pRefForm != nullptr
 			&& pRefForm->GetFormType() == kFormType_Character)
@@ -170,7 +178,7 @@ public:
 			GetCharacterData(resultArray, movie, pRefForm, pBaseForm);
 		}
 
-		else if (pBaseForm->GetFormType() == kFormType_EffectSetting )
+		else if (pBaseForm->GetFormType() == kFormType_EffectSetting)
 		{
 			DebugMessage("GetExtraData: Get Form Data magic effect found");
 			GetMagicEffectData(resultArray, movie, pBaseForm);
@@ -213,7 +221,7 @@ public:
 			DebugMessage("GetFormData: Found Inventory Start");
 
 
-			ExtraContainerChanges * inventoryExtraData = static_cast<ExtraContainerChanges*> ( pRefForm->extraData.GetByType(kExtraData_ContainerChanges) );
+			ExtraContainerChanges * inventoryExtraData = static_cast<ExtraContainerChanges*> (pRefForm->extraData.GetByType(kExtraData_ContainerChanges));
 			EntryDataList * inventory = inventoryExtraData->data->objList;
 
 			DebugMessage("GetFormData: Got Inventory");
@@ -222,23 +230,23 @@ public:
 
 			if (pBaseForm->GetFormType() == kFormType_NPC)
 			{
-					DebugMessage("GetFormData: Inventory npc");
+				DebugMessage("GetFormData: Inventory npc");
 
-					Actor* pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
+				Actor* pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
 
-					if (pActor)
-					{
-						GetEquipment(resultArray, movie, inventoryExtraData, pActor);
-					}
+				if (pActor)
+				{
+					GetEquipment(resultArray, movie, inventoryExtraData, pActor);
+				}
 
-					TESActorBase *pActorBase = DYNAMIC_CAST(pBaseForm, TESForm, TESActorBase);
+				TESActorBase *pActorBase = DYNAMIC_CAST(pBaseForm, TESForm, TESActorBase);
 
-					if (pActorBase)
-					{
-						pContainer = &pActorBase->container;
-						DebugMessage("GetFormData: Inventory npc container gotten");
+				if (pActorBase)
+				{
+					pContainer = &pActorBase->container;
+					DebugMessage("GetFormData: Inventory npc container gotten");
 
-					}
+				}
 			}
 
 			if (pBaseForm->GetFormType() == kFormType_Container)
@@ -343,6 +351,11 @@ public:
 		formLocationHolder.PushBack(&formLocationData);
 		resultArray->PushBack(&formLocationHolder);
 
+		if (pRefForm != nullptr)
+		{
+			GetPositionData(resultArray, movie, pRefForm);
+		}
+
 		DebugMessage("GetExtraData: GetCommonFormData End");
 
 	}
@@ -351,7 +364,7 @@ public:
 	void GetFormLocationData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESForm* pRefForm)
 	{
 		DebugMessage("GetExtraData: GetFormLocationData Start");
-		
+
 		movie->CreateArray(resultArray);
 
 		//if the target is a npc that has been created dynamically we want info on the base form the npc is created from
@@ -391,8 +404,20 @@ public:
 				//Reference Form
 				int numModsModifyingRef = refFormModInfo->size;
 
+				std::string refFirstDefinedIn = refFormModInfo->entries[0]->name;
+
+				boolean SkyrimESMNotDetectedBug = false;
+
+				//fix for weird bug where refs first defined in Skyrim.Esm aren't always detected properly
+				if ( ( ( pRefForm->formID & 0xFF000000 ) == 0)
+					&& refFirstDefinedIn != "Skyrim.esm")
+				{
+					refFirstDefinedIn = "Skyrim.esm";
+					SkyrimESMNotDetectedBug = true;
+				}
+
 				GFxValue referenceDefinedIn;
-				CreateExtraInfoEntry(&referenceDefinedIn, movie, "Reference defined in", refFormModInfo->entries[0]->name);
+				CreateExtraInfoEntry(&referenceDefinedIn, movie, "Reference defined in", refFirstDefinedIn);
 
 				resultArray->PushBack(&referenceDefinedIn);
 
@@ -405,7 +430,7 @@ public:
 				CreateExtraInfoEntry(&allModsTouchingReferenceHolder, movie, "Reference found in", "");
 
 				GFxValue allModsTouchingReference;
-				GetModInfoData(&allModsTouchingReference, movie, refFormModInfo);
+				GetModInfoData(&allModsTouchingReference, movie, refFormModInfo, SkyrimESMNotDetectedBug);
 				allModsTouchingReferenceHolder.PushBack(&allModsTouchingReference);
 
 				resultArray->PushBack(&allModsTouchingReferenceHolder);
@@ -437,7 +462,7 @@ public:
 			CreateExtraInfoEntry(&allModsTouchingBaseHolder, movie, "Base found in", "");
 
 			GFxValue allModsTouchingBase;
-			GetModInfoData(&allModsTouchingBase, movie, baseFormModInfo);
+			GetModInfoData(&allModsTouchingBase, movie, baseFormModInfo, false);
 			allModsTouchingBaseHolder.PushBack(&allModsTouchingBase);
 
 			resultArray->PushBack(&allModsTouchingBaseHolder);
@@ -446,13 +471,21 @@ public:
 		DebugMessage("GetExtraData: GetFormLocationData End");
 	}
 
-	void GetModInfoData(GFxValue * resultArray, GFxMovieView * movie, FormModInfoData* modInfoData)
+	void GetModInfoData(GFxValue * resultArray, GFxMovieView * movie, FormModInfoData* modInfoData, boolean SkyrimESMNotDetectedBug)
 	{
 		DebugMessage("GetExtraData: GetModInfoData start");
 
 		movie->CreateArray(resultArray);
 
 		int numMods = modInfoData->size;
+
+		if (SkyrimESMNotDetectedBug)
+		{
+			GFxValue modEntry;
+
+			CreateExtraInfoEntry(&modEntry, movie, "Mod", "Skyrim.esm");
+			resultArray->PushBack(&modEntry);
+		}
 
 		for (int i = 0; i < numMods; i++)
 		{
@@ -632,15 +665,15 @@ public:
 						DebugMessage("GetCharacterData: Ending Active Effect");
 
 						/*if (pEffect->item)
-							scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
+						scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
 
-							//RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
+						//RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
 
-							// ActiveEffect
-							//if (pEffect->effect && pEffect->effect->mgef)
-							//	scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
+						// ActiveEffect
+						//if (pEffect->effect && pEffect->effect->mgef)
+						//	scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
 
-							//activeEffects.PushBack(&effect);
+						//activeEffects.PushBack(&effect);
 					}
 				}
 
@@ -693,12 +726,12 @@ public:
 				GFxValue protectionEntry;
 
 
-				if ( (pNPC->actorData.flags & essentialFlag) == essentialFlag )
+				if ((pNPC->actorData.flags & essentialFlag) == essentialFlag)
 				{
-					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "Essential" );
+					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "Essential");
 				}
 
-				else if( (pNPC->actorData.flags & protectedFlag) == protectedFlag)
+				else if ((pNPC->actorData.flags & protectedFlag) == protectedFlag)
 				{
 					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "Protected");
 				}
@@ -765,10 +798,10 @@ public:
 				//Perks
 				int numPerks = pActorBase->perkRanks.numPerkRanks;
 
-				DebugMessage("GetExtraData: Starting Perks - Total Number" + IntToString(numPerks) );
+				DebugMessage("GetExtraData: Starting Perks - Total Number" + IntToString(numPerks));
 
 				GFxValue perks;
-				CreateExtraInfoEntry(&perks, movie, "Perks", "" );
+				CreateExtraInfoEntry(&perks, movie, "Perks", "");
 
 				GFxValue perkSubArray;
 				movie->CreateArray(&perkSubArray);
@@ -805,15 +838,15 @@ public:
 					}
 				}
 
-				if (pPlayer != nullptr) 
+				if (pPlayer != nullptr)
 				{
 					int numPlayerPerks = pPlayer->addedPerks.count;
 
-					DebugMessage("GetExtraData: Starting Player Perks - Total Number" + IntToString(numPlayerPerks) );
+					DebugMessage("GetExtraData: Starting Player Perks - Total Number" + IntToString(numPlayerPerks));
 
 					for (int i = 0; i < numPlayerPerks; i++)
 					{
-						DebugMessage("GetExtraData: Starting Player Perk num" + IntToString(i) );
+						DebugMessage("GetExtraData: Starting Player Perk num" + IntToString(i));
 
 						BGSPerk *perk = pPlayer->addedPerks[i]->perk;
 
@@ -885,7 +918,7 @@ public:
 		/*PlayerCharacter* pPC = DYNAMIC_CAST(pForm, TESForm, PlayerCharacter);
 		if (pPC)
 		{
-			RegisterNumber(pFxVal, "perkPoints", (double)pPC->numPerkPoints);
+		RegisterNumber(pFxVal, "perkPoints", (double)pPC->numPerkPoints);
 		}*/
 
 		DebugMessage("GetExtraData: GetCharacter End");
@@ -893,7 +926,7 @@ public:
 
 	void GetActorValue(GFxValue * resultArray, GFxMovieView * movie, Actor * pActor, int id)
 	{
-		DebugMessage("GetExtraData: GetActover Value Start" );
+		DebugMessage("GetExtraData: GetActover Value Start");
 
 		if (id < ActorValueList::kNumActorValues)
 		{
@@ -912,9 +945,9 @@ public:
 
 			GFxValue baseValueEntry, currentValueEntry, maxValueEntry;
 
-			CreateExtraInfoEntry( &baseValueEntry, movie, "Base", FloatToString(baseValue) );
-			CreateExtraInfoEntry( &currentValueEntry, movie, "Current", FloatToString(currentValue) );
-			CreateExtraInfoEntry( &maxValueEntry, movie, "Max", FloatToString(maxValue) );
+			CreateExtraInfoEntry(&baseValueEntry, movie, "Base", FloatToString(baseValue));
+			CreateExtraInfoEntry(&currentValueEntry, movie, "Current", FloatToString(currentValue));
+			CreateExtraInfoEntry(&maxValueEntry, movie, "Max", FloatToString(maxValue));
 
 			subArray.PushBack(&baseValueEntry);
 			subArray.PushBack(&currentValueEntry);
@@ -932,7 +965,7 @@ public:
 		DebugMessage("GetExtraData: GetActover Value End");
 	}
 
-	void GetMagicEffectData( GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm )
+	void GetMagicEffectData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
 	{
 		DebugMessage("GetExtraData: GetMagicEffectData Start");
 
@@ -946,7 +979,7 @@ public:
 			int skill = pEffectSetting->school();
 			GFxValue skillEntry;
 
-			CreateExtraInfoEntry(&skillEntry, movie, "Magic Skill", GetActorValueName(skill) );
+			CreateExtraInfoEntry(&skillEntry, movie, "Magic Skill", GetActorValueName(skill));
 			resultArray->PushBack(&skillEntry);
 
 			//Minimum Skill Level
@@ -985,7 +1018,7 @@ public:
 
 			CreateExtraInfoEntry(&resistenceEntry, movie, "Primary AV", GetActorValueName(resistence));
 			resultArray->PushBack(&resistenceEntry);
-			
+
 
 			//delivery type
 			GFxValue deliveryTypeEntry;
@@ -995,7 +1028,7 @@ public:
 
 			//Hostile Flag
 			GFxValue hostileEntry;
-			
+
 			bool hostile = (pEffectSetting->properties.flags & EffectSetting::Properties::kEffectType_Hostile) == EffectSetting::Properties::kEffectType_Hostile;
 
 			if (hostile)
@@ -1008,10 +1041,10 @@ public:
 				CreateExtraInfoEntry(&hostileEntry, movie, "Hostile", "false");
 			}
 			resultArray->PushBack(&hostileEntry);
-			/*			
-			
-			
-			
+			/*
+
+
+
 			//RegisterNumber(pFxVal, "effectFlags", pEffectSetting->properties.flags); //I added the hostile flag. Need to check what else to add
 			RegisterNumber(pFxVal, "deliveryType", pEffectSetting->properties.deliveryType); //do these next 3 when I add spells
 			RegisterNumber(pFxVal, "castTime", pEffectSetting->properties.castingTime);
@@ -1022,183 +1055,183 @@ public:
 		DebugMessage("GetExtraData: GetMagicEffectData End");
 	}
 
-	void GetSpellData( GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm )
+	void GetSpellData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
 	{
 		/*
-				case kFormType_Spell:
-				case kFormType_ScrollItem:
-				case kFormType_Ingredient:
-				case kFormType_Potion:
-				case kFormType_Enchantment:
-				{ */
-					MagicItem * pMagicItem = DYNAMIC_CAST(pBaseForm, TESForm, MagicItem);
-					if (pMagicItem)
+		case kFormType_Spell:
+		case kFormType_ScrollItem:
+		case kFormType_Ingredient:
+		case kFormType_Potion:
+		case kFormType_Enchantment:
+		{ */
+		MagicItem * pMagicItem = DYNAMIC_CAST(pBaseForm, TESForm, MagicItem);
+		if (pMagicItem)
+		{
+			DebugMessage("GetSpellData: Starting Effect Data Effect");
+
+			GFxValue magicEffectsEntry;
+
+			CreateExtraInfoEntry(&magicEffectsEntry, movie, "Magic Effects", "");
+
+			GFxValue magicEffectsArray;
+			movie->CreateArray(&magicEffectsArray);
+
+			int numEffects = pMagicItem->effectItemList.count;
+
+			for (int i = 0; i < numEffects; i++)
+			{
+
+
+				MagicItem::EffectItem * pEffect = pMagicItem->effectItemList[i];
+
+				GFxValue effectEntry;
+
+				if (pEffect && pEffect->mgef)
+				{
+					DebugMessage("GetSpellData: Active Effect MGEF found");
+
+					std::string effectName, effectActive;
+
+					EffectSetting * mgef = pEffect->mgef;
+
+					if (mgef->fullName.name.data)
 					{
-							DebugMessage("GetSpellData: Starting Effect Data Effect");
-					
-							GFxValue magicEffectsEntry;
-
-							CreateExtraInfoEntry(&magicEffectsEntry, movie, "Magic Effects", "");
-
-							GFxValue magicEffectsArray;
-							movie->CreateArray(&magicEffectsArray);
-
-							int numEffects = pMagicItem->effectItemList.count;
-
-							for (int i = 0; i < numEffects; i++)
-							{
-
-
-							MagicItem::EffectItem * pEffect = pMagicItem->effectItemList[i];
-							
-							GFxValue effectEntry;
-
-							if (pEffect && pEffect->mgef)
-							{
-								DebugMessage("GetSpellData: Active Effect MGEF found");
-
-								std::string effectName, effectActive;
-
-								EffectSetting * mgef = pEffect->mgef;
-
-								if (mgef->fullName.name.data)
-								{
-									effectName = mgef->fullName.name.data;
-								}
-
-								else
-								{
-									effectName = "Unknown Effect";
-								}
-
-								CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
-
-								GFxValue effectEntrySubArray;
-
-								movie->CreateArray(&effectEntrySubArray);
-
-								TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
-
-								if (effectBaseForm)
-								{
-									DebugMessage("GetExtraData: Active Effect MGEF base form found");
-
-									GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
-
-									//Magnitude
-									GFxValue magnitudeEntry;
-
-									float magnitude = pEffect->magnitude;
-									CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
-									effectEntrySubArray.PushBack(&magnitudeEntry);
-
-									//Duration
-									GFxValue durationEntry;
-
-									float duration = pEffect->duration;
-									CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
-									effectEntrySubArray.PushBack(&durationEntry);
-
-
-									//Magnitude
-									GFxValue areaEntry;
-
-									float area = pEffect->area;
-									CreateExtraInfoEntry(&areaEntry, movie, "Area", FloatToString(area));
-									effectEntrySubArray.PushBack(&areaEntry);
-
-									GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
-
-									effectEntry.PushBack(&effectEntrySubArray);
-								}
-							}
-
-							else
-							{
-								CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
-							}
-
-							magicEffectsArray.PushBack(&effectEntry);
-
-
-							DebugMessage("GetSpellData: Ending Active Effect");
-
-
-							}
-
-							magicEffectsEntry.PushBack(&magicEffectsArray);
-							resultArray->PushBack(&magicEffectsEntry);
-
-							DebugMessage("GetSpellData: Done general magic item code");
-					}
-					
-					SpellItem * pSpellItem = DYNAMIC_CAST(pMagicItem, MagicItem, SpellItem);
-					if (pSpellItem)
-					{
-						DebugMessage("GetSpellData: Starting spell item code");
-
-						//spell type
-						GFxValue spellTypeEntry;
-
-						CreateExtraInfoEntry(&spellTypeEntry, movie, "Spell Type", GetSpellTypeName(pSpellItem->data.type));
-						resultArray->PushBack(&spellTypeEntry);
-
-						//casting type
-						GFxValue castingTypeEntry;
-
-						CreateExtraInfoEntry(&castingTypeEntry, movie, "Cast Type", GetCastingTypeName(pSpellItem->data.castType) );
-						resultArray->PushBack(&castingTypeEntry);
-
-						//spell cost
-						GFxValue spellCostEntry;
-
-						CreateExtraInfoEntry(&spellCostEntry, movie, "True Cost", IntToString(pSpellItem->GetMagickaCost()));
-						resultArray->PushBack(&spellCostEntry);
-
-						//cast time
-						GFxValue castTimeEntry;
-
-						CreateExtraInfoEntry(&castTimeEntry, movie, "Cast Time", FloatToString(pSpellItem->data.castTime));
-						resultArray->PushBack(&castTimeEntry);
-
-						//RegisterNumber(pFxVal, "spellType", pSpellItem->data.type);
-						//RegisterNumber(pFxVal, "trueCost", pSpellItem->GetMagickaCost());
-
-						/*
-						BGSEquipSlot * equipSlot = pSpellItem->equipType.GetEquipSlot();
-						if (equipSlot)
-							RegisterNumber(pFxVal, "equipSlot", equipSlot->formID); */
-
-						DebugMessage("GetSpellData: Ending spell item code");
-					}
-					/*
-					AlchemyItem * pAlchemyItem = DYNAMIC_CAST(pMagicItem, MagicItem, AlchemyItem);
-					if (pAlchemyItem)
-					{
-						if (pAlchemyItem->itemData.useSound) {
-							GFxValue useSound;
-							movieView->CreateObject(&useSound);
-							scaleformExtend::FormData(&useSound, movieView, pAlchemyItem->itemData.useSound, bRecursive ? bExtra : false, bRecursive);
-							pFxVal->SetMember("useSound", &useSound);
-						}
+						effectName = mgef->fullName.name.data;
 					}
 
-					EnchantmentItem * pEnchantItem = DYNAMIC_CAST(pMagicItem, MagicItem, EnchantmentItem);
-					if (pEnchantItem)
+					else
 					{
-						RegisterNumber(pFxVal, "flags", (double)pMagicItem->flags);
-
-						GFxValue baseEnchant;
-						movieView->CreateObject(&baseEnchant);
-						scaleformExtend::FormData(&baseEnchant, movieView, pEnchantItem->data.baseEnchantment, bRecursive ? bExtra : false, bRecursive);
-						pFxVal->SetMember("baseEnchant", &baseEnchant);
-
-						GFxValue restrictions;
-						movieView->CreateObject(&restrictions);
-						scaleformExtend::FormData(&restrictions, movieView, pEnchantItem->data.restrictions, bRecursive ? bExtra : false, bRecursive);
-						pFxVal->SetMember("restrictions", &restrictions);
+						effectName = "Unknown Effect";
 					}
-				}	*/
+
+					CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
+
+					GFxValue effectEntrySubArray;
+
+					movie->CreateArray(&effectEntrySubArray);
+
+					TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
+
+					if (effectBaseForm)
+					{
+						DebugMessage("GetExtraData: Active Effect MGEF base form found");
+
+						GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
+
+						//Magnitude
+						GFxValue magnitudeEntry;
+
+						float magnitude = pEffect->magnitude;
+						CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
+						effectEntrySubArray.PushBack(&magnitudeEntry);
+
+						//Duration
+						GFxValue durationEntry;
+
+						float duration = pEffect->duration;
+						CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
+						effectEntrySubArray.PushBack(&durationEntry);
+
+
+						//Magnitude
+						GFxValue areaEntry;
+
+						float area = pEffect->area;
+						CreateExtraInfoEntry(&areaEntry, movie, "Area", FloatToString(area));
+						effectEntrySubArray.PushBack(&areaEntry);
+
+						GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
+
+						effectEntry.PushBack(&effectEntrySubArray);
+					}
+				}
+
+				else
+				{
+					CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
+				}
+
+				magicEffectsArray.PushBack(&effectEntry);
+
+
+				DebugMessage("GetSpellData: Ending Active Effect");
+
+
+			}
+
+			magicEffectsEntry.PushBack(&magicEffectsArray);
+			resultArray->PushBack(&magicEffectsEntry);
+
+			DebugMessage("GetSpellData: Done general magic item code");
+		}
+
+		SpellItem * pSpellItem = DYNAMIC_CAST(pMagicItem, MagicItem, SpellItem);
+		if (pSpellItem)
+		{
+			DebugMessage("GetSpellData: Starting spell item code");
+
+			//spell type
+			GFxValue spellTypeEntry;
+
+			CreateExtraInfoEntry(&spellTypeEntry, movie, "Spell Type", GetSpellTypeName(pSpellItem->data.type));
+			resultArray->PushBack(&spellTypeEntry);
+
+			//casting type
+			GFxValue castingTypeEntry;
+
+			CreateExtraInfoEntry(&castingTypeEntry, movie, "Cast Type", GetCastingTypeName(pSpellItem->data.castType));
+			resultArray->PushBack(&castingTypeEntry);
+
+			//spell cost
+			GFxValue spellCostEntry;
+
+			CreateExtraInfoEntry(&spellCostEntry, movie, "True Cost", IntToString(pSpellItem->GetMagickaCost()));
+			resultArray->PushBack(&spellCostEntry);
+
+			//cast time
+			GFxValue castTimeEntry;
+
+			CreateExtraInfoEntry(&castTimeEntry, movie, "Cast Time", FloatToString(pSpellItem->data.castTime));
+			resultArray->PushBack(&castTimeEntry);
+
+			//RegisterNumber(pFxVal, "spellType", pSpellItem->data.type);
+			//RegisterNumber(pFxVal, "trueCost", pSpellItem->GetMagickaCost());
+
+			/*
+			BGSEquipSlot * equipSlot = pSpellItem->equipType.GetEquipSlot();
+			if (equipSlot)
+			RegisterNumber(pFxVal, "equipSlot", equipSlot->formID); */
+
+			DebugMessage("GetSpellData: Ending spell item code");
+		}
+		/*
+		AlchemyItem * pAlchemyItem = DYNAMIC_CAST(pMagicItem, MagicItem, AlchemyItem);
+		if (pAlchemyItem)
+		{
+		if (pAlchemyItem->itemData.useSound) {
+		GFxValue useSound;
+		movieView->CreateObject(&useSound);
+		scaleformExtend::FormData(&useSound, movieView, pAlchemyItem->itemData.useSound, bRecursive ? bExtra : false, bRecursive);
+		pFxVal->SetMember("useSound", &useSound);
+		}
+		}
+
+		EnchantmentItem * pEnchantItem = DYNAMIC_CAST(pMagicItem, MagicItem, EnchantmentItem);
+		if (pEnchantItem)
+		{
+		RegisterNumber(pFxVal, "flags", (double)pMagicItem->flags);
+
+		GFxValue baseEnchant;
+		movieView->CreateObject(&baseEnchant);
+		scaleformExtend::FormData(&baseEnchant, movieView, pEnchantItem->data.baseEnchantment, bRecursive ? bExtra : false, bRecursive);
+		pFxVal->SetMember("baseEnchant", &baseEnchant);
+
+		GFxValue restrictions;
+		movieView->CreateObject(&restrictions);
+		scaleformExtend::FormData(&restrictions, movieView, pEnchantItem->data.restrictions, bRecursive ? bExtra : false, bRecursive);
+		pFxVal->SetMember("restrictions", &restrictions);
+		}
+		}	*/
 	}
 
 	//wrapper for getting both the common form data and the spell data for a spell
@@ -1251,7 +1284,7 @@ public:
 		//weapons and shouts
 
 		//left hand
-		TESForm * leftHand = pActor->GetEquippedObject( true );
+		TESForm * leftHand = pActor->GetEquippedObject(true);
 
 		if (leftHand != nullptr)
 		{
@@ -1267,7 +1300,7 @@ public:
 			leftHandEntry.PushBack(&leftHandSubArray);
 			equipmentSubArray.PushBack(&leftHandEntry);
 		}
-		
+
 		//right hand
 		TESForm * rightHand = pActor->GetEquippedObject(false);
 
@@ -1305,7 +1338,7 @@ public:
 		}
 
 		//check each equip slot
-		for( int i = 0; i < 32; i++)
+		for (int i = 0; i < 32; i++)
 		{
 			DebugMessage("GetEquipment: Starting EquipSlot item");
 
@@ -1314,7 +1347,7 @@ public:
 			MatchBySlot matcher(mask);
 			EquipData eqD = pContainerChanges->FindEquipped(matcher);
 
-			if( eqD.pForm != nullptr)
+			if (eqD.pForm != nullptr)
 			{
 				DebugMessage("GetEquipment: EquipSlot item Found");
 
@@ -1332,7 +1365,7 @@ public:
 				GetFormData(&equipedItemEntrySubArray, movie, equipedItem, nullptr);
 				equipedItemEntry.PushBack(&equipedItemEntrySubArray);
 				equipmentSubArray.PushBack(&equipedItemEntry);
-				
+
 			}
 
 			DebugMessage("GetEquipment: Ending EquipSlot item");
@@ -1394,9 +1427,9 @@ public:
 
 					inventorySubArray.PushBack(&inventoryItemEntry);
 				}
-				
+
 				DebugMessage("GetInventory: Ending inventory item");
-				
+
 			}
 		}
 
@@ -1496,7 +1529,7 @@ public:
 
 			GFxValue weightClassEntry;
 
-			CreateExtraInfoEntry(&weightClassEntry, movie, "Armor Type", GetArmorWeightClassName( weightClass ) );
+			CreateExtraInfoEntry(&weightClassEntry, movie, "Armor Type", GetArmorWeightClassName(weightClass));
 			resultArray->PushBack(&weightClassEntry);
 
 			//Equip slots
@@ -1504,7 +1537,7 @@ public:
 
 			GFxValue equipSlotsEntry;
 
-			CreateExtraInfoEntry(&equipSlotsEntry, movie, "Equip Slots", "" );
+			CreateExtraInfoEntry(&equipSlotsEntry, movie, "Equip Slots", "");
 
 			GFxValue equipSlotsEntrySubArray;
 			movie->CreateArray(&equipSlotsEntrySubArray);
@@ -1513,7 +1546,7 @@ public:
 			{
 				int mask = 1 << i;
 
-				if ( (parts & mask ) == mask )
+				if ((parts & mask) == mask)
 				{
 
 					std::string slotName = GetEquipSlotName(i);
@@ -1585,12 +1618,12 @@ public:
 			resultArray->PushBack(&critDamageEntry);
 
 			/*RegisterNumber(pFxVal, "minRange", pWeapon->minRange());
-			RegisterNumber(pFxVal, "maxRange", pWeapon->maxRange()); Data for npc AI*/	
+			RegisterNumber(pFxVal, "maxRange", pWeapon->maxRange()); Data for npc AI*/
 
 			BGSEquipSlot * equipSlot = pWeapon->equipType.GetEquipSlot();
 			if (equipSlot)
 			{
-				std::string equipSlotName = GetEquipTypeName( equipSlot->formID );
+				std::string equipSlotName = GetEquipTypeName(equipSlot->formID);
 
 				GFxValue equipSlotEntry;
 
@@ -1665,70 +1698,122 @@ public:
 		}
 	}
 
+	void GetPositionData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm)
+	{
+		DebugMessage("Starting GetPositionData");
+
+		TESObjectREFR * pRef = DYNAMIC_CAST(pRefForm, TESForm, TESObjectREFR);
+
+		if (pRef)
+		{
+			GFxValue positionEntry;
+			CreateExtraInfoEntry(&positionEntry, movie, "Position", "");
+
+			GFxValue positionSubArray;
+			movie->CreateArray(&positionSubArray);
+
+			//position
+			float xPos = pRef->pos.x;
+			GFxValue xPositionEntry;
+			CreateExtraInfoEntry(&xPositionEntry, movie, "X Position", FloatToString(xPos));
+			positionSubArray.PushBack(&xPositionEntry);
+
+			float yPos = pRef->pos.y;
+			GFxValue yPositionEntry;
+			CreateExtraInfoEntry(&yPositionEntry, movie, "Y Position", FloatToString(yPos));
+			positionSubArray.PushBack(&yPositionEntry);
+
+			float zPos = pRef->pos.z;
+			GFxValue zPositionEntry;
+			CreateExtraInfoEntry(&zPositionEntry, movie, "Z Position", FloatToString(zPos));
+			positionSubArray.PushBack(&zPositionEntry);
+
+			//rotation
+			float xRot = pRef->rot.x;
+			GFxValue xRotationEntry;
+			CreateExtraInfoEntry(&xRotationEntry, movie, "X Rotation", FloatToString(xRot));
+			positionSubArray.PushBack(&xRotationEntry);
+
+			float yRot = pRef->rot.y;
+			GFxValue yRotationEntry;
+			CreateExtraInfoEntry(&yRotationEntry, movie, "Y Rotation", FloatToString(yRot));
+			positionSubArray.PushBack(&yRotationEntry);
+
+			float zRot = pRef->rot.z;
+			GFxValue zRotationEntry;
+			CreateExtraInfoEntry(&zRotationEntry, movie, "Z Rotation", FloatToString(zRot));
+			positionSubArray.PushBack(&zRotationEntry);
+
+			positionEntry.PushBack(&positionSubArray);
+			resultArray->PushBack(&positionEntry);
+		}
+
+		DebugMessage("Ending GetPositionData");
+	}
 
 	/*
 	void StandardItemData(GFxValue * pFxVal, TESForm * pForm, InventoryEntryData * pEntry)
 	{
-		if (!pForm || !pFxVal || !pFxVal->IsObject())
-			return;
+	if (!pForm || !pFxVal || !pFxVal->IsObject())
+	return;
 
-		switch (pForm->GetFormType())
-		{
+	switch (pForm->GetFormType())
+	{
 
-		break;
+	break;
 
-		case kFormType_SoulGem:
-		{
-			TESSoulGem	* soulGem = DYNAMIC_CAST(pForm, TESForm, TESSoulGem);
-			if (soulGem)
-			{
-				RegisterNumber(pFxVal, "gemSize", soulGem->gemSize);
-				RegisterNumber(pFxVal, "soulSize", pEntry ? CALL_MEMBER_FN(pEntry, GetSoulLevel)() : soulGem->soulSize);
-			}
-		}
-		break;
+	case kFormType_SoulGem:
+	{
+	TESSoulGem	* soulGem = DYNAMIC_CAST(pForm, TESForm, TESSoulGem);
+	if (soulGem)
+	{
+	RegisterNumber(pFxVal, "gemSize", soulGem->gemSize);
+	RegisterNumber(pFxVal, "soulSize", pEntry ? CALL_MEMBER_FN(pEntry, GetSoulLevel)() : soulGem->soulSize);
+	}
+	}
+	break;
 
-		case kFormType_Potion:
-		{
-			AlchemyItem * pAlchemy = DYNAMIC_CAST(pForm, TESForm, AlchemyItem);
-			if (pAlchemy)
-			{
-				RegisterNumber(pFxVal, "flags", pAlchemy->itemData.flags);
-			}
-		}
-		break;
+	case kFormType_Potion:
+	{
+	AlchemyItem * pAlchemy = DYNAMIC_CAST(pForm, TESForm, AlchemyItem);
+	if (pAlchemy)
+	{
+	RegisterNumber(pFxVal, "flags", pAlchemy->itemData.flags);
+	}
+	}
+	break;
 
-		case kFormType_Book:
-		{
-			TESObjectBOOK * pBook = DYNAMIC_CAST(pForm, TESForm, TESObjectBOOK);
-			if (pBook)
-			{
-				RegisterNumber(pFxVal, "flags", pBook->data.flags);
-				RegisterNumber(pFxVal, "bookType", pBook->data.type);
-				switch (pBook->data.GetSanitizedType())
-				{
-				case TESObjectBOOK::Data::kType_Skill:
-					RegisterNumber(pFxVal, "teachesSkill", pBook->data.teaches.skill);
-					break;
+	case kFormType_Book:
+	{
+	TESObjectBOOK * pBook = DYNAMIC_CAST(pForm, TESForm, TESObjectBOOK);
+	if (pBook)
+	{
+	RegisterNumber(pFxVal, "flags", pBook->data.flags);
+	RegisterNumber(pFxVal, "bookType", pBook->data.type);
+	switch (pBook->data.GetSanitizedType())
+	{
+	case TESObjectBOOK::Data::kType_Skill:
+	RegisterNumber(pFxVal, "teachesSkill", pBook->data.teaches.skill);
+	break;
 
-				case TESObjectBOOK::Data::kType_Spell:
-				{
-					double formID = -1;
+	case TESObjectBOOK::Data::kType_Spell:
+	{
+	double formID = -1;
 
-					if (pBook->data.teaches.spell)
-						formID = pBook->data.teaches.spell->formID;
+	if (pBook->data.teaches.spell)
+	formID = pBook->data.teaches.spell->formID;
 
-					RegisterNumber(pFxVal, "teachesSpell", formID);
-				}
-				break;
-				}
-			}
-		}
-		break;
+	RegisterNumber(pFxVal, "teachesSpell", formID);
+	}
+	break;
+	}
+	}
+	}
+	break;
 
-		default:
-			break;
-		}
+	default:
+	break;
+	}
 	}*/
 };
 
