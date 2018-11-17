@@ -171,8 +171,8 @@ public:
 
 		if (pBaseForm != nullptr
 			&& pBaseForm->GetFormType() == kFormType_NPC
-			&& pRefForm != nullptr
-			&& pRefForm->GetFormType() == kFormType_Character)
+			&& ( pRefForm == nullptr
+			     || pRefForm->GetFormType() == kFormType_Character ) )
 		{
 			DebugMessage("GetExtraData: Get Form Data character found");
 			GetCharacterData(resultArray, movie, pRefForm, pBaseForm);
@@ -264,6 +264,14 @@ public:
 
 			GetInventory(resultArray, movie, inventory, pContainer);
 
+		}
+
+		GetModelTextures(resultArray, movie, pBaseForm);
+
+		//Handle BSExtra data
+		if (pRefForm != nullptr)
+		{
+			GetBSExtraData(resultArray, movie, pRefForm);
 		}
 
 		DebugMessage("GetExtraData: Get Form Data End");
@@ -502,7 +510,13 @@ public:
 	{
 		DebugMessage("GetCharacterData: GetCharacter info start");
 
-		Actor * pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
+		Actor * pActor = nullptr;
+
+		if (pRefForm)
+		{
+			pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
+		}
+
 		TESNPC * pNPC = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
 		PlayerCharacter* pPlayer = nullptr;
 
@@ -512,7 +526,7 @@ public:
 		}
 
 
-		if (pActor && pNPC)
+		if (pNPC)
 		{
 			TESActorBase *pActorBase = DYNAMIC_CAST(pNPC, TESNPC, TESActorBase);
 
@@ -530,15 +544,18 @@ public:
 
 				DebugMessage("GetCharacterData: Starting Added Spells");
 
-				//Added Spells
-				for (int i = 0; i < pActor->addedSpells.Length(); i++)
+				if (pActor)
 				{
-					GFxValue spellEntry;
+					//Added Spells
+					for (int i = 0; i < pActor->addedSpells.Length(); i++)
+					{
+						GFxValue spellEntry;
 
-					SpellItem* spell = pActor->addedSpells.Get(i);
-					GetSpellDataWrapper(&spellEntry, movie, spell, "Added Spell");
+						SpellItem* spell = pActor->addedSpells.Get(i);
+						GetSpellDataWrapper(&spellEntry, movie, spell, "Added Spell");
 
-					SpellsArray.PushBack(&spellEntry);
+						SpellsArray.PushBack(&spellEntry);
+					}
 				}
 
 				DebugMessage("GetCharacterData: Starting Base Spells");
@@ -562,162 +579,165 @@ public:
 
 				DebugMessage("GetCharacterData: GetCharacter Done with spells");
 
-				// ActiveEffects as Array
-				GFxValue activeEffectsEntry;
-
-				CreateExtraInfoEntry(&activeEffectsEntry, movie, "Effects", "");
-
-				GFxValue activeEffectsArray;
-				movie->CreateArray(&activeEffectsArray);
-
-				tList<ActiveEffect> * effects = pActor->magicTarget.GetActiveEffects();
-
-				DebugMessage("GetCharacterData: Active Effects Gotten");
-
-				if (effects)
+				if (pActor)
 				{
-					for (int i = 0; i < effects->Count(); i++)
+					// ActiveEffects as Array
+					GFxValue activeEffectsEntry;
+
+					CreateExtraInfoEntry(&activeEffectsEntry, movie, "Effects", "");
+
+					GFxValue activeEffectsArray;
+					movie->CreateArray(&activeEffectsArray);
+
+					tList<ActiveEffect> * effects = pActor->magicTarget.GetActiveEffects();
+
+					DebugMessage("GetCharacterData: Active Effects Gotten");
+
+					if (effects)
 					{
-						DebugMessage("GetCharacterData: Starting Active Effect");
-
-						ActiveEffect * pEffect = effects->GetNthItem(i);
-
-						GFxValue effectEntry;
-
-						if (pEffect->effect && pEffect->effect->mgef)
+						for (int i = 0; i < effects->Count(); i++)
 						{
-							DebugMessage("GetCharacterData: Active Effect MGEF found");
+							DebugMessage("GetCharacterData: Starting Active Effect");
 
-							std::string effectName, effectActive;
+							ActiveEffect * pEffect = effects->GetNthItem(i);
 
-							EffectSetting * mgef = pEffect->effect->mgef;
+							GFxValue effectEntry;
 
-							if (mgef->fullName.name.data)
+							if (pEffect->effect && pEffect->effect->mgef)
 							{
-								effectName = mgef->fullName.name.data;
+								DebugMessage("GetCharacterData: Active Effect MGEF found");
+
+								std::string effectName, effectActive;
+
+								EffectSetting * mgef = pEffect->effect->mgef;
+
+								if (mgef->fullName.name.data)
+								{
+									effectName = mgef->fullName.name.data;
+								}
+
+								else
+								{
+									effectName = "Unknown Effect";
+								}
+
+								if ((pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive)
+								{
+									effectActive = "Inactive";
+								}
+
+								else
+								{
+									effectActive = "Active";
+								}
+
+								CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
+
+								GFxValue effectEntrySubArray;
+
+								movie->CreateArray(&effectEntrySubArray);
+
+								TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
+
+								if (effectBaseForm)
+								{
+									DebugMessage("GetCharacterData: Active Effect MGEF base form found");
+
+									GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
+
+									//Magnitude
+									GFxValue magnitudeEntry;
+
+									float magnitude = pEffect->magnitude;
+									CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
+									effectEntrySubArray.PushBack(&magnitudeEntry);
+
+									//Duration
+									GFxValue durationEntry;
+
+									float duration = pEffect->duration;
+									CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
+									effectEntrySubArray.PushBack(&durationEntry);
+
+
+									//Magnitude
+									GFxValue elapsedEntry;
+
+									float elapsed = pEffect->elapsed;
+									CreateExtraInfoEntry(&elapsedEntry, movie, "Elapsed", FloatToString(elapsed));
+									effectEntrySubArray.PushBack(&elapsedEntry);
+
+									GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
+
+									effectEntry.PushBack(&effectEntrySubArray);
+								}
 							}
 
 							else
 							{
-								effectName = "Unknown Effect";
+								CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
 							}
 
-							if ((pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive)
-							{
-								effectActive = "Inactive";
-							}
-
-							else
-							{
-								effectActive = "Active";
-							}
-
-							CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
-
-							GFxValue effectEntrySubArray;
-
-							movie->CreateArray(&effectEntrySubArray);
-
-							TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
-
-							if (effectBaseForm)
-							{
-								DebugMessage("GetCharacterData: Active Effect MGEF base form found");
-
-								GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
-
-								//Magnitude
-								GFxValue magnitudeEntry;
-
-								float magnitude = pEffect->magnitude;
-								CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
-								effectEntrySubArray.PushBack(&magnitudeEntry);
-
-								//Duration
-								GFxValue durationEntry;
-
-								float duration = pEffect->duration;
-								CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
-								effectEntrySubArray.PushBack(&durationEntry);
+							activeEffectsArray.PushBack(&effectEntry);
 
 
-								//Magnitude
-								GFxValue elapsedEntry;
+							DebugMessage("GetCharacterData: Ending Active Effect");
 
-								float elapsed = pEffect->elapsed;
-								CreateExtraInfoEntry(&elapsedEntry, movie, "Elapsed", FloatToString(elapsed));
-								effectEntrySubArray.PushBack(&elapsedEntry);
+							/*if (pEffect->item)
+							scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
 
-								GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
+							//RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
 
-								effectEntry.PushBack(&effectEntrySubArray);
-							}
+							// ActiveEffect
+							//if (pEffect->effect && pEffect->effect->mgef)
+							//	scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
+
+							//activeEffects.PushBack(&effect);
 						}
-
-						else
-						{
-							CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
-						}
-
-						activeEffectsArray.PushBack(&effectEntry);
-
-
-						DebugMessage("GetCharacterData: Ending Active Effect");
-
-						/*if (pEffect->item)
-						scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
-
-						//RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
-
-						// ActiveEffect
-						//if (pEffect->effect && pEffect->effect->mgef)
-						//	scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
-
-						//activeEffects.PushBack(&effect);
 					}
-				}
 
-				activeEffectsEntry.PushBack(&activeEffectsArray);
-				resultArray->PushBack(&activeEffectsEntry);
+					activeEffectsEntry.PushBack(&activeEffectsArray);
+					resultArray->PushBack(&activeEffectsEntry);
 
-
-				DebugMessage("GetExtraData: Active Effects Done");
-
-				GFxValue actorValueHealth;
-
-				GetActorValue(&actorValueHealth, movie, pActor, actorValueHealthIndex);
-				resultArray->PushBack(&actorValueHealth);
-
-				GFxValue actorValueMagicka;
-
-				GetActorValue(&actorValueMagicka, movie, pActor, actorValueMagickaIndex);
-				resultArray->PushBack(&actorValueMagicka);
-
-				GFxValue actorValueStamina;
-
-				GetActorValue(&actorValueStamina, movie, pActor, actorValueStaminahIndex);
-				resultArray->PushBack(&actorValueStamina);
-
-				//Get all actor values in a subarray
-				GFxValue actorValueArrayEntry;
-				CreateExtraInfoEntry(&actorValueArrayEntry, movie, "Actor Values", "");
-
-				GFxValue actorValueArray;
-				movie->CreateArray(&actorValueArray);
-
-				for (int i = 0; i < ActorValueList::kNumActorValues; i++)
-				{
-
-					GFxValue actorValue;
-					GetActorValue(&actorValue, movie, pActor, i);
-					actorValueArray.PushBack(&actorValue);
-				}
+					DebugMessage("GetExtraData: Active Effects Done");
 
 
-				actorValueArrayEntry.PushBack(&actorValueArray);
-				resultArray->PushBack(&actorValueArrayEntry);
+					GFxValue actorValueHealth;
 
-				DebugMessage("GetExtraData: GetCharacter actor values gotten");
+					GetActorValue(&actorValueHealth, movie, pActor, actorValueHealthIndex);
+					resultArray->PushBack(&actorValueHealth);
+
+					GFxValue actorValueMagicka;
+
+					GetActorValue(&actorValueMagicka, movie, pActor, actorValueMagickaIndex);
+					resultArray->PushBack(&actorValueMagicka);
+
+					GFxValue actorValueStamina;
+
+					GetActorValue(&actorValueStamina, movie, pActor, actorValueStaminahIndex);
+					resultArray->PushBack(&actorValueStamina);
+
+					//Get all actor values in a subarray
+					GFxValue actorValueArrayEntry;
+					CreateExtraInfoEntry(&actorValueArrayEntry, movie, "Actor Values", "");
+
+					GFxValue actorValueArray;
+					movie->CreateArray(&actorValueArray);
+
+					for (int i = 0; i < ActorValueList::kNumActorValues; i++)
+					{
+
+						GFxValue actorValue;
+						GetActorValue(&actorValue, movie, pActor, i);
+						actorValueArray.PushBack(&actorValue);
+					}
+
+
+					actorValueArrayEntry.PushBack(&actorValueArray);
+					resultArray->PushBack(&actorValueArrayEntry);
+
+					DebugMessage("GetExtraData: GetCharacter actor values gotten");
+				} //end of a pActor Section
 
 				//Handle Flags
 				int essentialFlag = 0x02;
@@ -745,16 +765,19 @@ public:
 
 				//Level stuff
 
-				int level = CALL_MEMBER_FN(pActor, GetLevel)();
+				if (pActor)
+				{
 
-				GFxValue levelEntry;
+					int level = CALL_MEMBER_FN(pActor, GetLevel)();
 
-				CreateExtraInfoEntry(&levelEntry, movie, "Level", IntToString(level));
-				resultArray->PushBack(&levelEntry);
+					GFxValue levelEntry;
 
-				DebugMessage("GetExtraData: GetCharacter level gotten");
+					CreateExtraInfoEntry(&levelEntry, movie, "Level", IntToString(level));
+					resultArray->PushBack(&levelEntry);
 
-
+					DebugMessage("GetExtraData: GetCharacter level gotten");
+				}
+				
 				GFxValue isPcLeveledEntry;
 
 				bool isLevelMult = (pNPC->actorData.flags & TESActorBaseData::kFlag_PCLevelMult) == TESActorBaseData::kFlag_PCLevelMult;
@@ -793,7 +816,6 @@ public:
 				}
 
 				resultArray->PushBack(&isPcLeveledEntry);
-
 
 				//Perks
 				int numPerks = pActorBase->perkRanks.numPerkRanks;
@@ -1751,6 +1773,73 @@ public:
 		DebugMessage("Ending GetPositionData");
 	}
 
+
+	//get data stored in the BSExtraData format
+	void GetBSExtraData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm)
+	{
+		DebugMessage("Starting GetBSExtraData");
+
+		TESObjectREFR * pRef = DYNAMIC_CAST(pRefForm, TESForm, TESObjectREFR);
+
+		if (pRef)
+		{
+			BaseExtraList *extraList = &pRef->extraData;
+
+			
+			if(MICOptions::MICDebugMode)
+			{
+				//Placeholder for seeing what has editor IDs
+				GFxValue editorIDEntry;
+
+				if (extraList->HasType(kExtraData_EditorID))
+				{
+					CreateExtraInfoEntry(&editorIDEntry, movie, "Editor ID", "Yes");
+				}
+				else
+				{
+					CreateExtraInfoEntry(&editorIDEntry, movie, "Editor ID", "No");
+				}
+
+				resultArray->PushBack(&editorIDEntry);
+			}
+
+			if (extraList->HasType(kExtraData_Ownership))
+			{
+				DebugMessage("Starting kExtraData_Ownership");
+
+				BSExtraData * data = extraList->GetByType(kExtraData_Ownership);
+				ExtraOwnership * ownershipData = DYNAMIC_CAST(data, BSExtraData, ExtraOwnership);
+
+				if (ownershipData)
+				{
+					TESForm * owner = ownershipData->owner;
+					std::string ownerName = GetName(owner);
+
+					//Placeholder for seeing what has editor IDs
+					GFxValue ownershipEntry;
+
+					CreateExtraInfoEntry(&ownershipEntry, movie, "Owner", ownerName);
+
+
+					DebugMessage("Before getting owner form data");
+
+					GFxValue ownershipSubarray;
+					movie->CreateArray(&ownershipSubarray);
+					GetFormData(&ownershipSubarray, movie, owner, nullptr);
+
+					ownershipEntry.PushBack(&ownershipSubarray);
+					resultArray->PushBack(&ownershipEntry);
+
+				}
+
+
+				DebugMessage("Ending kExtraData_Ownership");
+			}
+		}
+
+
+		DebugMessage("Ending GetBSExtraData");
+	}
 	/*
 	void StandardItemData(GFxValue * pFxVal, TESForm * pForm, InventoryEntryData * pEntry)
 	{
@@ -1815,6 +1904,34 @@ public:
 	break;
 	}
 	}*/
+
+	void GetModelTextures(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	{
+		if (pBaseForm->formType == kFormType_Static)
+		{
+			TESObjectSTAT *pStatic = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectSTAT);
+
+			if (pStatic)
+			{
+				TESModelTextureSwap * textSwap = &( pStatic->texSwap );
+				_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
+
+				int count = textSwap->count;
+
+				_MESSAGE(IntToString(count).c_str());
+
+				for (int i = 0; i < count; i++)
+				{
+					BGSTextureSet * textureSet = textSwap->swaps[i].textureSet;
+
+					for (int i = 0; i < textureSet->kNumTextures; i++)
+					{
+						_MESSAGE(textureSet->texturePaths[i].str);
+					}
+				}
+			}
+		}
+	}
 };
 
 class MICScaleform_GetIniOptions : public GFxFunctionHandler
