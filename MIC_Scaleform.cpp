@@ -213,6 +213,17 @@ public:
 			DebugMessage("GetExtraData: Get Form Data Container found");
 			GetContainerData(resultArray, movie, pBaseForm);
 		}
+		else if (pBaseForm->GetFormType() == kFormType_Faction)
+		{
+			DebugMessage("GetExtraData: Get Form Data Faction found");
+			//GetContainerData(resultArray, movie, pBaseForm);
+		}
+
+		else if (pBaseForm->GetFormType() == kFormType_Race)
+		{
+			DebugMessage("GetExtraData: Get Form Data Faction found");
+			GetRaceEntry(resultArray, movie, pBaseForm);
+		}
 
 		//get inventory
 		if (pRefForm != nullptr
@@ -525,14 +536,32 @@ public:
 			pPlayer = DYNAMIC_CAST(pRefForm, TESForm, PlayerCharacter);
 		}
 
+		TESActorBase *pActorBase = DYNAMIC_CAST(pNPC, TESNPC, TESActorBase);
 
 		if (pNPC)
 		{
-			TESActorBase *pActorBase = DYNAMIC_CAST(pNPC, TESNPC, TESActorBase);
-
 			if (pActorBase)
 			{
 				DebugMessage("GetCharacterData: GetCharacter info casts worked");
+
+				DebugMessage("GetCharacterData: Starting Race");
+
+				//Race
+				GFxValue raceEntry;
+
+				TESRace * pRace = pNPC->race.race;
+				std::string raceName = GetName(pRace);
+
+				CreateExtraInfoEntry( &raceEntry, movie, "Race", raceName);
+
+				GFxValue raceSubEntry;
+				movie->CreateArray(&raceSubEntry);
+				GetFormData(&raceSubEntry, movie, pRace, nullptr);
+
+				raceEntry.PushBack(&raceSubEntry);
+				resultArray->PushBack(&raceEntry);
+
+				DebugMessage("GetCharacterData: Ending Race");
 
 				//Spells
 				GFxValue allSpellsEntry;
@@ -737,6 +766,43 @@ public:
 					resultArray->PushBack(&actorValueArrayEntry);
 
 					DebugMessage("GetExtraData: GetCharacter actor values gotten");
+
+					DebugMessage("Before package");
+
+					ActorProcessManager * pProcess = pActor->processManager;
+
+					if (pProcess)
+					{
+						TESForm * currentPackage = pProcess->unk18.package;
+
+						if (currentPackage)
+						{
+							DebugMessage("Before getting package name");
+
+
+							//TESForm * currentPackage = packageData->currentPackage;
+							std::string packageName = GetName(currentPackage);
+
+							//Placeholder for seeing what has editor IDs
+							GFxValue packageEntry;
+
+							CreateExtraInfoEntry(&packageEntry, movie, "Current Package", packageName);
+
+
+							DebugMessage("Before getting package form data");
+
+							GFxValue packageSubArray;
+							movie->CreateArray(&packageSubArray);
+							GetFormData(&packageSubArray, movie, currentPackage, nullptr);
+
+							packageEntry.PushBack(&packageSubArray);
+							resultArray->PushBack(&packageEntry);
+
+						}
+					}
+					
+					DebugMessage("After package");
+
 				} //end of a pActor Section
 
 				//Handle Flags
@@ -777,7 +843,7 @@ public:
 
 					DebugMessage("GetExtraData: GetCharacter level gotten");
 				}
-				
+
 				GFxValue isPcLeveledEntry;
 
 				bool isLevelMult = (pNPC->actorData.flags & TESActorBaseData::kFlag_PCLevelMult) == TESActorBaseData::kFlag_PCLevelMult;
@@ -904,37 +970,87 @@ public:
 				resultArray->PushBack(&perks);
 
 				DebugMessage("GetExtraData: Done with perks");
+
+
+
+				//apperance - currently height and weight
+				DebugMessage("GetExtraData: appearance Started");
+
+				GFxValue appearance;
+				CreateExtraInfoEntry(&appearance, movie, "Appearance", "");
+
+				GFxValue appearanceSubArray;
+				movie->CreateArray(&appearanceSubArray);
+
+				float weight = pNPC->weight;
+
+				GFxValue weightEntry;
+
+				CreateExtraInfoEntry(&weightEntry, movie, "Weight", FloatToString(weight));
+				appearanceSubArray.PushBack(&weightEntry);
+
+				float height = pNPC->height;
+
+				GFxValue heightEntry;
+
+				CreateExtraInfoEntry(&heightEntry, movie, "Height", FloatToString(height));
+				appearanceSubArray.PushBack(&heightEntry);
+
+				appearance.PushBack(&appearanceSubArray);
+
+				resultArray->PushBack(&appearance);
+
+				DebugMessage("GetExtraData: appearance Ended");
+
+				DebugMessage("GetExtraData: factions start");
+
+				GFxValue factionsEntry;
+
+				CreateExtraInfoEntry(&factionsEntry, movie, "Factions", "");
+
+				//Factions
+				int numFactions = pActorBase->actorData.factions.count;
+
+				if (numFactions > 0)
+				{
+					GFxValue factionsSubArray;
+
+					movie->CreateArray(&factionsSubArray);
+
+					for (int i = 0; i < numFactions; i++)
+					{
+						TESActorBaseData::FactionInfo factionInfo = pActorBase->actorData.factions[i];
+						TESFaction *faction = factionInfo.faction;
+
+						if (faction)
+						{
+							GFxValue factionEntry;
+
+							std::string factionName = GetName(faction);
+							int rank = factionInfo.rank;
+
+							CreateExtraInfoEntry(&factionEntry, movie, factionName, "Rank: " + IntToString(rank));
+
+							GFxValue factionEntrySubarrray;
+							movie->CreateArray(&factionEntrySubarrray);
+							GetFormData(&factionEntrySubarrray, movie, faction, nullptr);
+							factionEntry.PushBack(&factionEntrySubarrray);
+
+							factionsSubArray.PushBack(&factionEntry);
+						}
+					}
+
+					factionsEntry.PushBack(&factionsSubArray);
+				}
+
+				resultArray->PushBack(&factionsEntry);
+
+				//need to get factions off of reference as well
+
+				DebugMessage("GetExtraData: factions ended");
+
 			}
 		}
-
-		//apperance - currently height and weight
-		DebugMessage("GetExtraData: appearance Started");
-
-		GFxValue appearance;
-		CreateExtraInfoEntry(&appearance, movie, "Appearance", "");
-
-		GFxValue appearanceSubArray;
-		movie->CreateArray(&appearanceSubArray);
-
-		float weight = pNPC->weight;
-
-		GFxValue weightEntry;
-
-		CreateExtraInfoEntry(&weightEntry, movie, "Weight", FloatToString(weight));
-		appearanceSubArray.PushBack(&weightEntry);
-
-		float height = pNPC->height;
-
-		GFxValue heightEntry;
-
-		CreateExtraInfoEntry(&heightEntry, movie, "Height", FloatToString(height));
-		appearanceSubArray.PushBack(&heightEntry);
-
-		appearance.PushBack(&appearanceSubArray);
-
-		resultArray->PushBack(&appearance);
-
-		DebugMessage("GetExtraData: appearance Ended");
 
 
 		/*PlayerCharacter* pPC = DYNAMIC_CAST(pForm, TESForm, PlayerCharacter);
@@ -1785,7 +1901,6 @@ public:
 		{
 			BaseExtraList *extraList = &pRef->extraData;
 
-			
 			if(MICOptions::MICDebugMode)
 			{
 				//Placeholder for seeing what has editor IDs
@@ -1835,7 +1950,61 @@ public:
 
 				DebugMessage("Ending kExtraData_Ownership");
 			}
+			
+
+			if (MICOptions::MICDebugMode)
+			{
+				//Placeholder for seeing what has editor IDs
+				GFxValue editorIDEntry;
+
+				if (extraList->HasType(kExtraData_Package))
+				{
+					CreateExtraInfoEntry(&editorIDEntry, movie, "Extra Data Package", "Yes");
+				}
+				else
+				{
+					CreateExtraInfoEntry(&editorIDEntry, movie, "Extra Data Package", "No");
+				}
+
+				resultArray->PushBack(&editorIDEntry);
+			}
+
+			/**
+			if (extraList->HasType(kExtraData_Package))
+			{
+				DebugMessage("Starting kExtraData_Package");
+
+				BSExtraData * data = extraList->GetByType(kExtraData_Package);
+				ExtraPackage * packageData = DYNAMIC_CAST(data, BSExtraData, ExtraPackage);
+
+				if (packageData)
+				{
+					TESForm * currentPackage = packageData->currentPackage;
+					std::string packageName = GetName(currentPackage);
+
+					//Placeholder for seeing what has editor IDs
+					GFxValue packageEntry;
+
+					CreateExtraInfoEntry(&packageEntry, movie, "Current Package", packageName);
+
+
+					DebugMessage("Before getting packag form data");
+
+					GFxValue packageSubArray;
+					movie->CreateArray(&packageSubArray);
+					GetFormData(&packageSubArray, movie, currentPackage, nullptr);
+
+					packageEntry.PushBack(&packageSubArray);
+					resultArray->PushBack(&packageEntry);
+
+				}
+
+
+				DebugMessage("Ending kExtraData_Package");
+			}*/
 		}
+
+
 
 
 		DebugMessage("Ending GetBSExtraData");
@@ -1907,15 +2076,75 @@ public:
 
 	void GetModelTextures(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
 	{
+		DebugMessage("Starting GetModelTextures");
 		if (pBaseForm->formType == kFormType_Static)
 		{
 			TESObjectSTAT *pStatic = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectSTAT);
 
 			if (pStatic)
 			{
-				TESModelTextureSwap * textSwap = &( pStatic->texSwap );
-				_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
+				TESModelTextureSwap * textSwap = &(pStatic->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
 
+		else if (pBaseForm->formType == kFormType_MovableStatic)
+		{
+			BGSMovableStatic *pMoveStatic = DYNAMIC_CAST(pBaseForm, TESForm, BGSMovableStatic);
+
+			if (pMoveStatic)
+			{
+				TESModelTextureSwap * textSwap = &(pMoveStatic->staticObj.texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Activator)
+		{
+			TESObjectACTI *pActivate = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectACTI);
+
+			if (pActivate)
+			{
+				TESModelTextureSwap * textSwap = &(pActivate->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Tree)
+		{
+			TESObjectTREE *pTree = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectTREE);
+
+			if (pTree)
+			{
+				TESModel * model = &(pTree->model);
+				AddModelEntry(resultArray, movie, "Model", model);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Flora)
+		{
+			TESFlora *pFlora = DYNAMIC_CAST(pBaseForm, TESForm, TESFlora);
+
+			if (pFlora)
+			{
+				TESModelTextureSwap * textSwap = &(pFlora->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Furniture)
+		{
+			TESFurniture *pFurniture = DYNAMIC_CAST(pBaseForm, TESForm, TESFurniture);
+
+			if (pFurniture)
+			{
+				TESModelTextureSwap * textSwap = &(pFurniture->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+				//_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
+
+				/*
 				int count = textSwap->count;
 
 				_MESSAGE(IntToString(count).c_str());
@@ -1928,11 +2157,141 @@ public:
 					{
 						_MESSAGE(textureSet->texturePaths[i].str);
 					}
-				}
-			}
+				}*/
+
+
+		DebugMessage("Ending GetModelTextures");
+	}
+
+	void AddModelEntry(GFxValue * resultArray, GFxMovieView * movie, std::string modelType, TESModel * model)
+	{
+		DebugMessage("Starting AddModelEntry");
+		char deliminator = '\\';
+
+		std::string modelPath = model->GetModelName();
+
+		//get the name of the file
+
+		int lastSlash = modelPath.find_last_of( deliminator);
+
+		std::string modelName = "";
+
+		if (lastSlash != std::string::npos)
+		{
+			modelName = modelPath.substr(lastSlash + 1);
 		}
+		//its unlikely but if the model is not in any folder its name is the same as the path
+		else
+		{
+			modelName = modelPath;
+		}
+
+
+		GFxValue modelEntry;
+		CreateExtraInfoEntry(&modelEntry, movie, modelType, modelName);
+
+
+		//DebugMessage("Done with Model Name: " + modelName);
+
+
+		//DebugMessage("Starting path split with path: " + modelPath);
+
+		GFxValue modelPathSubArray;
+		movie->CreateArray(&modelPathSubArray);
+		
+		//loop through the string until the last slash is going
+		int firstSlash = modelPath.find_first_of(deliminator);
+		while (firstSlash != std::string::npos)
+		{
+			//DebugMessage("Splitting with index: " + IntToString(firstSlash) + " with remaining path " + modelPath);
+
+			GFxValue pathEntry;
+			std::string path = modelPath.substr(0, firstSlash + 1);
+
+			CreateExtraInfoEntry(&pathEntry, movie, path, "");
+			modelPathSubArray.PushBack(&pathEntry);
+
+			modelPath = modelPath.substr(firstSlash + 1); //get everything after the first slash
+			firstSlash = modelPath.find_first_of(deliminator); //refind the first slash
+		}
+
+
+		GFxValue pathEntry;
+		//we already have everything after the last slash so add the entry directly
+		CreateExtraInfoEntry(&pathEntry, movie, modelName, "");
+		modelPathSubArray.PushBack(&pathEntry);
+
+		modelEntry.PushBack(&modelPathSubArray);
+		resultArray->PushBack(&modelEntry);
+
+
+		DebugMessage("Ending AddModelEntry");
+	}
+
+	void GetRaceEntry(GFxValue * resultArray, GFxMovieView * movie, TESForm * pBaseForm)
+	{
+		DebugMessage("Starting GetRaceEntry");
+
+		TESRace * pRace = DYNAMIC_CAST(pBaseForm, TESForm, TESRace);
+		if (pRace)
+		{
+			DebugMessage("Getting Editor ID");
+
+			//editor ID
+			std::string editorID = pRace->editorId.Get();
+
+			GFxValue editorIDEntry;
+
+			CreateExtraInfoEntry(&editorIDEntry, movie, "EditorID", editorID);
+			resultArray->PushBack(&editorIDEntry);
+
+
+			DebugMessage("Getting Models");
+			//models
+			TESModel * maleModel = &pRace->models[0];
+			TESModel * femaleModel = &pRace->models[1];
+
+			AddModelEntry(resultArray, movie, "Male Model", maleModel);
+			AddModelEntry(resultArray, movie, "Female Model", femaleModel);
+
+			//Handle Flags
+			int playableFlag = 0x00000001;
+			int childFlag = 0x00000004;
+
+			GFxValue playableEntry;
+
+			if ((pRace->data.raceFlags & playableFlag) == playableFlag)
+			{
+				CreateExtraInfoEntry(&playableEntry, movie, "Playable", "Yes");
+			}
+
+			else
+			{
+				CreateExtraInfoEntry(&playableEntry, movie, "Playable", "No");
+			}
+
+			resultArray->PushBack(&playableEntry);
+
+			GFxValue childEntry;
+
+			if ((pRace->data.raceFlags & childFlag) == childFlag)
+			{
+				CreateExtraInfoEntry(&childEntry, movie, "Child", "Yes");
+			}
+
+			else
+			{
+				CreateExtraInfoEntry(&childEntry, movie, "Child", "No");
+			}
+
+			resultArray->PushBack(&childEntry);
+		}
+
+		DebugMessage("Ending GetRaceEntry");
 	}
 };
+
+
 
 class MICScaleform_GetIniOptions : public GFxFunctionHandler
 {

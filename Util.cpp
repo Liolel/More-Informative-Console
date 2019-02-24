@@ -915,8 +915,45 @@ std::string GetName(TESForm* pBaseForm)
 
 			break;
 		}
-	}
 
+		case kFormType_Faction:
+		{
+			DebugMessage("GetExtraData: GetName Factopm");
+			TESFaction * pFaction = DYNAMIC_CAST(pBaseForm, TESForm, TESFaction);
+			if (pFaction)
+			{
+				if (pFaction->fullName.name.data)
+				{
+					name = pFaction->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		case kFormType_Race:
+		{
+			DebugMessage("GetExtraData: GetName Race");
+			TESRace * pRace = DYNAMIC_CAST(pBaseForm, TESForm, TESRace);
+			if (pRace)
+			{
+				if (pRace->fullName.name.data)
+				{
+					name = pRace->fullName.name.data;
+				}
+			}
+
+			break;
+		}
+
+		//for objects with no name data show the formID
+		case kFormType_Package:
+		{
+			name = FormIDToString(pBaseForm->formID);
+			break;
+		}
+	}
+	
 	DebugMessage("GetExtraData: GetName End");
 
 	return name;
