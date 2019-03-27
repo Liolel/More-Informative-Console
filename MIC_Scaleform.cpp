@@ -166,7 +166,7 @@ public:
 	//general wrapper for all get form methods
 	void GetFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESObjectREFR* pRefForm)
 	{
-		DebugMessage("GetExtraData: Get Form Data Start");
+		DebugMessage("GetExtraData: Get Form Data Start " + GetFormTypeName(pBaseForm->formType));
 
 		GetCommonFormData(resultArray, movie, pBaseForm, pRefForm);
 
@@ -230,6 +230,12 @@ public:
 		{
 			DebugMessage("GetExtraData: Get Form Data Texture Set found");
 			GetTextureSet(resultArray, movie, pBaseForm);
+		}
+
+		else if (pBaseForm->GetFormType() == kFormType_ARMA)
+		{
+			DebugMessage("GetExtraData: Get Form Data ARMA found");
+			GetArmaData(resultArray, movie, pBaseForm);
 		}
 
 		//get inventory
@@ -312,7 +318,7 @@ public:
 	//get data common to all form types
 	void GetCommonFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESForm* pRefForm)
 	{
-		DebugMessage("GetExtraData: GetCommonFormData Start");
+		DebugMessage("GetCommonFormData: GetCommonFormData Start");
 
 		std::unique_ptr<char[]>	sResult(new char[MAX_PATH]);
 
@@ -360,6 +366,8 @@ public:
 
 		resultArray->PushBack(&nameArray);
 
+		DebugMessage("GetCommonFormData: Get FormID Start");
+
 		//base formid
 		sprintf_s(sResult.get(), MAX_PATH, "%08X", pBaseForm->formID);
 		std::string formID = sResult.get();
@@ -388,6 +396,9 @@ public:
 
 		//mod location info
 
+
+		DebugMessage("GetCommonFormData: Get Form Location Start");
+
 		GFxValue formLocationHolder, formLocationData;
 
 		CreateExtraInfoEntry(&formLocationHolder, movie, "Form location information", "");
@@ -400,7 +411,7 @@ public:
 			GetPositionData(resultArray, movie, pRefForm);
 		}
 
-		DebugMessage("GetExtraData: GetCommonFormData End");
+		DebugMessage("GetCommonFormData: GetCommonFormData End");
 
 	}
 
@@ -1659,10 +1670,50 @@ public:
 
 	void GetArmaData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
 	{
+		DebugMessage("GetArmaData: GetArmaData Start");
+
 		TESObjectARMA * pArma = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMA);
 
 		if (pArma)
 		{
+			DebugMessage("GetArmaData: Before Cast");
+			TESForm * maleSkin = (TESForm *) pArma->unk130;
+			
+			DebugMessage("GetArmaData: After Cast");
+			if (maleSkin)
+			{
+				GFxValue maleSkinEntry;
+				CreateExtraInfoEntry(&maleSkinEntry, movie, "Male skin", "");
+
+				GFxValue maleSkinSubEntry;
+				movie->CreateArray(&maleSkinSubEntry);
+
+				GetFormData(&maleSkinSubEntry, movie, maleSkin, nullptr);
+
+				maleSkinEntry.PushBack(&maleSkinSubEntry);
+				resultArray->PushBack(&maleSkinEntry);
+			}
+
+
+			DebugMessage("GetArmaData: Before Cast");
+			TESForm * femaleSkin = (TESForm *)pArma->unk138;
+
+			DebugMessage("GetArmaData: After Cast");
+			if (femaleSkin)
+			{
+				GFxValue maleSkinEntry;
+				CreateExtraInfoEntry(&maleSkinEntry, movie, "Female skin", "");
+
+				GFxValue maleSkinSubEntry;
+				movie->CreateArray(&maleSkinSubEntry);
+
+				GetFormData(&maleSkinSubEntry, movie, femaleSkin, nullptr);
+
+				maleSkinEntry.PushBack(&maleSkinSubEntry);
+				resultArray->PushBack(&maleSkinEntry);
+			}
+
+			/*
 			GFxValue racesEntry;
 
 			CreateExtraInfoEntry(&racesEntry, movie, "Races", "");
@@ -1676,8 +1727,10 @@ public:
 			//resultArray->PushBack(&racesEntry);
 
 			//Skin Textures
-
+			*/
 		}
+
+		DebugMessage("GetArmaData: GetArmaData End");
 	}
 
 	void GetArmorData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
