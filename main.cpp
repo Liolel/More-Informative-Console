@@ -17,19 +17,19 @@ extern "C"
 		gLog.OpenRelative(CSIDL_MYDOCUMENTS, kLogPath);
 
 		_MESSAGE("More Informative Console");
-		_MESSAGE("Loading...");
+		_MESSAGE("Initalizing");
 
-		//Populate info structure
+		//Populate the info strucutre
 		info->infoVersion	= PluginInfo::kInfoVersion;
 		info->name			= "More Informative Console";
-		info->version		= 1;
+		info->version		= 0.2;
 
 		//Store plugin handle so we can identify ourselves later
 		g_pluginHandle = skse->GetPluginHandle();
 
 		//Runtime error checks
 		if(skse->isEditor)
-			{ _MESSAGE("Loaded In Editor, Marking As Incompatible"); return false; }
+			{ _MESSAGE("Plugin loaded in editor"); return false; }
 
 		// all is well
 		return true;

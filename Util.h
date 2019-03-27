@@ -20,6 +20,11 @@ namespace MICOptions
 	extern int BaseInfoFormat; //How much information to display in the base info window
 }
 
+namespace MICGlobals
+{
+	extern boolean readRaceSkins; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
+}
+
 void DebugMessage(std::string message);
 
 std::string GetActorValueName(int id);
@@ -27,6 +32,8 @@ std::string GetEffectTypeName(int id);
 std::string GetSpellTypeName(int spellType);
 std::string GetCastingTypeName(int castingType);
 std::string GetDeliveryTypeName(int deliveryType);
+std::string GetTextureType(int textureType);
+
 
 std::string GetName(TESForm* pBaseForm);
 int NumberOfItemInContainer(TESForm * item, TESContainer * container);
@@ -43,3 +50,4 @@ std::string DoubleToString(double number);
 std::string FormIDToString(int formID);
 
 int GetSmallestBitFlag(int flags);
+std::string GetFileName(std::string filePath);

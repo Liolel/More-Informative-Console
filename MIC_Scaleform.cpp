@@ -15,6 +15,7 @@ const int actorValueHealthIndex = 24;
 const int actorValueMagickaIndex = 25;
 const int actorValueStaminahIndex = 26;
 const int playerBaseFormID = 0x7;
+const char deliminator = '\\';
 
 class MICScaleform_GetReferenceInfo : public GFxFunctionHandler
 {
@@ -221,8 +222,14 @@ public:
 
 		else if (pBaseForm->GetFormType() == kFormType_Race)
 		{
-			DebugMessage("GetExtraData: Get Form Data Faction found");
+			DebugMessage("GetExtraData: Get Form Data Race found");
 			GetRaceEntry(resultArray, movie, pBaseForm);
+		}
+
+		else if (pBaseForm->GetFormType() == kFormType_TextureSet )
+		{
+			DebugMessage("GetExtraData: Get Form Data Texture Set found");
+			GetTextureSet(resultArray, movie, pBaseForm);
 		}
 
 		//get inventory
@@ -326,9 +333,27 @@ public:
 			}
 		}
 
+		std::string name = "";
 
-		//name
-		std::string name = GetName(pBaseForm);
+		//The getName function returns the editor ID for race as that is more useful in identifying the actual race
+		//but we want to display the real name when we are getting data for the form
+		if (pBaseForm->formType == kFormType_Race)
+		{
+			TESRace * pRace = DYNAMIC_CAST(pBaseForm, TESForm, TESRace);
+			if (pRace)
+			{
+				if (pRace->fullName.name.data)
+				{
+					name = pRace->fullName.name.data;
+				}
+			}
+		}
+
+		else
+		{
+			//name
+			name = GetName(pBaseForm);
+		}
 
 		GFxValue nameArray;
 		CreateExtraInfoEntry(&nameArray, movie, "Name", name);
@@ -1632,6 +1657,29 @@ public:
 		DebugMessage("GetInventory: GetInventory End");
 	}
 
+	void GetArmaData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	{
+		TESObjectARMA * pArma = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMA);
+
+		if (pArma)
+		{
+			GFxValue racesEntry;
+
+			CreateExtraInfoEntry(&racesEntry, movie, "Races", "");
+
+			MICGlobals::readRaceSkins = false; //disable reading race skin entries to avoid infinite loops
+
+			//Read all races here
+
+			MICGlobals::readRaceSkins = true;
+
+			//resultArray->PushBack(&racesEntry);
+
+			//Skin Textures
+
+		}
+	}
+
 	void GetArmorData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
 	{
 		TESObjectARMO * pArmor = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMO);
@@ -1698,6 +1746,33 @@ public:
 
 			equipSlotsEntry.PushBack(&equipSlotsEntrySubArray);
 			resultArray->PushBack(&equipSlotsEntry);
+
+			GFxValue armorAddonsEntry;
+
+			CreateExtraInfoEntry(&armorAddonsEntry, movie, "Armor Entry", "");
+
+			GFxValue armorAddonsSubArray;
+			movie->CreateArray(&armorAddonsSubArray);
+
+			for (int i = 0; i < pArmor->armorAddons.count; i++)
+			{
+				GFxValue armorAddonEntry;
+
+				std::string armorAddonName = GetName(pArmor->armorAddons[i]);
+
+				CreateExtraInfoEntry(&armorAddonEntry, movie, armorAddonName, "");
+
+				GFxValue armorAddonSubArray;
+				movie->CreateArray(&armorAddonSubArray);
+
+				GetFormData(&armorAddonSubArray, movie, pArmor->armorAddons[i], nullptr);
+
+				armorAddonEntry.PushBack(&armorAddonSubArray);
+				armorAddonsSubArray.PushBack(&armorAddonEntry);
+			}
+
+			armorAddonsEntry.PushBack(&armorAddonsSubArray);
+			resultArray->PushBack(&armorAddonsEntry);
 		}
 	}
 
@@ -2076,7 +2151,7 @@ public:
 
 	void GetModelTextures(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
 	{
-		DebugMessage("Starting GetModelTextures");
+		DebugMessage("Starting GetModelTextures " + GetFormTypeName( pBaseForm->formType) );
 		if (pBaseForm->formType == kFormType_Static)
 		{
 			TESObjectSTAT *pStatic = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectSTAT);
@@ -2142,6 +2217,142 @@ public:
 				AddModelEntry(resultArray, movie, "Model", textSwap);
 			}
 		}
+
+		else if (pBaseForm->formType == kFormType_Door)
+		{
+			TESObjectDOOR *pDoor = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectDOOR);
+			if (pDoor)
+			{
+				TESModelTextureSwap * textSwap = &(pDoor->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Container)
+		{
+			TESObjectCONT *pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
+			if (pContainer)
+			{
+				TESModelTextureSwap * textSwap = &(pContainer->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+		
+		else if (pBaseForm->formType == kFormType_Misc)
+		{
+			TESObjectMISC *pMisc = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectMISC);
+			if (pMisc)
+			{
+				TESModelTextureSwap * textSwap = &(pMisc->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Book)
+		{
+			TESObjectBOOK *pBook = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectBOOK);
+			if (pBook)
+			{
+				TESModelTextureSwap * textSwap = &(pBook->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Key )
+		{
+			TESKey *pKey = DYNAMIC_CAST(pBaseForm, TESForm, TESKey);
+			if (pKey)
+			{
+				TESModelTextureSwap * textSwap = &(pKey->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_SoulGem)
+		{
+			TESSoulGem *pSoulGem = DYNAMIC_CAST(pBaseForm, TESForm, TESSoulGem);
+			if (pSoulGem)
+			{
+				TESModelTextureSwap * textSwap = &(pSoulGem->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Ingredient)
+		{
+			IngredientItem *pIngredient = DYNAMIC_CAST(pBaseForm, TESForm, IngredientItem);
+			if (pIngredient)
+			{
+				TESModelTextureSwap * textSwap = &(pIngredient->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+		else if (pBaseForm->formType == kFormType_Potion)
+		{
+			AlchemyItem *pAlchemy = DYNAMIC_CAST(pBaseForm, TESForm, AlchemyItem);
+			if (pAlchemy)
+			{
+				TESModelTextureSwap * textSwap = &(pAlchemy->texSwap);
+				AddModelEntry(resultArray, movie, "Model", textSwap);
+			}
+		}
+
+
+		else if (pBaseForm->formType == kFormType_Weapon)
+		{
+			TESObjectWEAP *pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
+			if (pWeapon)
+			{
+				TESModelTextureSwap * textSwap = &(pWeapon->texSwap);
+
+				if (textSwap)
+				{
+					AddModelEntry(resultArray, movie, "Model", textSwap);
+				}
+
+				TESModelTextureSwap * textSwapStatic = &(pWeapon->model->texSwap);
+				
+				if (textSwap)
+				{
+					AddModelEntry(resultArray, movie, "First Person Model", textSwapStatic);
+				}
+			}	
+		}
+
+		else if (pBaseForm->formType == kFormType_ARMA)
+		{
+			TESObjectARMA *pArma = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMA);
+			if (pArma)
+			{
+				//Texture entries are theortical
+				TESModelTextureSwap * maleModel = &(pArma->models[0][0]);
+
+				if (maleModel)
+				{
+					AddModelEntry(resultArray, movie, "Model Male", maleModel);
+				}
+
+				TESModelTextureSwap * femaleModel = &(pArma->models[0][1]);
+				if (femaleModel)
+				{
+					AddModelEntry(resultArray, movie, "Model Female", femaleModel);
+				}
+
+				TESModelTextureSwap * maleFirstPerson = &(pArma->models[1][0]);
+				if (maleFirstPerson)
+				{
+					AddModelEntry(resultArray, movie, "Model Male 1st Person", maleFirstPerson);
+				}
+
+				TESModelTextureSwap * femaleFirstPerson = &(pArma->models[1][1]);
+				if (femaleFirstPerson)
+				{
+					AddModelEntry(resultArray, movie, "Model Female 1st Person", femaleFirstPerson);
+				}
+			}
+		}
+
 				//_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
 
 				/*
@@ -2163,69 +2374,177 @@ public:
 		DebugMessage("Ending GetModelTextures");
 	}
 
-	void AddModelEntry(GFxValue * resultArray, GFxMovieView * movie, std::string modelType, TESModel * model)
+	void AddModelEntry(GFxValue * resultArray, GFxMovieView * movie, std::string modelType, TESModelTextureSwap * modelTextureSwap)
 	{
-		DebugMessage("Starting AddModelEntry");
-		char deliminator = '\\';
+		DebugMessage("Starting AddModelEntry for modelTextureSwap");
 
-		std::string modelPath = model->GetModelName();
-
-		//get the name of the file
-
-		int lastSlash = modelPath.find_last_of( deliminator);
-
-		std::string modelName = "";
-
-		if (lastSlash != std::string::npos)
+		TESModel * model = modelTextureSwap;
+		BGSTextureSet * textureSet = nullptr;
+		
+		if (modelTextureSwap->swaps)
 		{
-			modelName = modelPath.substr(lastSlash + 1);
+			textureSet = modelTextureSwap->swaps->textureSet;
 		}
-		//its unlikely but if the model is not in any folder its name is the same as the path
+
+		if (textureSet)
+		{
+			DebugMessage("Starting Texture Set Branch");
+
+			GFxValue modelTextureEntry;
+
+			std::string modelPath = model->GetModelName();
+			std::string modelName = GetFileName(modelPath);
+
+			CreateExtraInfoEntry(&modelTextureEntry, movie, modelType, modelName);
+
+			GFxValue modelTextureSubArray;
+			movie->CreateArray(&modelTextureSubArray);
+
+			AddModelEntry(&modelTextureSubArray, movie, "Model", model);
+			
+			DebugMessage("Starting Texture Set Info");
+			GFxValue textureSetEntry;
+
+			CreateExtraInfoEntry(&textureSetEntry, movie, "Texture Set", "");
+
+			GFxValue textureSetEntrySubArray;
+			movie->CreateArray(&textureSetEntrySubArray);
+
+			GetFormData(&textureSetEntrySubArray, movie, textureSet, nullptr);
+			
+			textureSetEntry.PushBack(&textureSetEntrySubArray);
+
+			modelTextureSubArray.PushBack(&textureSetEntry);
+
+			modelTextureEntry.PushBack(&modelTextureSubArray);
+
+			resultArray->PushBack(&modelTextureEntry);
+		}
+		
 		else
 		{
-			modelName = modelPath;
+			DebugMessage("Starting No texture set branch");
+			AddModelEntry(resultArray, movie, modelType, model );
 		}
 
+		DebugMessage("Ending AddModelEntry for modelTextureSwap");
+	}
 
-		GFxValue modelEntry;
-		CreateExtraInfoEntry(&modelEntry, movie, modelType, modelName);
+	void AddModelEntry(GFxValue * resultArray, GFxMovieView * movie, std::string modelType, TESModel * model )
+	{
+		DebugMessage("Starting AddModelEntry for model");
+
+		if (model)
+		{
+			std::string modelPath;
+			modelPath.assign( model->GetModelName() );
+
+			if (modelPath != "")
+			{
+				DebugMessage("Get Model path");
+
+				std::string modelName = GetFileName(modelPath);
+
+				DebugMessage("Get Model name");
+
+				GFxValue modelEntry;
+				CreateExtraInfoEntry(&modelEntry, movie, modelType, modelName);
+
+				DebugMessage("Splitting Model Path");
 
 
-		//DebugMessage("Done with Model Name: " + modelName);
+				CreateFilePathSubarray(&modelEntry, movie, modelPath);
 
+				DebugMessage("Done Splitting Model Path");
 
-		//DebugMessage("Starting path split with path: " + modelPath);
+				resultArray->PushBack(&modelEntry);
+			}
+		}
 
-		GFxValue modelPathSubArray;
-		movie->CreateArray(&modelPathSubArray);
-		
+		DebugMessage("Ending AddModelEntry for model");
+	}
+
+	void GetTextureSet(GFxValue * resultArray, GFxMovieView * movie, TESForm * pBaseForm )
+	{
+		DebugMessage("Starting AddTextureSetEntry");
+
+		BGSTextureSet * pTextureSet = DYNAMIC_CAST(pBaseForm, TESForm, BGSTextureSet);
+
+		if (pTextureSet)
+		{
+
+			GFxValue textureSetEntry;
+			CreateExtraInfoEntry(&textureSetEntry, movie, "Texture Set", "");
+
+			GFxValue textureSetSubArray;
+
+			movie->CreateArray(&textureSetSubArray);
+
+			for (int i = 0; i < BGSTextureSet::kNumTextures; i++ )
+			{
+				TESTexture * texture = &pTextureSet->texturePaths[i];
+				std::string texturePath = texture->str;
+
+				std::string textureName = "";
+
+				if (texturePath != "")
+				{
+					textureName = GetFileName(texturePath);
+				}
+
+				std::string textureType = GetTextureType(i);
+
+				GFxValue textureEntry;
+
+				CreateExtraInfoEntry(&textureEntry, movie, textureType, textureName);
+
+				if (texturePath != "")
+				{
+					CreateFilePathSubarray(&textureEntry, movie, texturePath);
+				}
+
+				textureSetSubArray.PushBack(&textureEntry);
+			}
+
+			textureSetEntry.PushBack(&textureSetSubArray);
+			resultArray->PushBack(&textureSetEntry);
+		}
+
+		DebugMessage("Ending AddTextureSetEntry");
+	}
+
+	void CreateFilePathSubarray(GFxValue * mainEntry, GFxMovieView * movie, std::string filePath)
+	{
+		DebugMessage("Starting CreateFilePathSubarray " + filePath);
+
+		GFxValue filePathSubArray;
+		movie->CreateArray(&filePathSubArray);
+
 		//loop through the string until the last slash is going
-		int firstSlash = modelPath.find_first_of(deliminator);
+		int firstSlash = filePath.find_first_of(deliminator);
 		while (firstSlash != std::string::npos)
 		{
 			//DebugMessage("Splitting with index: " + IntToString(firstSlash) + " with remaining path " + modelPath);
 
 			GFxValue pathEntry;
-			std::string path = modelPath.substr(0, firstSlash + 1);
+			std::string path = filePath.substr(0, firstSlash + 1);
 
 			CreateExtraInfoEntry(&pathEntry, movie, path, "");
-			modelPathSubArray.PushBack(&pathEntry);
+			filePathSubArray.PushBack(&pathEntry);
 
-			modelPath = modelPath.substr(firstSlash + 1); //get everything after the first slash
-			firstSlash = modelPath.find_first_of(deliminator); //refind the first slash
+			filePath = filePath.substr(firstSlash + 1); //get everything after the first slash
+			firstSlash = filePath.find_first_of(deliminator); //refind the first slash
 		}
 
-
 		GFxValue pathEntry;
-		//we already have everything after the last slash so add the entry directly
-		CreateExtraInfoEntry(&pathEntry, movie, modelName, "");
-		modelPathSubArray.PushBack(&pathEntry);
+		//add everything after the last slash
+		CreateExtraInfoEntry(&pathEntry, movie, filePath, "");
 
-		modelEntry.PushBack(&modelPathSubArray);
-		resultArray->PushBack(&modelEntry);
+		filePathSubArray.PushBack(&pathEntry);
 
+		mainEntry->PushBack(&filePathSubArray);
 
-		DebugMessage("Ending AddModelEntry");
+		DebugMessage("Ending CreateFilePathSubarray");
 	}
 
 	void GetRaceEntry(GFxValue * resultArray, GFxMovieView * movie, TESForm * pBaseForm)
@@ -2248,11 +2567,35 @@ public:
 
 			DebugMessage("Getting Models");
 			//models
-			TESModel * maleModel = &pRace->models[0];
-			TESModel * femaleModel = &pRace->models[1];
+			TESModel * maleModel = &(pRace->models[0]);
+			TESModel * femaleModel = &(pRace->models[1]);
 
-			AddModelEntry(resultArray, movie, "Male Model", maleModel);
-			AddModelEntry(resultArray, movie, "Female Model", femaleModel);
+			AddModelEntry(resultArray, movie, "Male Skeleton", maleModel);
+			AddModelEntry(resultArray, movie, "Female Skeleton", femaleModel);
+
+			//Skins
+			if (MICGlobals::readRaceSkins)
+			{
+				DebugMessage("Getting Skin");
+				TESObjectARMO *skin = pRace->skin.skin;
+
+				std::string skinName = GetName(skin);
+
+				GFxValue skinEntry;
+
+				CreateExtraInfoEntry(&skinEntry, movie, "Skin", skinName);
+
+				GFxValue skinSubEntry;
+
+				movie->CreateArray(&skinSubEntry);
+
+				GetFormData(&skinSubEntry, movie, skin, nullptr);
+
+				skinEntry.PushBack(&skinSubEntry);
+				resultArray->PushBack(&skinEntry);
+
+				DebugMessage("Done Getting Skin");
+			}
 
 			//Handle Flags
 			int playableFlag = 0x00000001;

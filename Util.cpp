@@ -16,6 +16,11 @@ namespace MICOptions
 	int BaseInfoFormat = 2; //How much information to display in the base info window
 }
 
+namespace MICGlobals
+{
+	boolean readRaceSkins = true; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
+}
+
 std::vector<std::string> FormTypes =
 {
 	"NONE",
@@ -163,6 +168,7 @@ std::vector<std::string> FormTypes =
 	"ActiveMagicEffect"
 };
 
+const char deliminator = '\\';
 
 void DebugMessage(std::string message)
 {
@@ -618,6 +624,8 @@ std::string GetEffectTypeName(int id)
 	return effectTypeName;
 }
 
+
+
 std::string GetSpellTypeName(int spellType)
 {
 	std::string spellTypeName = "";
@@ -645,6 +653,35 @@ std::string GetSpellTypeName(int spellType)
 	}
 
 	return spellTypeName;
+}
+
+std::string GetTextureType(int textureType)
+{
+	std::string textureTypeName = "";
+
+	switch (textureType)
+	{
+	case BGSTextureSet::kTextureDiffuse: textureTypeName = "Diffuse";
+		break;
+	case BGSTextureSet::kTextureNormal: textureTypeName = "Normal";
+		break;
+	case BGSTextureSet::kTextureEnvironmentMask: textureTypeName = "Enviroment Mask/Subsurface Tint";
+		break;
+	case BGSTextureSet::kTextureGlowMap: textureTypeName = "Glow/Detail Map";
+		break;
+	case BGSTextureSet::kTextureHeight: textureTypeName = "Height";
+		break;
+	case BGSTextureSet::kTextureEnvironment: textureTypeName = "Enviroment";
+		break;
+	case BGSTextureSet::kTextureMultilayer: textureTypeName = "Multilayer";
+		break;
+	case BGSTextureSet::kTextureBacklightMask: textureTypeName = "Backlight Mask/Specular";
+		break;
+	default: textureTypeName = "Unknown type";
+		break;
+	}
+
+	return textureTypeName;
 }
 
 std::string GetCastingTypeName(int castingType)
@@ -688,7 +725,6 @@ std::string GetDeliveryTypeName(int deliveryType)
 
 	return deliveryTypeName;
 }
-
 
 std::string GetName(TESForm* pBaseForm)
 {
@@ -918,7 +954,7 @@ std::string GetName(TESForm* pBaseForm)
 
 		case kFormType_Faction:
 		{
-			DebugMessage("GetExtraData: GetName Factopm");
+			DebugMessage("GetExtraData: GetName Faction");
 			TESFaction * pFaction = DYNAMIC_CAST(pBaseForm, TESForm, TESFaction);
 			if (pFaction)
 			{
@@ -937,10 +973,22 @@ std::string GetName(TESForm* pBaseForm)
 			TESRace * pRace = DYNAMIC_CAST(pBaseForm, TESForm, TESRace);
 			if (pRace)
 			{
-				if (pRace->fullName.name.data)
+				if(pRace->editorId)
 				{
-					name = pRace->fullName.name.data;
+					name = pRace->editorId;
 				}
+			}
+
+			break;
+		}
+
+		case kFormType_ARMA:
+		{
+			DebugMessage("GetExtraData: GetName Arma");
+			TESObjectARMA * pArma = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMA);
+			if (pArma && pArma->race.race)
+			{ 
+				name = GetName(pArma->race.race);
 			}
 
 			break;
@@ -952,6 +1000,7 @@ std::string GetName(TESForm* pBaseForm)
 			name = FormIDToString(pBaseForm->formID);
 			break;
 		}
+
 	}
 	
 	DebugMessage("GetExtraData: GetName End");
@@ -1350,4 +1399,25 @@ int GetSmallestBitFlag(int flags)
 	}
 
 	return smallestFlag;
+}
+
+std::string GetFileName(std::string filePath)
+{
+	//get the name of the file
+
+	int lastSlash = filePath.find_last_of(deliminator);
+
+	std::string fileName = "";
+
+	if (lastSlash != std::string::npos)
+	{
+		fileName = filePath.substr(lastSlash + 1);
+	}
+	//its unlikely but if the model is not in any folder its name is the same as the path
+	else
+	{
+		fileName = filePath;
+	}
+
+	return fileName;
 }
