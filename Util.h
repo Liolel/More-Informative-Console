@@ -23,6 +23,7 @@ namespace MICOptions
 namespace MICGlobals
 {
 	extern boolean readRaceSkins; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
+	extern TESRace* filterARMAByRace; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
 }
 
 void DebugMessage(std::string message);

@@ -298,6 +298,9 @@ public:
 			GetBSExtraData(resultArray, movie, pRefForm);
 		}
 
+		//reset any filtering
+		MICGlobals::filterARMAByRace = nullptr;
+
 		DebugMessage("GetExtraData: Get Form Data End");
 	}
 
@@ -380,7 +383,7 @@ public:
 		std::string baseFormType = GetFormTypeName(pBaseForm->GetFormType());
 
 		GFxValue  formTypeEntry;
-		CreateExtraInfoEntry(&formTypeEntry, movie, "Base form Type", baseFormType);
+		CreateExtraInfoEntry(&formTypeEntry, movie, "Base Type", baseFormType);
 		resultArray->PushBack(&formTypeEntry);
 
 		//ref formid
@@ -586,6 +589,9 @@ public:
 				GFxValue raceEntry;
 
 				TESRace * pRace = pNPC->race.race;
+
+				MICGlobals::filterARMAByRace = pRace;
+
 				std::string raceName = GetName(pRace);
 
 				CreateExtraInfoEntry( &raceEntry, movie, "Race", raceName);
@@ -1713,21 +1719,74 @@ public:
 				resultArray->PushBack(&maleSkinEntry);
 			}
 
-			/*
-			GFxValue racesEntry;
-
-			CreateExtraInfoEntry(&racesEntry, movie, "Races", "");
-
+			//races
+			
 			MICGlobals::readRaceSkins = false; //disable reading race skin entries to avoid infinite loops
 
-			//Read all races here
+			//Primary race
+			TESRace * defaultRace = pArma->race.race;
+			std::string defaultRaceName = GetName(defaultRace);
+
+			GFxValue defaultRacesEntry;
+
+			CreateExtraInfoEntry(&defaultRacesEntry, movie, "Primary Race", defaultRaceName);
+
+			GFxValue defaultRacesEntrySubArray;
+
+			movie->CreateArray(&defaultRacesEntrySubArray);
+
+			GetFormData(&defaultRacesEntrySubArray, movie, defaultRace, nullptr);
+			  
+			defaultRacesEntry.PushBack(&defaultRacesEntrySubArray);
+			resultArray->PushBack(&defaultRacesEntry);
+
+			//Additional races
+
+			if (pArma->additionalRaces.count > 0)
+			{
+				GFxValue additionalRacesEntry;
+
+				CreateExtraInfoEntry(&additionalRacesEntry, movie, "Additional Races", "");
+
+				GFxValue additionalRacesEntrySubArray;
+
+				movie->CreateArray(&additionalRacesEntrySubArray);
+
+				for (int i = 0; i < pArma->additionalRaces.count; i++)
+				{
+					TESRace * additionalRace = pArma->additionalRaces[i];
+
+					if (additionalRace)
+					{
+						std::string additionalRaceName = GetName(additionalRace);
+
+						GFxValue additionalRaceEntry;
+
+						CreateExtraInfoEntry(&additionalRaceEntry, movie, additionalRaceName, "");
+
+						GFxValue additionalRaceEntrySubArray;
+
+						movie->CreateArray(&additionalRaceEntrySubArray);
+
+						GetFormData(&additionalRaceEntrySubArray, movie, additionalRace, nullptr);
+
+						additionalRaceEntry.PushBack(&additionalRaceEntrySubArray);
+						additionalRacesEntrySubArray.PushBack(&additionalRaceEntry);
+					}
+				}
+
+				additionalRacesEntry.PushBack(&additionalRacesEntrySubArray);
+
+				resultArray->PushBack(&additionalRacesEntry);
+			}
+
 
 			MICGlobals::readRaceSkins = true;
 
 			//resultArray->PushBack(&racesEntry);
 
 			//Skin Textures
-			*/
+			
 		}
 
 		DebugMessage("GetArmaData: GetArmaData End");
@@ -1809,19 +1868,30 @@ public:
 
 			for (int i = 0; i < pArmor->armorAddons.count; i++)
 			{
-				GFxValue armorAddonEntry;
+				bool addEntry = true;
 
-				std::string armorAddonName = GetName(pArmor->armorAddons[i]);
+				//if we are filtering by race
+				if (MICGlobals::filterARMAByRace != nullptr)
+				{
+					addEntry = pArmor->armorAddons[i]->isValidRace(MICGlobals::filterARMAByRace);
+				}
 
-				CreateExtraInfoEntry(&armorAddonEntry, movie, armorAddonName, "");
+				if (addEntry)
+				{
+					GFxValue armorAddonEntry;
 
-				GFxValue armorAddonSubArray;
-				movie->CreateArray(&armorAddonSubArray);
+					std::string armorAddonName = GetName(pArmor->armorAddons[i]);
 
-				GetFormData(&armorAddonSubArray, movie, pArmor->armorAddons[i], nullptr);
+					CreateExtraInfoEntry(&armorAddonEntry, movie, armorAddonName, "");
 
-				armorAddonEntry.PushBack(&armorAddonSubArray);
-				armorAddonsSubArray.PushBack(&armorAddonEntry);
+					GFxValue armorAddonSubArray;
+					movie->CreateArray(&armorAddonSubArray);
+
+					GetFormData(&armorAddonSubArray, movie, pArmor->armorAddons[i], nullptr);
+
+					armorAddonEntry.PushBack(&armorAddonSubArray);
+					armorAddonsSubArray.PushBack(&armorAddonEntry);
+				}
 			}
 
 			armorAddonsEntry.PushBack(&armorAddonsSubArray);
