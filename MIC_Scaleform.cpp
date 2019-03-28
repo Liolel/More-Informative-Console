@@ -166,7 +166,7 @@ public:
 	//general wrapper for all get form methods
 	void GetFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESObjectREFR* pRefForm)
 	{
-		DebugMessage("GetExtraData: Get Form Data Start " + GetFormTypeName(pBaseForm->formType));
+		DebugMessage("GetExtraData: Get Form Data Start " + GetFormTypeName(pBaseForm->formType) + " " + FormIDToString(pBaseForm->formID) );
 
 		GetCommonFormData(resultArray, movie, pBaseForm, pRefForm);
 
@@ -2434,11 +2434,16 @@ public:
 					AddModelEntry(resultArray, movie, "Model", textSwap);
 				}
 
-				TESModelTextureSwap * textSwapStatic = &(pWeapon->model->texSwap);
-				
-				if (textSwap)
+				TESObjectSTAT * firstPersonModel = pWeapon->model;
+
+				if (firstPersonModel)
 				{
-					AddModelEntry(resultArray, movie, "First Person Model", textSwapStatic);
+					TESModelTextureSwap * textSwapFirstPerson = &(firstPersonModel->texSwap);
+
+					if (textSwapFirstPerson)
+					{
+						AddModelEntry(resultArray, movie, "First Person Model", textSwapFirstPerson);
+					}
 				}
 			}	
 		}
@@ -2501,53 +2506,63 @@ public:
 	{
 		DebugMessage("Starting AddModelEntry for modelTextureSwap");
 
-		TESModel * model = modelTextureSwap;
-		BGSTextureSet * textureSet = nullptr;
-		
-		if (modelTextureSwap->swaps)
+		if (modelTextureSwap)
 		{
-			textureSet = modelTextureSwap->swaps->textureSet;
-		}
+			DebugMessage("Past modelTextureSwap");
+			TESModel * model = modelTextureSwap;
 
-		if (textureSet)
-		{
-			DebugMessage("Starting Texture Set Branch");
+			DebugMessage("Past conversion");
 
-			GFxValue modelTextureEntry;
+			BGSTextureSet * textureSet = nullptr;
 
-			std::string modelPath = model->GetModelName();
-			std::string modelName = GetFileName(modelPath);
+			if (modelTextureSwap->swaps)
+			{
+				DebugMessage("Inside swaps check");
+				textureSet = modelTextureSwap->swaps->textureSet;
+			}
 
-			CreateExtraInfoEntry(&modelTextureEntry, movie, modelType, modelName);
+			DebugMessage("Past swaps check");
 
-			GFxValue modelTextureSubArray;
-			movie->CreateArray(&modelTextureSubArray);
+			if (textureSet)
+			{
+				DebugMessage("Starting Texture Set Branch");
 
-			AddModelEntry(&modelTextureSubArray, movie, "Model", model);
-			
-			DebugMessage("Starting Texture Set Info");
-			GFxValue textureSetEntry;
+				GFxValue modelTextureEntry;
 
-			CreateExtraInfoEntry(&textureSetEntry, movie, "Texture Set", "");
+				std::string modelPath = model->GetModelName();
+				std::string modelName = GetFileName(modelPath);
 
-			GFxValue textureSetEntrySubArray;
-			movie->CreateArray(&textureSetEntrySubArray);
+				CreateExtraInfoEntry(&modelTextureEntry, movie, modelType, modelName);
 
-			GetFormData(&textureSetEntrySubArray, movie, textureSet, nullptr);
-			
-			textureSetEntry.PushBack(&textureSetEntrySubArray);
+				GFxValue modelTextureSubArray;
+				movie->CreateArray(&modelTextureSubArray);
 
-			modelTextureSubArray.PushBack(&textureSetEntry);
+				AddModelEntry(&modelTextureSubArray, movie, "Model", model);
 
-			modelTextureEntry.PushBack(&modelTextureSubArray);
+				DebugMessage("Starting Texture Set Info");
+				GFxValue textureSetEntry;
 
-			resultArray->PushBack(&modelTextureEntry);
-		}
-		
-		else
-		{
-			DebugMessage("Starting No texture set branch");
-			AddModelEntry(resultArray, movie, modelType, model );
+				CreateExtraInfoEntry(&textureSetEntry, movie, "Texture Set", "");
+
+				GFxValue textureSetEntrySubArray;
+				movie->CreateArray(&textureSetEntrySubArray);
+
+				GetFormData(&textureSetEntrySubArray, movie, textureSet, nullptr);
+
+				textureSetEntry.PushBack(&textureSetEntrySubArray);
+
+				modelTextureSubArray.PushBack(&textureSetEntry);
+
+				modelTextureEntry.PushBack(&modelTextureSubArray);
+
+				resultArray->PushBack(&modelTextureEntry);
+			}
+
+			else
+			{
+				DebugMessage("Starting No texture set branch");
+				AddModelEntry(resultArray, movie, modelType, model);
+			}
 		}
 
 		DebugMessage("Ending AddModelEntry for modelTextureSwap");
