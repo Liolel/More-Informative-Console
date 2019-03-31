@@ -1571,6 +1571,12 @@ public:
 
 		movie->CreateArray(&inventorySubArray);
 
+		if (inventory != nullptr
+			&& inventory->Count() > MICGlobals::maxInventoryBeforeReducedMode)
+		{
+			MICGlobals::reducedMode = true;
+		}
+
 		//go through the inventory (these are anything changed from the base form)
 		if (inventory != nullptr
 			&& inventory->Count() > 0)
@@ -1670,6 +1676,8 @@ public:
 		inventoryEntry.PushBack(&inventorySubArray);
 
 		resultArray->PushBack(&inventoryEntry);
+
+		MICGlobals::reducedMode = false;
 
 		DebugMessage("GetInventory: GetInventory End");
 	}
@@ -1859,43 +1867,46 @@ public:
 			equipSlotsEntry.PushBack(&equipSlotsEntrySubArray);
 			resultArray->PushBack(&equipSlotsEntry);
 
-			GFxValue armorAddonsEntry;
-
-			CreateExtraInfoEntry(&armorAddonsEntry, movie, "Armor Entry", "");
-
-			GFxValue armorAddonsSubArray;
-			movie->CreateArray(&armorAddonsSubArray);
-
-			for (int i = 0; i < pArmor->armorAddons.count; i++)
+			if (!MICGlobals::reducedMode)
 			{
-				bool addEntry = true;
+				GFxValue armorAddonsEntry;
 
-				//if we are filtering by race
-				if (MICGlobals::filterARMAByRace != nullptr)
+				CreateExtraInfoEntry(&armorAddonsEntry, movie, "Armor Entry", "");
+
+				GFxValue armorAddonsSubArray;
+				movie->CreateArray(&armorAddonsSubArray);
+
+				for (int i = 0; i < pArmor->armorAddons.count; i++)
 				{
-					addEntry = pArmor->armorAddons[i]->isValidRace(MICGlobals::filterARMAByRace);
+					bool addEntry = true;
+
+					//if we are filtering by race
+					if (MICGlobals::filterARMAByRace != nullptr)
+					{
+						addEntry = pArmor->armorAddons[i]->isValidRace(MICGlobals::filterARMAByRace);
+					}
+
+					if (addEntry)
+					{
+						GFxValue armorAddonEntry;
+
+						std::string armorAddonName = GetName(pArmor->armorAddons[i]);
+
+						CreateExtraInfoEntry(&armorAddonEntry, movie, armorAddonName, "");
+
+						GFxValue armorAddonSubArray;
+						movie->CreateArray(&armorAddonSubArray);
+
+						GetFormData(&armorAddonSubArray, movie, pArmor->armorAddons[i], nullptr);
+
+						armorAddonEntry.PushBack(&armorAddonSubArray);
+						armorAddonsSubArray.PushBack(&armorAddonEntry);
+					}
 				}
-
-				if (addEntry)
-				{
-					GFxValue armorAddonEntry;
-
-					std::string armorAddonName = GetName(pArmor->armorAddons[i]);
-
-					CreateExtraInfoEntry(&armorAddonEntry, movie, armorAddonName, "");
-
-					GFxValue armorAddonSubArray;
-					movie->CreateArray(&armorAddonSubArray);
-
-					GetFormData(&armorAddonSubArray, movie, pArmor->armorAddons[i], nullptr);
-
-					armorAddonEntry.PushBack(&armorAddonSubArray);
-					armorAddonsSubArray.PushBack(&armorAddonEntry);
-				}
+			
+				armorAddonsEntry.PushBack(&armorAddonsSubArray);
+				resultArray->PushBack(&armorAddonsEntry);
 			}
-
-			armorAddonsEntry.PushBack(&armorAddonsSubArray);
-			resultArray->PushBack(&armorAddonsEntry);
 		}
 	}
 
