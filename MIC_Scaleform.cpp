@@ -6,11 +6,13 @@
 #include "GameExtraData.h"
 #include "PapyrusActor.cpp"
 #include "Util.h"
+#include "GameMenus.h"
 #include <memory>
 #include <vector>
 #include <skse64\GameData.h>
 #include <skse64_common\skse_version.h>
 #include "PapyrusActorValueInfo.h"
+#include <Windows.h>
 
 const int actorValueHealthIndex = 24;
 const int actorValueMagickaIndex = 25;
@@ -153,7 +155,9 @@ public:
 
 		GFxMovieView * movie = args->movie;
 
-		movie->CreateArray(args->result);
+		GFxValue result;
+
+		movie->CreateArray(&result);
 
 #if SKSE_VERSION_INTEGER_BETA <= 12
 		TESObjectREFR* pRef = nullptr;
@@ -166,6 +170,7 @@ public:
 #endif
 		if (pRef != nullptr)
 		{
+
 			DebugMessage("GetExtraData: pRefFound");
 
 			TESForm* pBaseForm = pRef->baseForm;
@@ -173,7 +178,33 @@ public:
 			if (pBaseForm != nullptr)
 			{
 				DebugMessage("GetExtraData: BaseFound");
-				GetFormData(args->result, movie, pBaseForm, pRef);
+
+				GetFormData(&result, movie, pBaseForm, pRef);
+
+				DebugMessage("Get Form Information done");
+
+				//GFxValue * FormLocationData;
+
+				//result.GetElement(4, FormLocationData);
+
+				//Send the data we created back to the console
+				GFxValue returnValue;
+				GFxValue arguments;
+
+				UIStringHolder* stringHolder = UIStringHolder::GetSingleton();
+				MenuManager* mm = MenuManager::GetSingleton();
+
+				IMenu* consoleMenu = mm->GetMenu(&stringHolder->console);
+
+				consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.StartExtraInfoData", &returnValue, &arguments, 0);
+
+				TraverseArray(&result, consoleMenu->view, 0, -1, -1,-1, -1);
+
+				//int arraySize;
+	
+				//DebugMessage(IntToString(result.GetArraySize()));
+
+				consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.FinishExtraInfoData", &returnValue, &arguments, 0);
 			}
 		}
 
@@ -2797,6 +2828,129 @@ public:
 		}
 
 		DebugMessage("Ending GetRaceEntry");
+	}
+
+	void TraverseArray(GFxValue * scaleformArray, GFxMovieView * movie, int level, int level0Index, int level1Index, int level2Index, int level3Index)
+	{
+		int arrayLength = scaleformArray->GetArraySize();
+
+		GFxValue returnValue;
+
+		for (int i = 0; i < arrayLength; i++)
+		{
+			GFxValue arrayElement; 
+			scaleformArray->GetElement(i, &arrayElement);
+
+			if ( level >= 2 || arrayElement.GetType() == GFxValue::kType_String)
+			{
+				//send result
+				GFxValue resultArray;
+
+				movie->CreateArray(&resultArray);
+
+				GFxValue zeroIndex;
+
+				if (level == 0)
+				{
+					zeroIndex.SetNumber(i);
+				}
+				else
+				{
+					zeroIndex.SetNumber(level0Index);
+				}
+
+				resultArray.PushBack(&zeroIndex);
+
+				if (level >= 1)
+				{
+					GFxValue oneIndex;
+
+					if (level == 1)
+					{
+						oneIndex.SetNumber(i);
+					}
+					else
+					{
+						oneIndex.SetNumber(level1Index);
+					}
+
+					resultArray.PushBack(&oneIndex);
+
+					if (level >= 2)
+					{
+						GFxValue twoIndex;
+
+						if (level == 2)
+						{
+							twoIndex.SetNumber(i);
+						}
+						else
+						{
+							twoIndex.SetNumber(level2Index);
+						}
+
+						resultArray.PushBack(&twoIndex);
+
+						if (level >= 3)
+						{
+							GFxValue threeIndex;
+
+							if (level == 2)
+							{
+								threeIndex.SetNumber(i);
+							}
+							else
+							{
+								threeIndex.SetNumber(level3Index);
+							}
+
+							resultArray.PushBack(&threeIndex);
+
+							if (level == 4)
+							{
+
+								GFxValue fourIndex;
+								threeIndex.SetNumber(i);
+								resultArray.PushBack(&fourIndex);
+							}
+						}
+					}
+				}
+
+				resultArray.PushBack(&arrayElement);
+
+				movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
+			}
+
+			else if (arrayElement.GetType() == GFxValue::kType_Array)
+			{
+				if (level <= 1)
+				{
+					if (level == 0)
+					{
+						level0Index = i;
+					}
+
+					else if (level == 1)
+					{
+						level1Index = i;
+					}
+
+					else if (level == 2)
+					{
+						level2Index = i;
+					}
+
+					else if (level == 3)
+					{
+						level3Index = i;
+					}
+
+
+					TraverseArray(&arrayElement, movie, level + 1, level0Index, level1Index, level2Index, level3Index );
+				}
+			}
+		}
 	}
 };
 
