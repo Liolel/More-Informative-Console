@@ -950,6 +950,11 @@ std::string GetName(TESForm* pBaseForm)
 				{
 					name = pPerk->fullName.name.data;
 				}
+
+				if (name == "")
+				{
+					name = FormIDToString(pBaseForm->formID);
+				}
 			}
 
 			break;
@@ -964,6 +969,11 @@ std::string GetName(TESForm* pBaseForm)
 				if (pFaction->fullName.name.data)
 				{
 					name = pFaction->fullName.name.data;
+				}
+
+				if (name == "")
+				{
+					name = FormIDToString(pBaseForm->formID);
 				}
 			}
 

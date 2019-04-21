@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <skse64\GameData.h>
+#include <skse64_common\skse_version.h>
 #include "PapyrusActorValueInfo.h"
 
 const int actorValueHealthIndex = 24;
@@ -29,8 +30,17 @@ public:
 		DebugMessage("GetReferenceInfo: Called");
 		//ASSERT(args->numArgs >= 1);
 
+#if SKSE_VERSION_INTEGER_BETA <= 12
 		TESObjectREFR* pRef = nullptr;
 		LookupREFRByHandle(g_consoleHandle, &pRef);
+#else
+		UInt32 handle = (*g_consoleHandle);
+
+		NiPointer<TESObjectREFR> pRef;
+		LookupREFRByHandle(handle, pRef);
+#endif
+
+		
 		if (pRef != nullptr)
 		{
 			DebugMessage("GetReferenceInfo: pRef passed");
@@ -145,8 +155,15 @@ public:
 
 		movie->CreateArray(args->result);
 
+#if SKSE_VERSION_INTEGER_BETA <= 12
 		TESObjectREFR* pRef = nullptr;
 		LookupREFRByHandle(g_consoleHandle, &pRef);
+#else
+		UInt32 handle = (*g_consoleHandle);
+
+		NiPointer<TESObjectREFR> pRef;
+		LookupREFRByHandle(handle, pRef);
+#endif
 		if (pRef != nullptr)
 		{
 			DebugMessage("GetExtraData: pRefFound");
@@ -1571,8 +1588,7 @@ public:
 
 		movie->CreateArray(&inventorySubArray);
 
-		if (inventory != nullptr
-			&& inventory->Count() > MICGlobals::maxInventoryBeforeReducedMode)
+		if (inventory != nullptr )
 		{
 			MICGlobals::reducedMode = true;
 		}
@@ -2723,7 +2739,8 @@ public:
 			AddModelEntry(resultArray, movie, "Female Skeleton", femaleModel);
 
 			//Skins
-			if (MICGlobals::readRaceSkins)
+			if (MICGlobals::readRaceSkins
+				&& pRace->skin.skin != nullptr)
 			{
 				DebugMessage("Getting Skin");
 				TESObjectARMO *skin = pRace->skin.skin;
