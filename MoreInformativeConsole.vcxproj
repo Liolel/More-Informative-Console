@@ -122,6 +122,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExtraInfoEntry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MIC_Scaleform.cpp" />
     <ClCompile Include="Util.cpp" />
@@ -150,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\skse64\GameReferences.h" />
+    <ClInclude Include="ExtraInfoEntry.h" />
     <ClInclude Include="MIC_Scaleform.h" />
     <ClInclude Include="Simpleini.h" />
     <ClInclude Include="Util.h" />

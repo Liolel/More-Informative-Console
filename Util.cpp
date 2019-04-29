@@ -16,14 +16,6 @@ namespace MICOptions
 	int BaseInfoFormat = 2; //How much information to display in the base info window
 }
 
-namespace MICGlobals
-{
-	boolean readRaceSkins = true; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
-	TESRace* filterARMAByRace = nullptr; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
-	boolean reducedMode = false; //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstancesv
-	int maxInventoryBeforeReducedMode = 750; //Maximum inventory size before triggering reduced mode
-}
-
 std::vector<std::string> FormTypes =
 {
 	"NONE",

@@ -20,6 +20,15 @@ const int actorValueStaminahIndex = 26;
 const int playerBaseFormID = 0x7;
 const char deliminator = '\\';
 
+namespace MICGlobals
+{
+	boolean readRaceSkins = true; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
+	TESRace* filterARMAByRace = nullptr; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
+	boolean reducedMode = false; //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstancesv
+	int maxInventoryBeforeReducedMode = 750; //Maximum inventory size before triggering reduced mode
+	ExtraInfoEntry rootEntry("", "");
+}
+
 class MICScaleform_GetReferenceInfo : public GFxFunctionHandler
 {
 public:
@@ -179,7 +188,9 @@ public:
 			{
 				DebugMessage("GetExtraData: BaseFound");
 
-				GetFormData(&result, movie, pBaseForm, pRef);
+				MICGlobals::rootEntry.Clear();
+
+				GetFormData(&MICGlobals::rootEntry, pBaseForm, pRef);
 
 				DebugMessage("Get Form Information done");
 
@@ -189,22 +200,23 @@ public:
 
 				//Send the data we created back to the console
 				GFxValue returnValue;
+				//MICGlobals::rootEntry.CreatePrimaryScaleformArray(&returnValue, movie);
 				GFxValue arguments;
 
-				UIStringHolder* stringHolder = UIStringHolder::GetSingleton();
-				MenuManager* mm = MenuManager::GetSingleton();
+				//UIStringHolder* stringHolder = UIStringHolder::GetSingleton();
+				//MenuManager* mm = MenuManager::GetSingleton();
 
-				IMenu* consoleMenu = mm->GetMenu(&stringHolder->console);
+				//IMenu* consoleMenu = mm->GetMenu(&stringHolder->console);
 
-				consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.StartExtraInfoData", &returnValue, &arguments, 0);
+				//consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.StartExtraInfoData", &returnValue, &arguments, 0);
 
-				TraverseArray(&result, consoleMenu->view, 0, -1, -1,-1, -1);
+				//TraverseArray(&result, consoleMenu->view, 0, -1, -1,-1, -1);
 
 				//int arraySize;
 	
 				//DebugMessage(IntToString(result.GetArraySize()));
 
-				consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.FinishExtraInfoData", &returnValue, &arguments, 0);
+				//consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.FinishExtraInfoData", &returnValue, &arguments, 0);
 			}
 		}
 
@@ -212,78 +224,78 @@ public:
 	}
 
 	//general wrapper for all get form methods
-	void GetFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESObjectREFR* pRefForm)
+	void GetFormData(ExtraInfoEntry * resultArray, TESForm* pBaseForm, TESObjectREFR* pRefForm)
 	{
-		DebugMessage("GetExtraData: Get Form Data Start " + GetFormTypeName(pBaseForm->formType) + " " + FormIDToString(pBaseForm->formID) );
+		DebugMessage("GetExtraData: Get Form Data Start " + GetFormTypeName(pBaseForm->formType) + " " + FormIDToString(pBaseForm->formID));
 
-		GetCommonFormData(resultArray, movie, pBaseForm, pRefForm);
+		GetCommonFormData(resultArray, pBaseForm, pRefForm);
 
 		if (pBaseForm != nullptr
 			&& pBaseForm->GetFormType() == kFormType_NPC
-			&& ( pRefForm == nullptr
-			     || pRefForm->GetFormType() == kFormType_Character ) )
+			&& (pRefForm == nullptr
+				|| pRefForm->GetFormType() == kFormType_Character))
 		{
 			DebugMessage("GetExtraData: Get Form Data character found");
-			GetCharacterData(resultArray, movie, pRefForm, pBaseForm);
+			GetCharacterData(resultArray, pRefForm, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_EffectSetting)
 		{
 			DebugMessage("GetExtraData: Get Form Data magic effect found");
-			GetMagicEffectData(resultArray, movie, pBaseForm);
+			GetMagicEffectData(resultArray, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_Spell)
 		{
 			DebugMessage("GetExtraData: Get Form Data spell found");
-			GetSpellData(resultArray, movie, pBaseForm);
+			GetSpellData(resultArray, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_Armor)
 		{
 			DebugMessage("GetExtraData: Get Form Data armor found");
-			GetArmorData(resultArray, movie, pBaseForm);
+			GetArmorData(resultArray, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_Weapon)
 		{
 			DebugMessage("GetExtraData: Get Form Data Weapon found");
-			GetWeaponData(resultArray, movie, pBaseForm);
+			GetWeaponData(resultArray, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_Ammo)
 		{
 			DebugMessage("GetExtraData: Get Form Data Ammo found");
-			GetAmmoData(resultArray, movie, pBaseForm);
+			GetAmmoData(resultArray, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_Container)
 		{
 			DebugMessage("GetExtraData: Get Form Data Container found");
-			GetContainerData(resultArray, movie, pBaseForm);
+			GetContainerData(resultArray, pBaseForm);
 		}
 		else if (pBaseForm->GetFormType() == kFormType_Faction)
 		{
 			DebugMessage("GetExtraData: Get Form Data Faction found");
-			//GetContainerData(resultArray, movie, pBaseForm);
+			//GetContainerData(resultArray, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_Race)
 		{
 			DebugMessage("GetExtraData: Get Form Data Race found");
-			GetRaceEntry(resultArray, movie, pBaseForm);
+			GetRaceEntry(resultArray, pBaseForm);
 		}
 
-		else if (pBaseForm->GetFormType() == kFormType_TextureSet )
+		else if (pBaseForm->GetFormType() == kFormType_TextureSet)
 		{
 			DebugMessage("GetExtraData: Get Form Data Texture Set found");
-			GetTextureSet(resultArray, movie, pBaseForm);
+			GetTextureSet(resultArray, pBaseForm);
 		}
 
 		else if (pBaseForm->GetFormType() == kFormType_ARMA)
 		{
 			DebugMessage("GetExtraData: Get Form Data ARMA found");
-			GetArmaData(resultArray, movie, pBaseForm);
+			GetArmaData(resultArray, pBaseForm);
 		}
 
 		//get inventory
@@ -308,7 +320,7 @@ public:
 
 				if (pActor)
 				{
-					GetEquipment(resultArray, movie, inventoryExtraData, pActor);
+					GetEquipment(resultArray, inventoryExtraData, pActor);
 				}
 
 				TESActorBase *pActorBase = DYNAMIC_CAST(pBaseForm, TESForm, TESActorBase);
@@ -334,16 +346,16 @@ public:
 				}
 			}
 
-			GetInventory(resultArray, movie, inventory, pContainer);
+			GetInventory(resultArray, inventory, pContainer);
 
 		}
 
-		GetModelTextures(resultArray, movie, pBaseForm);
+		GetModelTextures(resultArray, pBaseForm);
 
 		//Handle BSExtra data
 		if (pRefForm != nullptr)
 		{
-			GetBSExtraData(resultArray, movie, pRefForm);
+			GetBSExtraData(resultArray, pRefForm);
 		}
 
 		//reset any filtering
@@ -352,22 +364,27 @@ public:
 		DebugMessage("GetExtraData: Get Form Data End");
 	}
 
-	void CreateExtraInfoEntry(GFxValue * valueArray, GFxMovieView * movie, std::string extraInfoName, std::string extraInfoContents)
+	void CreateExtraInfoEntry(ExtraInfoEntry * & extraInfoEntry, std::string extraInfoName, std::string extraInfoContents)
 	{
-		movie->CreateArray(valueArray);
-
-		GFxValue GFxExtraInfoName, GFxExtraInfoContents;
-
-		GFxExtraInfoName.SetString(extraInfoName.c_str());
-		GFxExtraInfoContents.SetString(extraInfoContents.c_str());
-
-		valueArray->PushBack(&GFxExtraInfoName);
-		valueArray->PushBack(&GFxExtraInfoContents);
-
+		extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents);
 	}
+	/*
+	void CreateExtraInfoEntry(ExtraInfoEntry * valueArray,  std::string extraInfoName, std::string extraInfoContents)
+	{
+	movie->CreateArray(valueArray);
+
+	ExtraInfoEntry * GFxExtraInfoName, GFxExtraInfoContents;
+
+	GFxExtraInfoName.SetString(extraInfoName.c_str());
+	GFxExtraInfoContents.SetString(extraInfoContents.c_str());
+
+	valueArray->PushBack(GFxExtraInfoName);
+	valueArray->PushBack(GFxExtraInfoContents);
+
+	}*/
 
 	//get data common to all form types
-	void GetCommonFormData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESForm* pRefForm)
+	void GetCommonFormData(ExtraInfoEntry * resultArray, TESForm* pBaseForm, TESForm* pRefForm)
 	{
 		DebugMessage("GetCommonFormData: GetCommonFormData Start");
 
@@ -412,10 +429,10 @@ public:
 			name = GetName(pBaseForm);
 		}
 
-		GFxValue nameArray;
-		CreateExtraInfoEntry(&nameArray, movie, "Name", name);
+		ExtraInfoEntry * nameArray;
+		CreateExtraInfoEntry(nameArray, "Name", name);
 
-		resultArray->PushBack(&nameArray);
+		resultArray->PushBack(nameArray);
 
 		DebugMessage("GetCommonFormData: Get FormID Start");
 
@@ -423,16 +440,16 @@ public:
 		sprintf_s(sResult.get(), MAX_PATH, "%08X", pBaseForm->formID);
 		std::string formID = sResult.get();
 
-		GFxValue  formIDArray;
-		CreateExtraInfoEntry(&formIDArray, movie, "Base form ID", formID);
-		resultArray->PushBack(&formIDArray);
+		ExtraInfoEntry *  formIDArray;
+		CreateExtraInfoEntry(formIDArray, "Base form ID", formID);
+		resultArray->PushBack(formIDArray);
 
 		//base form type
 		std::string baseFormType = GetFormTypeName(pBaseForm->GetFormType());
 
-		GFxValue  formTypeEntry;
-		CreateExtraInfoEntry(&formTypeEntry, movie, "Base Type", baseFormType);
-		resultArray->PushBack(&formTypeEntry);
+		ExtraInfoEntry *  formTypeEntry;
+		CreateExtraInfoEntry(formTypeEntry, "Base Type", baseFormType);
+		resultArray->PushBack(formTypeEntry);
 
 		//ref formid
 		if (pRefForm != nullptr)
@@ -440,9 +457,9 @@ public:
 			sprintf_s(sResult.get(), MAX_PATH, "%08X", pRefForm->formID);
 			std::string refFormID = sResult.get();
 
-			GFxValue  formIDArray;
-			CreateExtraInfoEntry(&formIDArray, movie, "Ref form ID", refFormID);
-			resultArray->PushBack(&formIDArray);
+			ExtraInfoEntry *  formIDArray;
+			CreateExtraInfoEntry(formIDArray, "Ref form ID", refFormID);
+			resultArray->PushBack(formIDArray);
 		}
 
 		//mod location info
@@ -450,16 +467,16 @@ public:
 
 		DebugMessage("GetCommonFormData: Get Form Location Start");
 
-		GFxValue formLocationHolder, formLocationData;
+		ExtraInfoEntry *formLocationHolder, *formLocationData;
 
-		CreateExtraInfoEntry(&formLocationHolder, movie, "Form location information", "");
-		GetFormLocationData(&formLocationData, movie, pBaseForm, pRefForm);
-		formLocationHolder.PushBack(&formLocationData);
-		resultArray->PushBack(&formLocationHolder);
+		CreateExtraInfoEntry(formLocationHolder, "Form location information", "");
+		GetFormLocationData(formLocationData, pBaseForm, pRefForm);
+		formLocationHolder->PushBack(formLocationData);
+		resultArray->PushBack(formLocationHolder);
 
 		if (pRefForm != nullptr)
 		{
-			GetPositionData(resultArray, movie, pRefForm);
+			GetPositionData(resultArray, pRefForm);
 		}
 
 		DebugMessage("GetCommonFormData: GetCommonFormData End");
@@ -467,11 +484,11 @@ public:
 	}
 
 	//get information related to where mods the form is found in
-	void GetFormLocationData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm, TESForm* pRefForm)
+	void GetFormLocationData(ExtraInfoEntry * & resultArray, TESForm* pBaseForm, TESForm* pRefForm)
 	{
 		DebugMessage("GetExtraData: GetFormLocationData Start");
 
-		movie->CreateArray(resultArray);
+		CreateExtraInfoEntry(resultArray, "", "");
 
 		//if the target is a npc that has been created dynamically we want info on the base form the npc is created from
 		if (pBaseForm->formType == kFormType_NPC && pBaseForm->formID >= 0xFF000000)
@@ -515,31 +532,31 @@ public:
 				boolean SkyrimESMNotDetectedBug = false;
 
 				//fix for weird bug where refs first defined in Skyrim.Esm aren't always detected properly
-				if ( ( ( pRefForm->formID & 0xFF000000 ) == 0)
+				if (((pRefForm->formID & 0xFF000000) == 0)
 					&& refFirstDefinedIn != "Skyrim.esm")
 				{
 					refFirstDefinedIn = "Skyrim.esm";
 					SkyrimESMNotDetectedBug = true;
 				}
 
-				GFxValue referenceDefinedIn;
-				CreateExtraInfoEntry(&referenceDefinedIn, movie, "Reference defined in", refFirstDefinedIn);
+				ExtraInfoEntry * referenceDefinedIn;
+				CreateExtraInfoEntry(referenceDefinedIn, "Reference defined in", refFirstDefinedIn);
 
-				resultArray->PushBack(&referenceDefinedIn);
+				resultArray->PushBack(referenceDefinedIn);
 
-				GFxValue referenceLastChangedBy;
-				CreateExtraInfoEntry(&referenceLastChangedBy, movie, "Reference last modified by", refFormModInfo->entries[numModsModifyingRef - 1]->name);
+				ExtraInfoEntry * referenceLastChangedBy;
+				CreateExtraInfoEntry(referenceLastChangedBy, "Reference last modified by", refFormModInfo->entries[numModsModifyingRef - 1]->name);
 
-				resultArray->PushBack(&referenceLastChangedBy);
+				resultArray->PushBack(referenceLastChangedBy);
 
-				GFxValue allModsTouchingReferenceHolder;
-				CreateExtraInfoEntry(&allModsTouchingReferenceHolder, movie, "Reference found in", "");
+				ExtraInfoEntry * allModsTouchingReferenceHolder;
+				CreateExtraInfoEntry(allModsTouchingReferenceHolder, "Reference found in", "");
 
-				GFxValue allModsTouchingReference;
-				GetModInfoData(&allModsTouchingReference, movie, refFormModInfo, SkyrimESMNotDetectedBug);
-				allModsTouchingReferenceHolder.PushBack(&allModsTouchingReference);
+				ExtraInfoEntry * allModsTouchingReference;
+				GetModInfoData(allModsTouchingReference, refFormModInfo, SkyrimESMNotDetectedBug);
+				allModsTouchingReferenceHolder->PushBack(allModsTouchingReference);
 
-				resultArray->PushBack(&allModsTouchingReferenceHolder);
+				resultArray->PushBack(allModsTouchingReferenceHolder);
 			}
 		}
 		//Base Form
@@ -554,57 +571,57 @@ public:
 
 			int numModsModifyingBase = baseFormModInfo->size;
 
-			GFxValue baseDefinedIn;
-			CreateExtraInfoEntry(&baseDefinedIn, movie, "Base defined in", baseFormModInfo->entries[0]->name);
+			ExtraInfoEntry * baseDefinedIn;
+			CreateExtraInfoEntry(baseDefinedIn, "Base defined in", baseFormModInfo->entries[0]->name);
 
-			resultArray->PushBack(&baseDefinedIn);
+			resultArray->PushBack(baseDefinedIn);
 
-			GFxValue baseLastChangedBy;
-			CreateExtraInfoEntry(&baseLastChangedBy, movie, "Base last modified by", baseFormModInfo->entries[numModsModifyingBase - 1]->name);
+			ExtraInfoEntry * baseLastChangedBy;
+			CreateExtraInfoEntry(baseLastChangedBy, "Base last modified by", baseFormModInfo->entries[numModsModifyingBase - 1]->name);
 
-			resultArray->PushBack(&baseLastChangedBy);
+			resultArray->PushBack(baseLastChangedBy);
 
-			GFxValue allModsTouchingBaseHolder;
-			CreateExtraInfoEntry(&allModsTouchingBaseHolder, movie, "Base found in", "");
+			ExtraInfoEntry * allModsTouchingBaseHolder;
+			CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "");
 
-			GFxValue allModsTouchingBase;
-			GetModInfoData(&allModsTouchingBase, movie, baseFormModInfo, false);
-			allModsTouchingBaseHolder.PushBack(&allModsTouchingBase);
+			ExtraInfoEntry * allModsTouchingBase;
+			GetModInfoData(allModsTouchingBase, baseFormModInfo, false);
+			allModsTouchingBaseHolder->PushBack(allModsTouchingBase);
 
-			resultArray->PushBack(&allModsTouchingBaseHolder);
+			resultArray->PushBack(allModsTouchingBaseHolder);
 		}
 
 		DebugMessage("GetExtraData: GetFormLocationData End");
 	}
 
-	void GetModInfoData(GFxValue * resultArray, GFxMovieView * movie, FormModInfoData* modInfoData, boolean SkyrimESMNotDetectedBug)
+	void GetModInfoData(ExtraInfoEntry * resultArray,  FormModInfoData* modInfoData, boolean SkyrimESMNotDetectedBug)
 	{
 		DebugMessage("GetExtraData: GetModInfoData start");
 
-		movie->CreateArray(resultArray);
+		CreateExtraInfoEntry(resultArray, "", "");
 
 		int numMods = modInfoData->size;
 
 		if (SkyrimESMNotDetectedBug)
 		{
-			GFxValue modEntry;
+			ExtraInfoEntry * modEntry;
 
-			CreateExtraInfoEntry(&modEntry, movie, "Mod", "Skyrim.esm");
-			resultArray->PushBack(&modEntry);
+			CreateExtraInfoEntry(modEntry, "Mod", "Skyrim.esm");
+			resultArray->PushBack(modEntry);
 		}
 
 		for (int i = 0; i < numMods; i++)
 		{
-			GFxValue modEntry;
+			ExtraInfoEntry * modEntry;
 
-			CreateExtraInfoEntry(&modEntry, movie, "Mod", modInfoData->entries[i]->name);
-			resultArray->PushBack(&modEntry);
+			CreateExtraInfoEntry(modEntry, "Mod", modInfoData->entries[i]->name);
+			resultArray->PushBack(modEntry);
 		}
 
 		DebugMessage("GetExtraData: GetModInfoData end");
 	}
 
-	void GetCharacterData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm, TESForm* pBaseForm)
+	void GetCharacterData(ExtraInfoEntry * resultArray,  TESForm* pRefForm, TESForm* pBaseForm)
 	{
 		DebugMessage("GetCharacterData: GetCharacter info start");
 
@@ -634,7 +651,7 @@ public:
 				DebugMessage("GetCharacterData: Starting Race");
 
 				//Race
-				GFxValue raceEntry;
+				ExtraInfoEntry * raceEntry;
 
 				TESRace * pRace = pNPC->race.race;
 
@@ -642,24 +659,24 @@ public:
 
 				std::string raceName = GetName(pRace);
 
-				CreateExtraInfoEntry( &raceEntry, movie, "Race", raceName);
+				CreateExtraInfoEntry(raceEntry, "Race", raceName);
 
-				GFxValue raceSubEntry;
-				movie->CreateArray(&raceSubEntry);
-				GetFormData(&raceSubEntry, movie, pRace, nullptr);
+				ExtraInfoEntry * raceSubEntry;
+				CreateExtraInfoEntry(raceSubEntry, "", "");
+				GetFormData(raceSubEntry, pRace, nullptr);
 
-				raceEntry.PushBack(&raceSubEntry);
-				resultArray->PushBack(&raceEntry);
+				raceEntry->PushBack(raceSubEntry);
+				resultArray->PushBack(raceEntry);
 
 				DebugMessage("GetCharacterData: Ending Race");
 
 				//Spells
-				GFxValue allSpellsEntry;
+				ExtraInfoEntry * allSpellsEntry;
 
-				CreateExtraInfoEntry(&allSpellsEntry, movie, "Spells", "");
+				CreateExtraInfoEntry(allSpellsEntry, "Spells", "");
 
-				GFxValue SpellsArray;
-				movie->CreateArray(&SpellsArray);
+				ExtraInfoEntry * SpellsArray;
+				CreateExtraInfoEntry(SpellsArray, "", "");
 
 				DebugMessage("GetCharacterData: Starting Added Spells");
 
@@ -668,12 +685,12 @@ public:
 					//Added Spells
 					for (int i = 0; i < pActor->addedSpells.Length(); i++)
 					{
-						GFxValue spellEntry;
+						ExtraInfoEntry * spellEntry;
 
 						SpellItem* spell = pActor->addedSpells.Get(i);
-						GetSpellDataWrapper(&spellEntry, movie, spell, "Added Spell");
+						GetSpellDataWrapper(spellEntry, spell, "Added Spell");
 
-						SpellsArray.PushBack(&spellEntry);
+						SpellsArray->PushBack(spellEntry);
 					}
 				}
 
@@ -684,29 +701,30 @@ public:
 
 				for (int i = 0; i < numberOfBaseSpells; i++)
 				{
-					GFxValue spellEntry;
+					ExtraInfoEntry * spellEntry;
 
 					SpellItem* spell = pActorBase->spellList.GetNthSpell(i);
-					GetSpellDataWrapper(&spellEntry, movie, spell, "Base Spell");
+					GetSpellDataWrapper(spellEntry, spell, "Base Spell");
 
-					SpellsArray.PushBack(&spellEntry);
+					SpellsArray->PushBack(spellEntry);
 				}
 
-				allSpellsEntry.PushBack(&SpellsArray);
+				allSpellsEntry->PushBack(SpellsArray);
 
-				resultArray->PushBack(&allSpellsEntry);
+				resultArray->PushBack(allSpellsEntry);
 
 				DebugMessage("GetCharacterData: GetCharacter Done with spells");
 
 				if (pActor)
 				{
 					// ActiveEffects as Array
-					GFxValue activeEffectsEntry;
+					ExtraInfoEntry * activeEffectsEntry;
 
-					CreateExtraInfoEntry(&activeEffectsEntry, movie, "Effects", "");
+					CreateExtraInfoEntry(activeEffectsEntry, "Effects", "");
 
-					GFxValue activeEffectsArray;
-					movie->CreateArray(&activeEffectsArray);
+					ExtraInfoEntry * activeEffectsArray;
+
+					CreateExtraInfoEntry(activeEffectsArray, "", "");;
 
 					tList<ActiveEffect> * effects = pActor->magicTarget.GetActiveEffects();
 
@@ -720,7 +738,7 @@ public:
 
 							ActiveEffect * pEffect = effects->GetNthItem(i);
 
-							GFxValue effectEntry;
+							ExtraInfoEntry * effectEntry;
 
 							if (pEffect->effect && pEffect->effect->mgef)
 							{
@@ -750,11 +768,11 @@ public:
 									effectActive = "Active";
 								}
 
-								CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
+								CreateExtraInfoEntry(effectEntry, effectName, effectActive);
 
-								GFxValue effectEntrySubArray;
+								ExtraInfoEntry * effectEntrySubArray;
 
-								movie->CreateArray(&effectEntrySubArray);
+								CreateExtraInfoEntry(effectEntrySubArray, "", "");
 
 								TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
 
@@ -762,98 +780,98 @@ public:
 								{
 									DebugMessage("GetCharacterData: Active Effect MGEF base form found");
 
-									GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
+									GetCommonFormData(effectEntrySubArray, effectBaseForm, nullptr);
 
 									//Magnitude
-									GFxValue magnitudeEntry;
+									ExtraInfoEntry * magnitudeEntry;
 
 									float magnitude = pEffect->magnitude;
-									CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
-									effectEntrySubArray.PushBack(&magnitudeEntry);
+									CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude));
+									effectEntrySubArray->PushBack(magnitudeEntry);
 
 									//Duration
-									GFxValue durationEntry;
+									ExtraInfoEntry * durationEntry;
 
 									float duration = pEffect->duration;
-									CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
-									effectEntrySubArray.PushBack(&durationEntry);
+									CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration));
+									effectEntrySubArray->PushBack(durationEntry);
 
 
 									//Magnitude
-									GFxValue elapsedEntry;
+									ExtraInfoEntry * elapsedEntry;
 
 									float elapsed = pEffect->elapsed;
-									CreateExtraInfoEntry(&elapsedEntry, movie, "Elapsed", FloatToString(elapsed));
-									effectEntrySubArray.PushBack(&elapsedEntry);
+									CreateExtraInfoEntry(elapsedEntry, "Elapsed", FloatToString(elapsed));
+									effectEntrySubArray->PushBack(elapsedEntry);
 
-									GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
+									GetMagicEffectData(effectEntrySubArray, effectBaseForm);
 
-									effectEntry.PushBack(&effectEntrySubArray);
+									effectEntry->PushBack(effectEntrySubArray);
 								}
 							}
 
 							else
 							{
-								CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
+								CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "");
 							}
 
-							activeEffectsArray.PushBack(&effectEntry);
+							activeEffectsArray->PushBack(effectEntry);
 
 
 							DebugMessage("GetCharacterData: Ending Active Effect");
 
 							/*if (pEffect->item)
-							scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
+							scaleformExtend::MagicItemData(effectView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
 
-							//RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
+							//RegisterBool(effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
 
 							// ActiveEffect
 							//if (pEffect->effect && pEffect->effect->mgef)
-							//	scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
+							//	scaleformExtend::MagicItemData(effectView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
 
-							//activeEffects.PushBack(&effect);
+							//activeEffects->PushBack(effect);
 						}
 					}
 
-					activeEffectsEntry.PushBack(&activeEffectsArray);
-					resultArray->PushBack(&activeEffectsEntry);
+					activeEffectsEntry->PushBack(activeEffectsArray);
+					resultArray->PushBack(activeEffectsEntry);
 
 					DebugMessage("GetExtraData: Active Effects Done");
 
+					ExtraInfoEntry * actorValueHealth;
 
-					GFxValue actorValueHealth;
+					GetActorValue(actorValueHealth, pActor, actorValueHealthIndex);
+					resultArray->PushBack(actorValueHealth);
 
-					GetActorValue(&actorValueHealth, movie, pActor, actorValueHealthIndex);
-					resultArray->PushBack(&actorValueHealth);
+					ExtraInfoEntry * actorValueMagicka;
 
-					GFxValue actorValueMagicka;
+					GetActorValue(actorValueMagicka, pActor, actorValueMagickaIndex);
+					resultArray->PushBack(actorValueMagicka);
 
-					GetActorValue(&actorValueMagicka, movie, pActor, actorValueMagickaIndex);
-					resultArray->PushBack(&actorValueMagicka);
+					ExtraInfoEntry * actorValueStamina;
 
-					GFxValue actorValueStamina;
-
-					GetActorValue(&actorValueStamina, movie, pActor, actorValueStaminahIndex);
-					resultArray->PushBack(&actorValueStamina);
+					GetActorValue(actorValueStamina, pActor, actorValueStaminahIndex);
+					resultArray->PushBack(actorValueStamina);
 
 					//Get all actor values in a subarray
-					GFxValue actorValueArrayEntry;
-					CreateExtraInfoEntry(&actorValueArrayEntry, movie, "Actor Values", "");
+					ExtraInfoEntry * actorValueArrayEntry;
+					CreateExtraInfoEntry(actorValueArrayEntry, "Actor Values", "");
 
-					GFxValue actorValueArray;
-					movie->CreateArray(&actorValueArray);
+					ExtraInfoEntry * actorValueArray;
+
+					CreateExtraInfoEntry(actorValueArray, "", "");
 
 					for (int i = 0; i < ActorValueList::kNumActorValues; i++)
 					{
 
-						GFxValue actorValue;
-						GetActorValue(&actorValue, movie, pActor, i);
-						actorValueArray.PushBack(&actorValue);
+						ExtraInfoEntry * actorValue;
+						GetActorValue(actorValue, pActor, i);
+						actorValueArray->PushBack(actorValue);
 					}
 
 
-					actorValueArrayEntry.PushBack(&actorValueArray);
-					resultArray->PushBack(&actorValueArrayEntry);
+					actorValueArrayEntry->PushBack(actorValueArray);
+					resultArray->PushBack(actorValueArrayEntry);
 
 					DebugMessage("GetExtraData: GetCharacter actor values gotten");
 
@@ -874,50 +892,50 @@ public:
 							std::string packageName = GetName(currentPackage);
 
 							//Placeholder for seeing what has editor IDs
-							GFxValue packageEntry;
+							ExtraInfoEntry * packageEntry;
 
-							CreateExtraInfoEntry(&packageEntry, movie, "Current Package", packageName);
+							CreateExtraInfoEntry(packageEntry, "Current Package", packageName);
 
 
 							DebugMessage("Before getting package form data");
 
-							GFxValue packageSubArray;
-							movie->CreateArray(&packageSubArray);
-							GetFormData(&packageSubArray, movie, currentPackage, nullptr);
+							ExtraInfoEntry * packageSubArray;
+							CreateExtraInfoEntry(packageSubArray, "", "");
+							GetFormData(packageSubArray, currentPackage, nullptr);
 
-							packageEntry.PushBack(&packageSubArray);
-							resultArray->PushBack(&packageEntry);
+							packageEntry->PushBack(packageSubArray);
+							resultArray->PushBack(packageEntry);
 
 						}
 					}
-					
+
 					DebugMessage("After package");
 
 				} //end of a pActor Section
 
-				//Handle Flags
+				  //Handle Flags
 				int essentialFlag = 0x02;
 				int protectedFlag = 0x800;
 
-				GFxValue protectionEntry;
+				ExtraInfoEntry * protectionEntry;
 
 
 				if ((pNPC->actorData.flags & essentialFlag) == essentialFlag)
 				{
-					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "Essential");
+					CreateExtraInfoEntry(protectionEntry, "Protection", "Essential");
 				}
 
 				else if ((pNPC->actorData.flags & protectedFlag) == protectedFlag)
 				{
-					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "Protected");
+					CreateExtraInfoEntry(protectionEntry, "Protection", "Protected");
 				}
 
 				else
 				{
-					CreateExtraInfoEntry(&protectionEntry, movie, "Protection", "None");
+					CreateExtraInfoEntry(protectionEntry, "Protection", "None");
 				}
 
-				resultArray->PushBack(&protectionEntry);
+				resultArray->PushBack(protectionEntry);
 
 				//Level stuff
 
@@ -926,15 +944,15 @@ public:
 
 					int level = CALL_MEMBER_FN(pActor, GetLevel)();
 
-					GFxValue levelEntry;
+					ExtraInfoEntry * levelEntry;
 
-					CreateExtraInfoEntry(&levelEntry, movie, "Level", IntToString(level));
-					resultArray->PushBack(&levelEntry);
+					CreateExtraInfoEntry(levelEntry, "Level", IntToString(level));
+					resultArray->PushBack(levelEntry);
 
 					DebugMessage("GetExtraData: GetCharacter level gotten");
 				}
 
-				GFxValue isPcLeveledEntry;
+				ExtraInfoEntry * isPcLeveledEntry;
 
 				bool isLevelMult = (pNPC->actorData.flags & TESActorBaseData::kFlag_PCLevelMult) == TESActorBaseData::kFlag_PCLevelMult;
 				if (isLevelMult)
@@ -942,47 +960,46 @@ public:
 					DebugMessage("GetExtraData: GetCharacter pc level mult set");
 
 
-					CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "True");
+					CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", "True");
 
-					GFxValue levelMultSubArray;
-					movie->CreateArray(&levelMultSubArray);
-
+					ExtraInfoEntry * levelMultSubArray;
+					CreateExtraInfoEntry(levelMultSubArray, "", "");
 					double levelMult = (double)pNPC->actorData.level / 1000.0;
 					int minLevel = pNPC->actorData.minLevel;
 					int maxLevel = pNPC->actorData.maxLevel;
 
-					GFxValue levelMultEntry, minLevelEntry, maxLevelEntry;
+					ExtraInfoEntry * levelMultEntry, * minLevelEntry, * maxLevelEntry;
 
-					CreateExtraInfoEntry(&levelMultEntry, movie, "Level Mult", DoubleToString(levelMult));
-					levelMultSubArray.PushBack(&levelMultEntry);
+					CreateExtraInfoEntry(levelMultEntry, "Level Mult", DoubleToString(levelMult));
+					levelMultSubArray->PushBack(levelMultEntry);
 
-					CreateExtraInfoEntry(&minLevelEntry, movie, "Min level", IntToString(minLevel));
-					levelMultSubArray.PushBack(&minLevelEntry);
+					CreateExtraInfoEntry(minLevelEntry, "Min level", IntToString(minLevel));
+					levelMultSubArray->PushBack(minLevelEntry);
 
-					CreateExtraInfoEntry(&maxLevelEntry, movie, "Max Level", IntToString(maxLevel));
-					levelMultSubArray.PushBack(&maxLevelEntry);
+					CreateExtraInfoEntry(maxLevelEntry, "Max Level", IntToString(maxLevel));
+					levelMultSubArray->PushBack(maxLevelEntry);
 
-					isPcLeveledEntry.PushBack(&levelMultSubArray);
+					isPcLeveledEntry->PushBack(levelMultSubArray);
 				}
 				else
 				{
 					DebugMessage("GetExtraData: GetCharacter pc level mult not set");
 
-					CreateExtraInfoEntry(&isPcLeveledEntry, movie, "Is PC Level Mult", "False");
+					CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", "False");
 				}
 
-				resultArray->PushBack(&isPcLeveledEntry);
+				resultArray->PushBack(isPcLeveledEntry);
 
 				//Perks
 				int numPerks = pActorBase->perkRanks.numPerkRanks;
 
 				DebugMessage("GetExtraData: Starting Perks - Total Number" + IntToString(numPerks));
 
-				GFxValue perks;
-				CreateExtraInfoEntry(&perks, movie, "Perks", "");
+				ExtraInfoEntry * perks;
+				CreateExtraInfoEntry(perks, "Perks", "");
 
-				GFxValue perkSubArray;
-				movie->CreateArray(&perkSubArray);
+				ExtraInfoEntry * perkSubArray;
+				CreateExtraInfoEntry(perkSubArray, "", "");
 
 				for (int i = 0; i < numPerks; i++)
 				{
@@ -996,23 +1013,23 @@ public:
 
 						std::string name = GetName(perk);
 
-						GFxValue perkEntry;
+						ExtraInfoEntry * perkEntry;
 
-						CreateExtraInfoEntry(&perkEntry, movie, name, "");
+						CreateExtraInfoEntry(perkEntry, name, "");
 
-						GFxValue perkEntrySubArray;
-						movie->CreateArray(&perkEntrySubArray);
+						ExtraInfoEntry * perkEntrySubArray;
+						CreateExtraInfoEntry(perkEntrySubArray, "", "");
 
-						GetFormData(&perkEntrySubArray, movie, perk, nullptr);
+						GetFormData(perkEntrySubArray, perk, nullptr);
 
-						//GFxValue perkEntryRank;
+						//ExtraInfoEntry * perkEntryRank;
 
-						//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank) );
-						//perkEntrySubArray.PushBack(&perkEntryRank);
+						//CreateExtraInfoEntry(perkEntryRank, "Rank", IntToString(rank) );
+						//perkEntrySubArray->PushBack(perkEntryRank);
 
-						perkEntry.PushBack(&perkEntrySubArray);
+						perkEntry->PushBack(perkEntrySubArray);
 
-						perkSubArray.PushBack(&perkEntry);
+						perkSubArray->PushBack(perkEntry);
 					}
 				}
 
@@ -1034,30 +1051,30 @@ public:
 
 							std::string name = GetName(perk);
 
-							GFxValue perkEntry;
+							ExtraInfoEntry * perkEntry;
 
-							CreateExtraInfoEntry(&perkEntry, movie, name, "");
+							CreateExtraInfoEntry(perkEntry, name, "");
 
-							GFxValue perkEntrySubArray;
-							movie->CreateArray(&perkEntrySubArray);
+							ExtraInfoEntry * perkEntrySubArray;
+							CreateExtraInfoEntry(perkEntrySubArray, "", "");
 
-							GetFormData(&perkEntrySubArray, movie, perk, nullptr);
+							GetFormData(perkEntrySubArray, perk, nullptr);
 
-							//GFxValue perkEntryRank;
+							//ExtraInfoEntry * perkEntryRank;
 
-							//CreateExtraInfoEntry(&perkEntryRank, movie, "Rank", IntToString(rank));
-							//perkEntrySubArray.PushBack(&perkEntryRank);
+							//CreateExtraInfoEntry(perkEntryRank, "Rank", IntToString(rank));
+							//perkEntrySubArray->PushBack(perkEntryRank);
 
-							perkEntry.PushBack(&perkEntrySubArray);
+							perkEntry->PushBack(perkEntrySubArray);
 
-							perkSubArray.PushBack(&perkEntry);
+							perkSubArray->PushBack(perkEntry);
 						}
 					}
 				}
 
-				perks.PushBack(&perkSubArray);
+				perks->PushBack(perkSubArray);
 
-				resultArray->PushBack(&perks);
+				resultArray->PushBack(perks);
 
 				DebugMessage("GetExtraData: Done with perks");
 
@@ -1066,46 +1083,46 @@ public:
 				//apperance - currently height and weight
 				DebugMessage("GetExtraData: appearance Started");
 
-				GFxValue appearance;
-				CreateExtraInfoEntry(&appearance, movie, "Appearance", "");
+				ExtraInfoEntry * appearance;
+				CreateExtraInfoEntry(appearance, "Appearance", "");
 
-				GFxValue appearanceSubArray;
-				movie->CreateArray(&appearanceSubArray);
+				ExtraInfoEntry * appearanceSubArray;
+				CreateExtraInfoEntry(appearanceSubArray, "", "");
 
 				float weight = pNPC->weight;
 
-				GFxValue weightEntry;
+				ExtraInfoEntry * weightEntry;
 
-				CreateExtraInfoEntry(&weightEntry, movie, "Weight", FloatToString(weight));
-				appearanceSubArray.PushBack(&weightEntry);
+				CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight));
+				appearanceSubArray->PushBack(weightEntry);
 
 				float height = pNPC->height;
 
-				GFxValue heightEntry;
+				ExtraInfoEntry * heightEntry;
 
-				CreateExtraInfoEntry(&heightEntry, movie, "Height", FloatToString(height));
-				appearanceSubArray.PushBack(&heightEntry);
+				CreateExtraInfoEntry(heightEntry, "Height", FloatToString(height));
+				appearanceSubArray->PushBack(heightEntry);
 
-				appearance.PushBack(&appearanceSubArray);
+				appearance->PushBack(appearanceSubArray);
 
-				resultArray->PushBack(&appearance);
+				resultArray->PushBack(appearance);
 
 				DebugMessage("GetExtraData: appearance Ended");
 
 				DebugMessage("GetExtraData: factions start");
 
-				GFxValue factionsEntry;
+				ExtraInfoEntry * factionsEntry;
 
-				CreateExtraInfoEntry(&factionsEntry, movie, "Factions", "");
+				CreateExtraInfoEntry(factionsEntry, "Factions", "");
 
 				//Factions
 				int numFactions = pActorBase->actorData.factions.count;
 
 				if (numFactions > 0)
 				{
-					GFxValue factionsSubArray;
+					ExtraInfoEntry * factionsSubArray;
 
-					movie->CreateArray(&factionsSubArray);
+					CreateExtraInfoEntry(factionsSubArray, "", "");
 
 					for (int i = 0; i < numFactions; i++)
 					{
@@ -1114,26 +1131,26 @@ public:
 
 						if (faction)
 						{
-							GFxValue factionEntry;
+							ExtraInfoEntry * factionEntry;
 
 							std::string factionName = GetName(faction);
 							int rank = factionInfo.rank;
 
-							CreateExtraInfoEntry(&factionEntry, movie, factionName, "Rank: " + IntToString(rank));
+							CreateExtraInfoEntry(factionEntry, factionName, "Rank: " + IntToString(rank));
 
-							GFxValue factionEntrySubarrray;
-							movie->CreateArray(&factionEntrySubarrray);
-							GetFormData(&factionEntrySubarrray, movie, faction, nullptr);
-							factionEntry.PushBack(&factionEntrySubarrray);
+							ExtraInfoEntry * factionEntrySubarrray;
+							CreateExtraInfoEntry(factionEntrySubarrray, "", "");;
+							GetFormData(factionEntrySubarrray, faction, nullptr);
+							factionEntry->PushBack(factionEntrySubarrray);
 
-							factionsSubArray.PushBack(&factionEntry);
+							factionsSubArray->PushBack(factionEntry);
 						}
 					}
 
-					factionsEntry.PushBack(&factionsSubArray);
+					factionsEntry->PushBack(factionsSubArray);
 				}
 
-				resultArray->PushBack(&factionsEntry);
+				resultArray->PushBack(factionsEntry);
 
 				//need to get factions off of reference as well
 
@@ -1152,7 +1169,7 @@ public:
 		DebugMessage("GetExtraData: GetCharacter End");
 	}
 
-	void GetActorValue(GFxValue * resultArray, GFxMovieView * movie, Actor * pActor, int id)
+	void GetActorValue(ExtraInfoEntry * resultArray,  Actor * pActor, int id)
 	{
 		DebugMessage("GetExtraData: GetActover Value Start");
 
@@ -1163,37 +1180,37 @@ public:
 			float currentValue = pActor->actorValueOwner.GetCurrent(id);
 			float maxValue = pActor->actorValueOwner.GetCurrent(id);
 
-			CreateExtraInfoEntry(resultArray, movie, valueName, FloatToString(currentValue));
+			CreateExtraInfoEntry(resultArray, valueName, FloatToString(currentValue));
 
 			//create a subarray for the base  current and maximum
 
-			GFxValue subArray;
+			ExtraInfoEntry * subArray;
 
-			movie->CreateArray(&subArray);
+			CreateExtraInfoEntry(subArray, "", "");
 
-			GFxValue baseValueEntry, currentValueEntry, maxValueEntry;
+			ExtraInfoEntry * baseValueEntry, * currentValueEntry, * maxValueEntry;
 
-			CreateExtraInfoEntry(&baseValueEntry, movie, "Base", FloatToString(baseValue));
-			CreateExtraInfoEntry(&currentValueEntry, movie, "Current", FloatToString(currentValue));
-			CreateExtraInfoEntry(&maxValueEntry, movie, "Max", FloatToString(maxValue));
+			CreateExtraInfoEntry(baseValueEntry, "Base", FloatToString(baseValue));
+			CreateExtraInfoEntry(currentValueEntry, "Current", FloatToString(currentValue));
+			CreateExtraInfoEntry(maxValueEntry, "Max", FloatToString(maxValue));
 
-			subArray.PushBack(&baseValueEntry);
-			subArray.PushBack(&currentValueEntry);
-			subArray.PushBack(&maxValueEntry);
+			subArray->PushBack(baseValueEntry);
+			subArray->PushBack(currentValueEntry);
+			subArray->PushBack(maxValueEntry);
 
-			resultArray->PushBack(&subArray);
+			resultArray->PushBack(subArray);
 		}
 
 		else
 		{
 			//the Program will probally crash if we don't create an entry, so add an entry reporting the error in this case
-			CreateExtraInfoEntry(resultArray, movie, "Unknown AV id", IntToString(id));
+			CreateExtraInfoEntry(resultArray, "Unknown AV id", IntToString(id));
 		}
 
 		DebugMessage("GetExtraData: GetActover Value End");
 	}
 
-	void GetMagicEffectData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetMagicEffectData(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		DebugMessage("GetExtraData: GetMagicEffectData Start");
 
@@ -1205,70 +1222,70 @@ public:
 
 			//Magic School
 			int skill = pEffectSetting->school();
-			GFxValue skillEntry;
+			ExtraInfoEntry * skillEntry;
 
-			CreateExtraInfoEntry(&skillEntry, movie, "Magic Skill", GetActorValueName(skill));
-			resultArray->PushBack(&skillEntry);
+			CreateExtraInfoEntry(skillEntry, "Magic Skill", GetActorValueName(skill));
+			resultArray->PushBack(skillEntry);
 
 			//Minimum Skill Level
 
 			int minimumSkill = pEffectSetting->level();
-			GFxValue minimumSkillEntry;
+			ExtraInfoEntry * minimumSkillEntry;
 
-			CreateExtraInfoEntry(&minimumSkillEntry, movie, "Minimum Skill", IntToString(minimumSkill));
-			resultArray->PushBack(&minimumSkillEntry);
+			CreateExtraInfoEntry(minimumSkillEntry, "Minimum Skill", IntToString(minimumSkill));
+			resultArray->PushBack(minimumSkillEntry);
 
 			//Effect type 
 
 			int effectType = pEffectSetting->properties.archetype;
-			GFxValue effectTypeEntry;
+			ExtraInfoEntry * effectTypeEntry;
 
-			CreateExtraInfoEntry(&effectTypeEntry, movie, "Effect type", GetEffectTypeName(effectType));
-			resultArray->PushBack(&effectTypeEntry);
+			CreateExtraInfoEntry(effectTypeEntry, "Effect type", GetEffectTypeName(effectType));
+			resultArray->PushBack(effectTypeEntry);
 
 			//First AV
 			int primaryType = pEffectSetting->properties.primaryValue;
-			GFxValue primaryAVEntry;
+			ExtraInfoEntry * primaryAVEntry;
 
-			CreateExtraInfoEntry(&primaryAVEntry, movie, "Primary AV", GetActorValueName(primaryType));
-			resultArray->PushBack(&primaryAVEntry);
+			CreateExtraInfoEntry(primaryAVEntry, "Primary AV", GetActorValueName(primaryType));
+			resultArray->PushBack(primaryAVEntry);
 
 			//Second AV
 			int secondaryType = pEffectSetting->properties.secondaryValue;
-			GFxValue secondaryAVEntry;
+			ExtraInfoEntry * secondaryAVEntry;
 
-			CreateExtraInfoEntry(&secondaryAVEntry, movie, "Secondary AV", GetActorValueName(secondaryType));
-			resultArray->PushBack(&secondaryAVEntry);
+			CreateExtraInfoEntry(secondaryAVEntry, "Secondary AV", GetActorValueName(secondaryType));
+			resultArray->PushBack(secondaryAVEntry);
 
 			//Resistence
 			int resistence = pEffectSetting->properties.resistance;
-			GFxValue resistenceEntry;
+			ExtraInfoEntry * resistenceEntry;
 
-			CreateExtraInfoEntry(&resistenceEntry, movie, "Primary AV", GetActorValueName(resistence));
-			resultArray->PushBack(&resistenceEntry);
+			CreateExtraInfoEntry(resistenceEntry, "Primary AV", GetActorValueName(resistence));
+			resultArray->PushBack(resistenceEntry);
 
 
 			//delivery type
-			GFxValue deliveryTypeEntry;
+			ExtraInfoEntry * deliveryTypeEntry;
 
-			CreateExtraInfoEntry(&deliveryTypeEntry, movie, "Delivery Type", GetDeliveryTypeName(pEffectSetting->properties.deliveryType));
-			resultArray->PushBack(&deliveryTypeEntry);
+			CreateExtraInfoEntry(deliveryTypeEntry, "Delivery Type", GetDeliveryTypeName(pEffectSetting->properties.deliveryType));
+			resultArray->PushBack(deliveryTypeEntry);
 
 			//Hostile Flag
-			GFxValue hostileEntry;
+			ExtraInfoEntry * hostileEntry;
 
 			bool hostile = (pEffectSetting->properties.flags & EffectSetting::Properties::kEffectType_Hostile) == EffectSetting::Properties::kEffectType_Hostile;
 
 			if (hostile)
 			{
-				CreateExtraInfoEntry(&hostileEntry, movie, "Hostile", "true");
+				CreateExtraInfoEntry(hostileEntry, "Hostile", "true");
 			}
 
 			else
 			{
-				CreateExtraInfoEntry(&hostileEntry, movie, "Hostile", "false");
+				CreateExtraInfoEntry(hostileEntry, "Hostile", "false");
 			}
-			resultArray->PushBack(&hostileEntry);
+			resultArray->PushBack(hostileEntry);
 			/*
 
 
@@ -1283,7 +1300,7 @@ public:
 		DebugMessage("GetExtraData: GetMagicEffectData End");
 	}
 
-	void GetSpellData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetSpellData(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		/*
 		case kFormType_Spell:
@@ -1297,12 +1314,12 @@ public:
 		{
 			DebugMessage("GetSpellData: Starting Effect Data Effect");
 
-			GFxValue magicEffectsEntry;
+			ExtraInfoEntry * magicEffectsEntry;
 
-			CreateExtraInfoEntry(&magicEffectsEntry, movie, "Magic Effects", "");
+			CreateExtraInfoEntry(magicEffectsEntry, "Magic Effects", "");
 
-			GFxValue magicEffectsArray;
-			movie->CreateArray(&magicEffectsArray);
+			ExtraInfoEntry * magicEffectsArray;
+			CreateExtraInfoEntry(magicEffectsArray, "", "");
 
 			int numEffects = pMagicItem->effectItemList.count;
 
@@ -1312,7 +1329,7 @@ public:
 
 				MagicItem::EffectItem * pEffect = pMagicItem->effectItemList[i];
 
-				GFxValue effectEntry;
+				ExtraInfoEntry * effectEntry;
 
 				if (pEffect && pEffect->mgef)
 				{
@@ -1332,11 +1349,11 @@ public:
 						effectName = "Unknown Effect";
 					}
 
-					CreateExtraInfoEntry(&effectEntry, movie, effectName, effectActive);
+					CreateExtraInfoEntry(effectEntry, effectName, effectActive);
 
-					GFxValue effectEntrySubArray;
+					ExtraInfoEntry * effectEntrySubArray;
 
-					movie->CreateArray(&effectEntrySubArray);
+					CreateExtraInfoEntry(effectEntrySubArray, "", "");
 
 					TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
 
@@ -1344,42 +1361,42 @@ public:
 					{
 						DebugMessage("GetExtraData: Active Effect MGEF base form found");
 
-						GetCommonFormData(&effectEntrySubArray, movie, effectBaseForm, nullptr);
+						GetCommonFormData(effectEntrySubArray, effectBaseForm, nullptr);
 
 						//Magnitude
-						GFxValue magnitudeEntry;
+						ExtraInfoEntry * magnitudeEntry;
 
 						float magnitude = pEffect->magnitude;
-						CreateExtraInfoEntry(&magnitudeEntry, movie, "Magnitude", FloatToString(magnitude));
-						effectEntrySubArray.PushBack(&magnitudeEntry);
+						CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude));
+						effectEntrySubArray->PushBack(magnitudeEntry);
 
 						//Duration
-						GFxValue durationEntry;
+						ExtraInfoEntry * durationEntry;
 
 						float duration = pEffect->duration;
-						CreateExtraInfoEntry(&durationEntry, movie, "Duration", FloatToString(duration));
-						effectEntrySubArray.PushBack(&durationEntry);
+						CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration));
+						effectEntrySubArray->PushBack(durationEntry);
 
 
 						//Magnitude
-						GFxValue areaEntry;
+						ExtraInfoEntry * areaEntry;
 
 						float area = pEffect->area;
-						CreateExtraInfoEntry(&areaEntry, movie, "Area", FloatToString(area));
-						effectEntrySubArray.PushBack(&areaEntry);
+						CreateExtraInfoEntry(areaEntry, "Area", FloatToString(area));
+						effectEntrySubArray->PushBack(areaEntry);
 
-						GetMagicEffectData(&effectEntrySubArray, movie, effectBaseForm);
+						GetMagicEffectData(effectEntrySubArray, effectBaseForm);
 
-						effectEntry.PushBack(&effectEntrySubArray);
+						effectEntry->PushBack(effectEntrySubArray);
 					}
 				}
 
 				else
 				{
-					CreateExtraInfoEntry(&effectEntry, movie, "Unknown Effect Type", "");
+					CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "");
 				}
 
-				magicEffectsArray.PushBack(&effectEntry);
+				magicEffectsArray->PushBack(effectEntry);
 
 
 				DebugMessage("GetSpellData: Ending Active Effect");
@@ -1387,8 +1404,8 @@ public:
 
 			}
 
-			magicEffectsEntry.PushBack(&magicEffectsArray);
-			resultArray->PushBack(&magicEffectsEntry);
+			magicEffectsEntry->PushBack(magicEffectsArray);
+			resultArray->PushBack(magicEffectsEntry);
 
 			DebugMessage("GetSpellData: Done general magic item code");
 		}
@@ -1399,28 +1416,28 @@ public:
 			DebugMessage("GetSpellData: Starting spell item code");
 
 			//spell type
-			GFxValue spellTypeEntry;
+			ExtraInfoEntry * spellTypeEntry;
 
-			CreateExtraInfoEntry(&spellTypeEntry, movie, "Spell Type", GetSpellTypeName(pSpellItem->data.type));
-			resultArray->PushBack(&spellTypeEntry);
+			CreateExtraInfoEntry(spellTypeEntry, "Spell Type", GetSpellTypeName(pSpellItem->data.type));
+			resultArray->PushBack(spellTypeEntry);
 
 			//casting type
-			GFxValue castingTypeEntry;
+			ExtraInfoEntry * castingTypeEntry;
 
-			CreateExtraInfoEntry(&castingTypeEntry, movie, "Cast Type", GetCastingTypeName(pSpellItem->data.castType));
-			resultArray->PushBack(&castingTypeEntry);
+			CreateExtraInfoEntry(castingTypeEntry, "Cast Type", GetCastingTypeName(pSpellItem->data.castType));
+			resultArray->PushBack(castingTypeEntry);
 
 			//spell cost
-			GFxValue spellCostEntry;
+			ExtraInfoEntry * spellCostEntry;
 
-			CreateExtraInfoEntry(&spellCostEntry, movie, "True Cost", IntToString(pSpellItem->GetMagickaCost()));
-			resultArray->PushBack(&spellCostEntry);
+			CreateExtraInfoEntry(spellCostEntry, "True Cost", IntToString(pSpellItem->GetMagickaCost()));
+			resultArray->PushBack(spellCostEntry);
 
 			//cast time
-			GFxValue castTimeEntry;
+			ExtraInfoEntry * castTimeEntry;
 
-			CreateExtraInfoEntry(&castTimeEntry, movie, "Cast Time", FloatToString(pSpellItem->data.castTime));
-			resultArray->PushBack(&castTimeEntry);
+			CreateExtraInfoEntry(castTimeEntry, "Cast Time", FloatToString(pSpellItem->data.castTime));
+			resultArray->PushBack(castTimeEntry);
 
 			//RegisterNumber(pFxVal, "spellType", pSpellItem->data.type);
 			//RegisterNumber(pFxVal, "trueCost", pSpellItem->GetMagickaCost());
@@ -1437,9 +1454,9 @@ public:
 		if (pAlchemyItem)
 		{
 		if (pAlchemyItem->itemData.useSound) {
-		GFxValue useSound;
-		movieView->CreateObject(&useSound);
-		scaleformExtend::FormData(&useSound, movieView, pAlchemyItem->itemData.useSound, bRecursive ? bExtra : false, bRecursive);
+		ExtraInfoEntry * useSound;
+		movieView->CreateObject(useSound);
+		scaleformExtend::FormData(useSoundView, pAlchemyItem->itemData.useSound, bRecursive ? bExtra : false, bRecursive);
 		pFxVal->SetMember("useSound", &useSound);
 		}
 		}
@@ -1449,21 +1466,21 @@ public:
 		{
 		RegisterNumber(pFxVal, "flags", (double)pMagicItem->flags);
 
-		GFxValue baseEnchant;
-		movieView->CreateObject(&baseEnchant);
-		scaleformExtend::FormData(&baseEnchant, movieView, pEnchantItem->data.baseEnchantment, bRecursive ? bExtra : false, bRecursive);
+		ExtraInfoEntry * baseEnchant;
+		movieView->CreateObject(baseEnchant);
+		scaleformExtend::FormData(baseEnchantView, pEnchantItem->data.baseEnchantment, bRecursive ? bExtra : false, bRecursive);
 		pFxVal->SetMember("baseEnchant", &baseEnchant);
 
-		GFxValue restrictions;
-		movieView->CreateObject(&restrictions);
-		scaleformExtend::FormData(&restrictions, movieView, pEnchantItem->data.restrictions, bRecursive ? bExtra : false, bRecursive);
+		ExtraInfoEntry * restrictions;
+		movieView->CreateObject(restrictions);
+		scaleformExtend::FormData(restrictionsView, pEnchantItem->data.restrictions, bRecursive ? bExtra : false, bRecursive);
 		pFxVal->SetMember("restrictions", &restrictions);
 		}
 		}	*/
 	}
 
 	//wrapper for getting both the common form data and the spell data for a spell
-	void GetSpellDataWrapper(GFxValue * spellEntry, GFxMovieView * movie, SpellItem* spell, std::string source)
+	void GetSpellDataWrapper(ExtraInfoEntry * spellEntry,  SpellItem* spell, std::string source)
 	{
 		DebugMessage("GetSpellDataWrapper: Starting spell");
 
@@ -1478,36 +1495,36 @@ public:
 				spellName = spell->fullName.name.data;
 			}
 
-			CreateExtraInfoEntry(spellEntry, movie, spellName, source);
+			CreateExtraInfoEntry(spellEntry, spellName, source);
 
-			GFxValue spellEntrySubArray;
-			movie->CreateArray(&spellEntrySubArray);
+			ExtraInfoEntry * spellEntrySubArray;
+			CreateExtraInfoEntry(spellEntrySubArray, "", "");
 
-			GetCommonFormData(&spellEntrySubArray, movie, spellBaseForm, nullptr);
-			GetSpellData(&spellEntrySubArray, movie, spellBaseForm);
+			GetCommonFormData(spellEntrySubArray, spellBaseForm, nullptr);
+			GetSpellData(spellEntrySubArray, spellBaseForm);
 
-			spellEntry->PushBack(&spellEntrySubArray);
+			spellEntry->PushBack(spellEntrySubArray);
 		}
 
 		else
 		{
-			CreateExtraInfoEntry(spellEntry, movie, "Unknown Spell", source);
+			CreateExtraInfoEntry(spellEntry, "Unknown Spell", source);
 		}
 
 		DebugMessage("GetSpellDataWrapper: Finished spell");
 	}
 
-	void GetEquipment(GFxValue * resultArray, GFxMovieView * movie, ExtraContainerChanges* pContainerChanges, Actor * pActor)
+	void GetEquipment(ExtraInfoEntry * resultArray,  ExtraContainerChanges* pContainerChanges, Actor * pActor)
 	{
 		DebugMessage("GetEquipment: GetEquipment Start");
 
-		GFxValue equipmentEntry;
+		ExtraInfoEntry * equipmentEntry;
 
-		CreateExtraInfoEntry(&equipmentEntry, movie, "Equipment", "");
+		CreateExtraInfoEntry(equipmentEntry, "Equipment", "");
 
-		GFxValue equipmentSubArray;
+		ExtraInfoEntry * equipmentSubArray;
 
-		movie->CreateArray(&equipmentSubArray);
+		CreateExtraInfoEntry(equipmentSubArray, "", "");
 
 		//weapons and shouts
 
@@ -1516,17 +1533,17 @@ public:
 
 		if (leftHand != nullptr)
 		{
-			GFxValue leftHandEntry;
+			ExtraInfoEntry * leftHandEntry;
 			std::string name = GetName(leftHand);
 
-			CreateExtraInfoEntry(&leftHandEntry, movie, "Left Hand:", name);
+			CreateExtraInfoEntry(leftHandEntry, "Left Hand:", name);
 
-			GFxValue leftHandSubArray;
-			movie->CreateArray(&leftHandSubArray);
+			ExtraInfoEntry * leftHandSubArray;
+			CreateExtraInfoEntry(leftHandSubArray, "", "");
 
-			GetFormData(&leftHandSubArray, movie, leftHand, nullptr);
-			leftHandEntry.PushBack(&leftHandSubArray);
-			equipmentSubArray.PushBack(&leftHandEntry);
+			GetFormData(leftHandSubArray, leftHand, nullptr);
+			leftHandEntry->PushBack(leftHandSubArray);
+			equipmentSubArray->PushBack(leftHandEntry);
 		}
 
 		//right hand
@@ -1534,17 +1551,17 @@ public:
 
 		if (rightHand != nullptr)
 		{
-			GFxValue rightHandEntry;
+			ExtraInfoEntry * rightHandEntry;
 			std::string name = GetName(rightHand);
 
-			CreateExtraInfoEntry(&rightHandEntry, movie, "Right Hand:", name);
+			CreateExtraInfoEntry(rightHandEntry, "Right Hand:", name);
 
-			GFxValue rightHandSubArray;
-			movie->CreateArray(&rightHandSubArray);
+			ExtraInfoEntry * rightHandSubArray;
+			CreateExtraInfoEntry(rightHandSubArray, "", "");
 
-			GetFormData(&rightHandSubArray, movie, rightHand, nullptr);
-			rightHandEntry.PushBack(&rightHandSubArray);
-			equipmentSubArray.PushBack(&rightHandEntry);
+			GetFormData(rightHandSubArray, rightHand, nullptr);
+			rightHandEntry->PushBack(rightHandSubArray);
+			equipmentSubArray->PushBack(rightHandEntry);
 		}
 
 		//shout
@@ -1552,17 +1569,17 @@ public:
 
 		if (shout != nullptr)
 		{
-			GFxValue ShoutEntry;
+			ExtraInfoEntry * ShoutEntry;
 			std::string name = GetName(shout);
 
-			CreateExtraInfoEntry(&ShoutEntry, movie, "Shout:", name);
+			CreateExtraInfoEntry(ShoutEntry, "Shout:", name);
 
-			GFxValue shoutSubArray;
-			movie->CreateArray(&shoutSubArray);
+			ExtraInfoEntry * shoutSubArray;
+			CreateExtraInfoEntry(shoutSubArray, "", "");
 
-			GetFormData(&shoutSubArray, movie, shout, nullptr);
-			ShoutEntry.PushBack(&shoutSubArray);
-			equipmentSubArray.PushBack(&ShoutEntry);
+			GetFormData(shoutSubArray, shout, nullptr);
+			ShoutEntry->PushBack(shoutSubArray);
+			equipmentSubArray->PushBack(ShoutEntry);
 		}
 
 		//check each equip slot
@@ -1581,18 +1598,18 @@ public:
 
 				TESForm * equipedItem = eqD.pForm;
 
-				GFxValue equipedItemEntry;
+				ExtraInfoEntry * equipedItemEntry;
 				std::string name = GetName(equipedItem);
 				std::string slotName = GetEquipSlotName(i);
 
-				CreateExtraInfoEntry(&equipedItemEntry, movie, slotName, name);
+				CreateExtraInfoEntry(equipedItemEntry, slotName, name);
 
-				GFxValue equipedItemEntrySubArray;
-				movie->CreateArray(&equipedItemEntrySubArray);
+				ExtraInfoEntry * equipedItemEntrySubArray;
+				CreateExtraInfoEntry(equipedItemEntrySubArray, "", "");
 
-				GetFormData(&equipedItemEntrySubArray, movie, equipedItem, nullptr);
-				equipedItemEntry.PushBack(&equipedItemEntrySubArray);
-				equipmentSubArray.PushBack(&equipedItemEntry);
+				GetFormData(equipedItemEntrySubArray, equipedItem, nullptr);
+				equipedItemEntry->PushBack(equipedItemEntrySubArray);
+				equipmentSubArray->PushBack(equipedItemEntry);
 
 			}
 
@@ -1600,26 +1617,26 @@ public:
 		}
 
 
-		equipmentEntry.PushBack(&equipmentSubArray);
+		equipmentEntry->PushBack(equipmentSubArray);
 
-		resultArray->PushBack(&equipmentEntry);
+		resultArray->PushBack(equipmentEntry);
 
 		DebugMessage("GetEquipment: GetEquipment End");
 	}
 
-	void GetInventory(GFxValue * resultArray, GFxMovieView * movie, EntryDataList * inventory, TESContainer * baseContainer)
+	void GetInventory(ExtraInfoEntry * resultArray,  EntryDataList * inventory, TESContainer * baseContainer)
 	{
 		DebugMessage("GetInventory: GetInventory Start");
 
-		GFxValue inventoryEntry;
+		ExtraInfoEntry * inventoryEntry;
 
-		CreateExtraInfoEntry(&inventoryEntry, movie, "Inventory", "");
+		CreateExtraInfoEntry(inventoryEntry, "Inventory", "");
 
-		GFxValue inventorySubArray;
+		ExtraInfoEntry * inventorySubArray;
 
-		movie->CreateArray(&inventorySubArray);
+		CreateExtraInfoEntry(inventorySubArray, "", "");
 
-		if (inventory != nullptr )
+		if (inventory != nullptr)
 		{
 			MICGlobals::reducedMode = true;
 		}
@@ -1647,18 +1664,18 @@ public:
 				{
 					std::string name = GetName(itemForm);
 
-					GFxValue inventoryItemEntry;
+					ExtraInfoEntry * inventoryItemEntry;
 
-					CreateExtraInfoEntry(&inventoryItemEntry, movie, name, IntToString(itemCount));
+					CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount));
 
-					GFxValue inventoryItemEntrySubArray;
-					movie->CreateArray(&inventoryItemEntrySubArray);
+					ExtraInfoEntry * inventoryItemEntrySubArray;
+					CreateExtraInfoEntry(inventoryItemEntrySubArray, "", "");
 
-					GetFormData(&inventoryItemEntrySubArray, movie, itemForm, nullptr);
+					GetFormData(inventoryItemEntrySubArray, itemForm, nullptr);
 
-					inventoryItemEntry.PushBack(&inventoryItemEntrySubArray);
+					inventoryItemEntry->PushBack(inventoryItemEntrySubArray);
 
-					inventorySubArray.PushBack(&inventoryItemEntry);
+					inventorySubArray->PushBack(inventoryItemEntry);
 				}
 
 				DebugMessage("GetInventory: Ending inventory item");
@@ -1693,26 +1710,26 @@ public:
 
 					std::string name = GetName(itemForm);
 
-					GFxValue inventoryItemEntry;
+					ExtraInfoEntry * inventoryItemEntry;
 
 					if (name != "")
 					{
-						CreateExtraInfoEntry(&inventoryItemEntry, movie, name, IntToString(itemCount));
+						CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount));
 					}
 
 					else
 					{
-						CreateExtraInfoEntry(&inventoryItemEntry, movie, name, FormIDToString(itemForm->formID));
+						CreateExtraInfoEntry(inventoryItemEntry, name, FormIDToString(itemForm->formID));
 					}
 
-					GFxValue inventoryItemEntrySubArray;
-					movie->CreateArray(&inventoryItemEntrySubArray);
+					ExtraInfoEntry * inventoryItemEntrySubArray;
+					CreateExtraInfoEntry(inventoryItemEntrySubArray, "", "");
 
-					GetFormData(&inventoryItemEntrySubArray, movie, itemForm, nullptr);
+					GetFormData(inventoryItemEntrySubArray, itemForm, nullptr);
 
-					inventoryItemEntry.PushBack(&inventoryItemEntrySubArray);
+					inventoryItemEntry->PushBack(inventoryItemEntrySubArray);
 
-					inventorySubArray.PushBack(&inventoryItemEntry);
+					inventorySubArray->PushBack(inventoryItemEntry);
 				}
 
 
@@ -1720,16 +1737,16 @@ public:
 			}
 		}
 
-		inventoryEntry.PushBack(&inventorySubArray);
+		inventoryEntry->PushBack(inventorySubArray);
 
-		resultArray->PushBack(&inventoryEntry);
+		resultArray->PushBack(inventoryEntry);
 
 		MICGlobals::reducedMode = false;
 
 		DebugMessage("GetInventory: GetInventory End");
 	}
 
-	void GetArmaData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetArmaData(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		DebugMessage("GetArmaData: GetArmaData Start");
 
@@ -1738,21 +1755,21 @@ public:
 		if (pArma)
 		{
 			DebugMessage("GetArmaData: Before Cast");
-			TESForm * maleSkin = (TESForm *) pArma->unk130;
-			
+			TESForm * maleSkin = (TESForm *)pArma->unk130;
+
 			DebugMessage("GetArmaData: After Cast");
 			if (maleSkin)
 			{
-				GFxValue maleSkinEntry;
-				CreateExtraInfoEntry(&maleSkinEntry, movie, "Male skin", "");
+				ExtraInfoEntry * maleSkinEntry;
+				CreateExtraInfoEntry(maleSkinEntry, "Male skin", "");
 
-				GFxValue maleSkinSubEntry;
-				movie->CreateArray(&maleSkinSubEntry);
+				ExtraInfoEntry * maleSkinSubEntry;
+				CreateExtraInfoEntry(maleSkinSubEntry, "", "");
 
-				GetFormData(&maleSkinSubEntry, movie, maleSkin, nullptr);
+				GetFormData(maleSkinSubEntry, maleSkin, nullptr);
 
-				maleSkinEntry.PushBack(&maleSkinSubEntry);
-				resultArray->PushBack(&maleSkinEntry);
+				maleSkinEntry->PushBack(maleSkinSubEntry);
+				resultArray->PushBack(maleSkinEntry);
 			}
 
 
@@ -1762,50 +1779,50 @@ public:
 			DebugMessage("GetArmaData: After Cast");
 			if (femaleSkin)
 			{
-				GFxValue maleSkinEntry;
-				CreateExtraInfoEntry(&maleSkinEntry, movie, "Female skin", "");
+				ExtraInfoEntry * maleSkinEntry;
+				CreateExtraInfoEntry(maleSkinEntry, "Female skin", "");
 
-				GFxValue maleSkinSubEntry;
-				movie->CreateArray(&maleSkinSubEntry);
+				ExtraInfoEntry * maleSkinSubEntry;
+				CreateExtraInfoEntry(maleSkinSubEntry, "", "");
 
-				GetFormData(&maleSkinSubEntry, movie, femaleSkin, nullptr);
+				GetFormData(maleSkinSubEntry, femaleSkin, nullptr);
 
-				maleSkinEntry.PushBack(&maleSkinSubEntry);
-				resultArray->PushBack(&maleSkinEntry);
+				maleSkinEntry->PushBack(maleSkinSubEntry);
+				resultArray->PushBack(maleSkinEntry);
 			}
 
 			//races
-			
+
 			MICGlobals::readRaceSkins = false; //disable reading race skin entries to avoid infinite loops
 
-			//Primary race
+											   //Primary race
 			TESRace * defaultRace = pArma->race.race;
 			std::string defaultRaceName = GetName(defaultRace);
 
-			GFxValue defaultRacesEntry;
+			ExtraInfoEntry * defaultRacesEntry;
 
-			CreateExtraInfoEntry(&defaultRacesEntry, movie, "Primary Race", defaultRaceName);
+			CreateExtraInfoEntry(defaultRacesEntry, "Primary Race", defaultRaceName);
 
-			GFxValue defaultRacesEntrySubArray;
+			ExtraInfoEntry * defaultRacesEntrySubArray;
 
-			movie->CreateArray(&defaultRacesEntrySubArray);
+			CreateExtraInfoEntry(defaultRacesEntrySubArray, "", "");
 
-			GetFormData(&defaultRacesEntrySubArray, movie, defaultRace, nullptr);
-			  
-			defaultRacesEntry.PushBack(&defaultRacesEntrySubArray);
-			resultArray->PushBack(&defaultRacesEntry);
+			GetFormData(defaultRacesEntrySubArray, defaultRace, nullptr);
+
+			defaultRacesEntry->PushBack(defaultRacesEntrySubArray);
+			resultArray->PushBack(defaultRacesEntry);
 
 			//Additional races
 
 			if (pArma->additionalRaces.count > 0)
 			{
-				GFxValue additionalRacesEntry;
+				ExtraInfoEntry * additionalRacesEntry;
 
-				CreateExtraInfoEntry(&additionalRacesEntry, movie, "Additional Races", "");
+				CreateExtraInfoEntry(additionalRacesEntry, "Additional Races", "");
 
-				GFxValue additionalRacesEntrySubArray;
+				ExtraInfoEntry * additionalRacesEntrySubArray;
 
-				movie->CreateArray(&additionalRacesEntrySubArray);
+				CreateExtraInfoEntry(additionalRacesEntrySubArray, "", "");
 
 				for (int i = 0; i < pArma->additionalRaces.count; i++)
 				{
@@ -1815,39 +1832,39 @@ public:
 					{
 						std::string additionalRaceName = GetName(additionalRace);
 
-						GFxValue additionalRaceEntry;
+						ExtraInfoEntry * additionalRaceEntry;
 
-						CreateExtraInfoEntry(&additionalRaceEntry, movie, additionalRaceName, "");
+						CreateExtraInfoEntry(additionalRaceEntry, additionalRaceName, "");
 
-						GFxValue additionalRaceEntrySubArray;
+						ExtraInfoEntry * additionalRaceEntrySubArray;
 
-						movie->CreateArray(&additionalRaceEntrySubArray);
+						CreateExtraInfoEntry(additionalRaceEntrySubArray, "", "");
 
-						GetFormData(&additionalRaceEntrySubArray, movie, additionalRace, nullptr);
+						GetFormData(additionalRaceEntrySubArray, additionalRace, nullptr);
 
-						additionalRaceEntry.PushBack(&additionalRaceEntrySubArray);
-						additionalRacesEntrySubArray.PushBack(&additionalRaceEntry);
+						additionalRaceEntry->PushBack(additionalRaceEntrySubArray);
+						additionalRacesEntrySubArray->PushBack(additionalRaceEntry);
 					}
 				}
 
-				additionalRacesEntry.PushBack(&additionalRacesEntrySubArray);
+				additionalRacesEntry->PushBack(additionalRacesEntrySubArray);
 
-				resultArray->PushBack(&additionalRacesEntry);
+				resultArray->PushBack(additionalRacesEntry);
 			}
 
 
 			MICGlobals::readRaceSkins = true;
 
-			//resultArray->PushBack(&racesEntry);
+			//resultArray->PushBack(racesEntry);
 
 			//Skin Textures
-			
+
 		}
 
 		DebugMessage("GetArmaData: GetArmaData End");
 	}
 
-	void GetArmorData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetArmorData(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		TESObjectARMO * pArmor = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMO);
 
@@ -1856,44 +1873,44 @@ public:
 			//value
 			int armorRating = pArmor->armorValTimes100 / 100;
 
-			GFxValue armorRatingEntry;
+			ExtraInfoEntry * armorRatingEntry;
 
-			CreateExtraInfoEntry(&armorRatingEntry, movie, "Armor Rating", IntToString(armorRating));
-			resultArray->PushBack(&armorRatingEntry);
+			CreateExtraInfoEntry(armorRatingEntry, "Armor Rating", IntToString(armorRating));
+			resultArray->PushBack(armorRatingEntry);
 
 			//value
 			int value = pArmor->value.value;
 
-			GFxValue valueEntry;
+			ExtraInfoEntry * valueEntry;
 
-			CreateExtraInfoEntry(&valueEntry, movie, "Value", IntToString(value));
-			resultArray->PushBack(&valueEntry);
+			CreateExtraInfoEntry(valueEntry, "Value", IntToString(value));
+			resultArray->PushBack(valueEntry);
 
 			//weight
 			int weight = pArmor->weight.weight;
 
-			GFxValue weightEntry;
+			ExtraInfoEntry * weightEntry;
 
-			CreateExtraInfoEntry(&weightEntry, movie, "Weight", IntToString(weight));
-			resultArray->PushBack(&weightEntry);
+			CreateExtraInfoEntry(weightEntry, "Weight", IntToString(weight));
+			resultArray->PushBack(weightEntry);
 
 			//weight class
 			int weightClass = pArmor->bipedObject.data.weightClass;
 
-			GFxValue weightClassEntry;
+			ExtraInfoEntry * weightClassEntry;
 
-			CreateExtraInfoEntry(&weightClassEntry, movie, "Armor Type", GetArmorWeightClassName(weightClass));
-			resultArray->PushBack(&weightClassEntry);
+			CreateExtraInfoEntry(weightClassEntry, "Armor Type", GetArmorWeightClassName(weightClass));
+			resultArray->PushBack(weightClassEntry);
 
 			//Equip slots
 			int parts = pArmor->bipedObject.data.parts;
 
-			GFxValue equipSlotsEntry;
+			ExtraInfoEntry * equipSlotsEntry;
 
-			CreateExtraInfoEntry(&equipSlotsEntry, movie, "Equip Slots", "");
+			CreateExtraInfoEntry(equipSlotsEntry, "Equip Slots", "");
 
-			GFxValue equipSlotsEntrySubArray;
-			movie->CreateArray(&equipSlotsEntrySubArray);
+			ExtraInfoEntry * equipSlotsEntrySubArray;
+			CreateExtraInfoEntry(equipSlotsEntrySubArray, "", "");
 
 			for (int i = 0; i <= 31; i++)
 			{
@@ -1904,24 +1921,24 @@ public:
 
 					std::string slotName = GetEquipSlotName(i);
 
-					GFxValue equipSlotEntry;
+					ExtraInfoEntry * equipSlotEntry;
 
-					CreateExtraInfoEntry(&equipSlotEntry, movie, slotName, "");
-					equipSlotsEntrySubArray.PushBack(&equipSlotEntry);
+					CreateExtraInfoEntry(equipSlotEntry, slotName, "");
+					equipSlotsEntrySubArray->PushBack(equipSlotEntry);
 				}
 			}
 
-			equipSlotsEntry.PushBack(&equipSlotsEntrySubArray);
-			resultArray->PushBack(&equipSlotsEntry);
+			equipSlotsEntry->PushBack(equipSlotsEntrySubArray);
+			resultArray->PushBack(equipSlotsEntry);
 
 			if (!MICGlobals::reducedMode)
 			{
-				GFxValue armorAddonsEntry;
+				ExtraInfoEntry * armorAddonsEntry;
 
-				CreateExtraInfoEntry(&armorAddonsEntry, movie, "Armor Entry", "");
+				CreateExtraInfoEntry(armorAddonsEntry, "Armor Entry", "");
 
-				GFxValue armorAddonsSubArray;
-				movie->CreateArray(&armorAddonsSubArray);
+				ExtraInfoEntry * armorAddonsSubArray;
+				CreateExtraInfoEntry(armorAddonsSubArray, "", "");
 
 				for (int i = 0; i < pArmor->armorAddons.count; i++)
 				{
@@ -1935,29 +1952,29 @@ public:
 
 					if (addEntry)
 					{
-						GFxValue armorAddonEntry;
+						ExtraInfoEntry * armorAddonEntry;
 
 						std::string armorAddonName = GetName(pArmor->armorAddons[i]);
 
-						CreateExtraInfoEntry(&armorAddonEntry, movie, armorAddonName, "");
+						CreateExtraInfoEntry(armorAddonEntry, armorAddonName, "");
 
-						GFxValue armorAddonSubArray;
-						movie->CreateArray(&armorAddonSubArray);
+						ExtraInfoEntry * armorAddonSubArray;
+						CreateExtraInfoEntry(armorAddonSubArray, "", "");
 
-						GetFormData(&armorAddonSubArray, movie, pArmor->armorAddons[i], nullptr);
+						GetFormData(armorAddonSubArray, pArmor->armorAddons[i], nullptr);
 
-						armorAddonEntry.PushBack(&armorAddonSubArray);
-						armorAddonsSubArray.PushBack(&armorAddonEntry);
+						armorAddonEntry->PushBack(armorAddonSubArray);
+						armorAddonsSubArray->PushBack(armorAddonEntry);
 					}
 				}
-			
-				armorAddonsEntry.PushBack(&armorAddonsSubArray);
-				resultArray->PushBack(&armorAddonsEntry);
+
+				armorAddonsEntry->PushBack(armorAddonsSubArray);
+				resultArray->PushBack(armorAddonsEntry);
 			}
 		}
 	}
 
-	void GetWeaponData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetWeaponData(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		TESObjectWEAP * pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
 		if (pWeapon)
@@ -1965,51 +1982,51 @@ public:
 			//animation type
 			int animationType = pWeapon->type();
 
-			GFxValue antimationTypeEntry;
+			ExtraInfoEntry * antimationTypeEntry;
 
-			CreateExtraInfoEntry(&antimationTypeEntry, movie, "Animation type", GetWeaponAnimationTypeName(animationType));
-			resultArray->PushBack(&antimationTypeEntry);
+			CreateExtraInfoEntry(antimationTypeEntry, "Animation type", GetWeaponAnimationTypeName(animationType));
+			resultArray->PushBack(antimationTypeEntry);
 
 			//damage
 			int damage = pWeapon->damage.GetAttackDamage();
 
-			GFxValue damageEntry;
+			ExtraInfoEntry * damageEntry;
 
-			CreateExtraInfoEntry(&damageEntry, movie, "Damage", IntToString(damage));
-			resultArray->PushBack(&damageEntry);
+			CreateExtraInfoEntry(damageEntry, "Damage", IntToString(damage));
+			resultArray->PushBack(damageEntry);
 
 			//speed
 			float speed = pWeapon->speed();
 
-			GFxValue speedEntry;
+			ExtraInfoEntry * speedEntry;
 
-			CreateExtraInfoEntry(&speedEntry, movie, "Speed", FloatToString(speed));
-			resultArray->PushBack(&speedEntry);
+			CreateExtraInfoEntry(speedEntry, "Speed", FloatToString(speed));
+			resultArray->PushBack(speedEntry);
 
 			//reach
 			float reach = pWeapon->reach();
 
-			GFxValue reachEntry;
+			ExtraInfoEntry * reachEntry;
 
-			CreateExtraInfoEntry(&reachEntry, movie, "Reach", FloatToString(reach));
-			resultArray->PushBack(&reachEntry);
+			CreateExtraInfoEntry(reachEntry, "Reach", FloatToString(reach));
+			resultArray->PushBack(reachEntry);
 
 			//stagger
 			float stagger = pWeapon->stagger();
 
-			GFxValue staggerEntry;
+			ExtraInfoEntry * staggerEntry;
 
-			CreateExtraInfoEntry(&staggerEntry, movie, "Stagger", FloatToString(stagger));
-			resultArray->PushBack(&staggerEntry);
+			CreateExtraInfoEntry(staggerEntry, "Stagger", FloatToString(stagger));
+			resultArray->PushBack(staggerEntry);
 
 
 			//crit damage
 			int critDamage = pWeapon->critDamage();
 
-			GFxValue critDamageEntry;
+			ExtraInfoEntry * critDamageEntry;
 
-			CreateExtraInfoEntry(&critDamageEntry, movie, "Crit damage", IntToString(critDamage));
-			resultArray->PushBack(&critDamageEntry);
+			CreateExtraInfoEntry(critDamageEntry, "Crit damage", IntToString(critDamage));
+			resultArray->PushBack(critDamageEntry);
 
 			/*RegisterNumber(pFxVal, "minRange", pWeapon->minRange());
 			RegisterNumber(pFxVal, "maxRange", pWeapon->maxRange()); Data for npc AI*/
@@ -2019,32 +2036,32 @@ public:
 			{
 				std::string equipSlotName = GetEquipTypeName(equipSlot->formID);
 
-				GFxValue equipSlotEntry;
+				ExtraInfoEntry * equipSlotEntry;
 
-				CreateExtraInfoEntry(&equipSlotEntry, movie, "Equip slot", equipSlotName);
-				resultArray->PushBack(&equipSlotEntry);
+				CreateExtraInfoEntry(equipSlotEntry, "Equip slot", equipSlotName);
+				resultArray->PushBack(equipSlotEntry);
 			}
 
 			//value
 			int value = pWeapon->value.value;
 
-			GFxValue valueEntry;
+			ExtraInfoEntry * valueEntry;
 
-			CreateExtraInfoEntry(&valueEntry, movie, "Value", IntToString(value));
-			resultArray->PushBack(&valueEntry);
+			CreateExtraInfoEntry(valueEntry, "Value", IntToString(value));
+			resultArray->PushBack(valueEntry);
 
 			//weight
 			int weight = pWeapon->weight.weight;
 
-			GFxValue weightEntry;
+			ExtraInfoEntry * weightEntry;
 
-			CreateExtraInfoEntry(&weightEntry, movie, "Weight", IntToString(weight));
-			resultArray->PushBack(&weightEntry);
+			CreateExtraInfoEntry(weightEntry, "Weight", IntToString(weight));
+			resultArray->PushBack(weightEntry);
 
 		}
 	}
 
-	void GetAmmoData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetAmmoData(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		TESAmmo * pAmmo = DYNAMIC_CAST(pBaseForm, TESForm, TESAmmo);
 		if (pAmmo)
@@ -2052,47 +2069,47 @@ public:
 			//damage
 			float damage = pAmmo->settings.damage;
 
-			GFxValue damageEntry;
+			ExtraInfoEntry * damageEntry;
 
-			CreateExtraInfoEntry(&damageEntry, movie, "Damage", FloatToString(damage));
-			resultArray->PushBack(&damageEntry);
+			CreateExtraInfoEntry(damageEntry, "Damage", FloatToString(damage));
+			resultArray->PushBack(damageEntry);
 
 
 			//value
 			int value = pAmmo->value.value;
 
-			GFxValue valueEntry;
+			ExtraInfoEntry * valueEntry;
 
-			CreateExtraInfoEntry(&valueEntry, movie, "Value", IntToString(value));
-			resultArray->PushBack(&valueEntry);
+			CreateExtraInfoEntry(valueEntry, "Value", IntToString(value));
+			resultArray->PushBack(valueEntry);
 
 		}
 	}
 
-	void GetContainerData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetContainerData(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		TESObjectCONT * pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
 		if (pContainer)
 		{
 			int respawnsFlag = 0x02;
 
-			GFxValue safeContainerEntry;
+			ExtraInfoEntry * safeContainerEntry;
 
 			if ((pContainer->unkB9 & respawnsFlag) == respawnsFlag)
 			{
-				CreateExtraInfoEntry(&safeContainerEntry, movie, "Safe Container", "No");
+				CreateExtraInfoEntry(safeContainerEntry, "Safe Container", "No");
 			}
 
 			else
 			{
-				CreateExtraInfoEntry(&safeContainerEntry, movie, "Safe Container", "Yes");
+				CreateExtraInfoEntry(safeContainerEntry, "Safe Container", "Yes");
 			}
 
-			resultArray->PushBack(&safeContainerEntry);
+			resultArray->PushBack(safeContainerEntry);
 		}
 	}
 
-	void GetPositionData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm)
+	void GetPositionData(ExtraInfoEntry * resultArray,  TESForm* pRefForm)
 	{
 		DebugMessage("Starting GetPositionData");
 
@@ -2100,46 +2117,46 @@ public:
 
 		if (pRef)
 		{
-			GFxValue positionEntry;
-			CreateExtraInfoEntry(&positionEntry, movie, "Position", "");
+			ExtraInfoEntry * positionEntry;
+			CreateExtraInfoEntry(positionEntry, "Position", "");
 
-			GFxValue positionSubArray;
-			movie->CreateArray(&positionSubArray);
+			ExtraInfoEntry * positionSubArray;
+			CreateExtraInfoEntry(positionSubArray, "", "");
 
 			//position
 			float xPos = pRef->pos.x;
-			GFxValue xPositionEntry;
-			CreateExtraInfoEntry(&xPositionEntry, movie, "X Position", FloatToString(xPos));
-			positionSubArray.PushBack(&xPositionEntry);
+			ExtraInfoEntry * xPositionEntry;
+			CreateExtraInfoEntry(xPositionEntry, "X Position", FloatToString(xPos));
+			positionSubArray->PushBack(xPositionEntry);
 
 			float yPos = pRef->pos.y;
-			GFxValue yPositionEntry;
-			CreateExtraInfoEntry(&yPositionEntry, movie, "Y Position", FloatToString(yPos));
-			positionSubArray.PushBack(&yPositionEntry);
+			ExtraInfoEntry * yPositionEntry;
+			CreateExtraInfoEntry(yPositionEntry, "Y Position", FloatToString(yPos));
+			positionSubArray->PushBack(yPositionEntry);
 
 			float zPos = pRef->pos.z;
-			GFxValue zPositionEntry;
-			CreateExtraInfoEntry(&zPositionEntry, movie, "Z Position", FloatToString(zPos));
-			positionSubArray.PushBack(&zPositionEntry);
+			ExtraInfoEntry * zPositionEntry;
+			CreateExtraInfoEntry(zPositionEntry, "Z Position", FloatToString(zPos));
+			positionSubArray->PushBack(zPositionEntry);
 
 			//rotation
 			float xRot = pRef->rot.x;
-			GFxValue xRotationEntry;
-			CreateExtraInfoEntry(&xRotationEntry, movie, "X Rotation", FloatToString(xRot));
-			positionSubArray.PushBack(&xRotationEntry);
+			ExtraInfoEntry * xRotationEntry;
+			CreateExtraInfoEntry(xRotationEntry, "X Rotation", FloatToString(xRot));
+			positionSubArray->PushBack(xRotationEntry);
 
 			float yRot = pRef->rot.y;
-			GFxValue yRotationEntry;
-			CreateExtraInfoEntry(&yRotationEntry, movie, "Y Rotation", FloatToString(yRot));
-			positionSubArray.PushBack(&yRotationEntry);
+			ExtraInfoEntry * yRotationEntry;
+			CreateExtraInfoEntry(yRotationEntry, "Y Rotation", FloatToString(yRot));
+			positionSubArray->PushBack(yRotationEntry);
 
 			float zRot = pRef->rot.z;
-			GFxValue zRotationEntry;
-			CreateExtraInfoEntry(&zRotationEntry, movie, "Z Rotation", FloatToString(zRot));
-			positionSubArray.PushBack(&zRotationEntry);
+			ExtraInfoEntry * zRotationEntry;
+			CreateExtraInfoEntry(zRotationEntry, "Z Rotation", FloatToString(zRot));
+			positionSubArray->PushBack(zRotationEntry);
 
-			positionEntry.PushBack(&positionSubArray);
-			resultArray->PushBack(&positionEntry);
+			positionEntry->PushBack(positionSubArray);
+			resultArray->PushBack(positionEntry);
 		}
 
 		DebugMessage("Ending GetPositionData");
@@ -2147,7 +2164,7 @@ public:
 
 
 	//get data stored in the BSExtraData format
-	void GetBSExtraData(GFxValue * resultArray, GFxMovieView * movie, TESForm* pRefForm)
+	void GetBSExtraData(ExtraInfoEntry * resultArray,  TESForm* pRefForm)
 	{
 		DebugMessage("Starting GetBSExtraData");
 
@@ -2157,21 +2174,21 @@ public:
 		{
 			BaseExtraList *extraList = &pRef->extraData;
 
-			if(MICOptions::MICDebugMode)
+			if (MICOptions::MICDebugMode)
 			{
 				//Placeholder for seeing what has editor IDs
-				GFxValue editorIDEntry;
+				ExtraInfoEntry * editorIDEntry;
 
 				if (extraList->HasType(kExtraData_EditorID))
 				{
-					CreateExtraInfoEntry(&editorIDEntry, movie, "Editor ID", "Yes");
+					CreateExtraInfoEntry(editorIDEntry, "Editor ID", "Yes");
 				}
 				else
 				{
-					CreateExtraInfoEntry(&editorIDEntry, movie, "Editor ID", "No");
+					CreateExtraInfoEntry(editorIDEntry, "Editor ID", "No");
 				}
 
-				resultArray->PushBack(&editorIDEntry);
+				resultArray->PushBack(editorIDEntry);
 			}
 
 			if (extraList->HasType(kExtraData_Ownership))
@@ -2187,76 +2204,76 @@ public:
 					std::string ownerName = GetName(owner);
 
 					//Placeholder for seeing what has editor IDs
-					GFxValue ownershipEntry;
+					ExtraInfoEntry * ownershipEntry;
 
-					CreateExtraInfoEntry(&ownershipEntry, movie, "Owner", ownerName);
+					CreateExtraInfoEntry(ownershipEntry, "Owner", ownerName);
 
 
 					DebugMessage("Before getting owner form data");
 
-					GFxValue ownershipSubarray;
-					movie->CreateArray(&ownershipSubarray);
-					GetFormData(&ownershipSubarray, movie, owner, nullptr);
+					ExtraInfoEntry * ownershipSubarray;
+					CreateExtraInfoEntry(ownershipSubarray, "", "");
+					GetFormData(ownershipSubarray, owner, nullptr);
 
-					ownershipEntry.PushBack(&ownershipSubarray);
-					resultArray->PushBack(&ownershipEntry);
+					ownershipEntry->PushBack(ownershipSubarray);
+					resultArray->PushBack(ownershipEntry);
 
 				}
 
 
 				DebugMessage("Ending kExtraData_Ownership");
 			}
-			
+
 
 			if (MICOptions::MICDebugMode)
 			{
 				//Placeholder for seeing what has editor IDs
-				GFxValue editorIDEntry;
+				ExtraInfoEntry * editorIDEntry;
 
 				if (extraList->HasType(kExtraData_Package))
 				{
-					CreateExtraInfoEntry(&editorIDEntry, movie, "Extra Data Package", "Yes");
+					CreateExtraInfoEntry(editorIDEntry, "Extra Data Package", "Yes");
 				}
 				else
 				{
-					CreateExtraInfoEntry(&editorIDEntry, movie, "Extra Data Package", "No");
+					CreateExtraInfoEntry(editorIDEntry, "Extra Data Package", "No");
 				}
 
-				resultArray->PushBack(&editorIDEntry);
+				resultArray->PushBack(editorIDEntry);
 			}
 
 			/**
 			if (extraList->HasType(kExtraData_Package))
 			{
-				DebugMessage("Starting kExtraData_Package");
+			DebugMessage("Starting kExtraData_Package");
 
-				BSExtraData * data = extraList->GetByType(kExtraData_Package);
-				ExtraPackage * packageData = DYNAMIC_CAST(data, BSExtraData, ExtraPackage);
+			BSExtraData * data = extraList->GetByType(kExtraData_Package);
+			ExtraPackage * packageData = DYNAMIC_CAST(data, BSExtraData, ExtraPackage);
 
-				if (packageData)
-				{
-					TESForm * currentPackage = packageData->currentPackage;
-					std::string packageName = GetName(currentPackage);
+			if (packageData)
+			{
+			TESForm * currentPackage = packageData->currentPackage;
+			std::string packageName = GetName(currentPackage);
 
-					//Placeholder for seeing what has editor IDs
-					GFxValue packageEntry;
+			//Placeholder for seeing what has editor IDs
+			ExtraInfoEntry * packageEntry;
 
-					CreateExtraInfoEntry(&packageEntry, movie, "Current Package", packageName);
-
-
-					DebugMessage("Before getting packag form data");
-
-					GFxValue packageSubArray;
-					movie->CreateArray(&packageSubArray);
-					GetFormData(&packageSubArray, movie, currentPackage, nullptr);
-
-					packageEntry.PushBack(&packageSubArray);
-					resultArray->PushBack(&packageEntry);
-
-				}
+			CreateExtraInfoEntry(packageEntry, "Current Package", packageName);
 
 
-				DebugMessage("Ending kExtraData_Package");
+			DebugMessage("Before getting packag form data");
+
+			ExtraInfoEntry * packageSubArray;
+			movie->CreateArray(packageSubArray);
+			GetFormData(packageSubArray, currentPackage, nullptr);
+
+			packageEntry->PushBack(packageSubArray);
+			resultArray->PushBack(packageEntry);
+
+			}
+
+
+			DebugMessage("Ending kExtraData_Package");
 			}*/
 		}
 
@@ -2266,7 +2283,7 @@ public:
 		DebugMessage("Ending GetBSExtraData");
 	}
 	/*
-	void StandardItemData(GFxValue * pFxVal, TESForm * pForm, InventoryEntryData * pEntry)
+	void StandardItemData(ExtraInfoEntry * pFxVal, TESForm * pForm, InventoryEntryData * pEntry)
 	{
 	if (!pForm || !pFxVal || !pFxVal->IsObject())
 	return;
@@ -2330,9 +2347,9 @@ public:
 	}
 	}*/
 
-	void GetModelTextures(GFxValue * resultArray, GFxMovieView * movie, TESForm* pBaseForm)
+	void GetModelTextures(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
-		DebugMessage("Starting GetModelTextures " + GetFormTypeName( pBaseForm->formType) );
+		DebugMessage("Starting GetModelTextures " + GetFormTypeName(pBaseForm->formType));
 		if (pBaseForm->formType == kFormType_Static)
 		{
 			TESObjectSTAT *pStatic = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectSTAT);
@@ -2340,7 +2357,7 @@ public:
 			if (pStatic)
 			{
 				TESModelTextureSwap * textSwap = &(pStatic->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2351,7 +2368,7 @@ public:
 			if (pMoveStatic)
 			{
 				TESModelTextureSwap * textSwap = &(pMoveStatic->staticObj.texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2362,7 +2379,7 @@ public:
 			if (pActivate)
 			{
 				TESModelTextureSwap * textSwap = &(pActivate->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2373,7 +2390,7 @@ public:
 			if (pTree)
 			{
 				TESModel * model = &(pTree->model);
-				AddModelEntry(resultArray, movie, "Model", model);
+				AddModelEntry(resultArray, "Model", model);
 			}
 		}
 
@@ -2384,7 +2401,7 @@ public:
 			if (pFlora)
 			{
 				TESModelTextureSwap * textSwap = &(pFlora->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2395,7 +2412,7 @@ public:
 			if (pFurniture)
 			{
 				TESModelTextureSwap * textSwap = &(pFurniture->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2405,7 +2422,7 @@ public:
 			if (pDoor)
 			{
 				TESModelTextureSwap * textSwap = &(pDoor->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2415,17 +2432,17 @@ public:
 			if (pContainer)
 			{
 				TESModelTextureSwap * textSwap = &(pContainer->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
-		
+
 		else if (pBaseForm->formType == kFormType_Misc)
 		{
 			TESObjectMISC *pMisc = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectMISC);
 			if (pMisc)
 			{
 				TESModelTextureSwap * textSwap = &(pMisc->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2435,17 +2452,17 @@ public:
 			if (pBook)
 			{
 				TESModelTextureSwap * textSwap = &(pBook->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
-		else if (pBaseForm->formType == kFormType_Key )
+		else if (pBaseForm->formType == kFormType_Key)
 		{
 			TESKey *pKey = DYNAMIC_CAST(pBaseForm, TESForm, TESKey);
 			if (pKey)
 			{
 				TESModelTextureSwap * textSwap = &(pKey->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2455,7 +2472,7 @@ public:
 			if (pSoulGem)
 			{
 				TESModelTextureSwap * textSwap = &(pSoulGem->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2465,7 +2482,7 @@ public:
 			if (pIngredient)
 			{
 				TESModelTextureSwap * textSwap = &(pIngredient->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2475,7 +2492,7 @@ public:
 			if (pAlchemy)
 			{
 				TESModelTextureSwap * textSwap = &(pAlchemy->texSwap);
-				AddModelEntry(resultArray, movie, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", textSwap);
 			}
 		}
 
@@ -2489,7 +2506,7 @@ public:
 
 				if (textSwap)
 				{
-					AddModelEntry(resultArray, movie, "Model", textSwap);
+					AddModelEntry(resultArray, "Model", textSwap);
 				}
 
 				TESObjectSTAT * firstPersonModel = pWeapon->model;
@@ -2500,10 +2517,10 @@ public:
 
 					if (textSwapFirstPerson)
 					{
-						AddModelEntry(resultArray, movie, "First Person Model", textSwapFirstPerson);
+						AddModelEntry(resultArray, "First Person Model", textSwapFirstPerson);
 					}
 				}
-			}	
+			}
 		}
 
 		else if (pBaseForm->formType == kFormType_ARMA)
@@ -2516,51 +2533,51 @@ public:
 
 				if (maleModel)
 				{
-					AddModelEntry(resultArray, movie, "Model Male", maleModel);
+					AddModelEntry(resultArray, "Model Male", maleModel);
 				}
 
 				TESModelTextureSwap * femaleModel = &(pArma->models[0][1]);
 				if (femaleModel)
 				{
-					AddModelEntry(resultArray, movie, "Model Female", femaleModel);
+					AddModelEntry(resultArray, "Model Female", femaleModel);
 				}
 
 				TESModelTextureSwap * maleFirstPerson = &(pArma->models[1][0]);
 				if (maleFirstPerson)
 				{
-					AddModelEntry(resultArray, movie, "Model Male 1st Person", maleFirstPerson);
+					AddModelEntry(resultArray, "Model Male 1st Person", maleFirstPerson);
 				}
 
 				TESModelTextureSwap * femaleFirstPerson = &(pArma->models[1][1]);
 				if (femaleFirstPerson)
 				{
-					AddModelEntry(resultArray, movie, "Model Female 1st Person", femaleFirstPerson);
+					AddModelEntry(resultArray, "Model Female 1st Person", femaleFirstPerson);
 				}
 			}
 		}
 
-				//_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
+		//_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
 
-				/*
-				int count = textSwap->count;
+		/*
+		int count = textSwap->count;
 
-				_MESSAGE(IntToString(count).c_str());
+		_MESSAGE(IntToString(count).c_str());
 
-				for (int i = 0; i < count; i++)
-				{
-					BGSTextureSet * textureSet = textSwap->swaps[i].textureSet;
+		for (int i = 0; i < count; i++)
+		{
+		BGSTextureSet * textureSet = textSwap->swaps[i].textureSet;
 
-					for (int i = 0; i < textureSet->kNumTextures; i++)
-					{
-						_MESSAGE(textureSet->texturePaths[i].str);
-					}
-				}*/
+		for (int i = 0; i < textureSet->kNumTextures; i++)
+		{
+		_MESSAGE(textureSet->texturePaths[i].str);
+		}
+		}*/
 
 
 		DebugMessage("Ending GetModelTextures");
 	}
 
-	void AddModelEntry(GFxValue * resultArray, GFxMovieView * movie, std::string modelType, TESModelTextureSwap * modelTextureSwap)
+	void AddModelEntry(ExtraInfoEntry * resultArray,  std::string modelType, TESModelTextureSwap * modelTextureSwap)
 	{
 		DebugMessage("Starting AddModelEntry for modelTextureSwap");
 
@@ -2585,55 +2602,55 @@ public:
 			{
 				DebugMessage("Starting Texture Set Branch");
 
-				GFxValue modelTextureEntry;
+				ExtraInfoEntry * modelTextureEntry;
 
 				std::string modelPath = model->GetModelName();
 				std::string modelName = GetFileName(modelPath);
 
-				CreateExtraInfoEntry(&modelTextureEntry, movie, modelType, modelName);
+				CreateExtraInfoEntry(modelTextureEntry, modelType, modelName);
 
-				GFxValue modelTextureSubArray;
-				movie->CreateArray(&modelTextureSubArray);
+				ExtraInfoEntry * modelTextureSubArray;
+				CreateExtraInfoEntry(modelTextureSubArray, "", "");
 
-				AddModelEntry(&modelTextureSubArray, movie, "Model", model);
+				AddModelEntry(modelTextureSubArray, "Model", model);
 
 				DebugMessage("Starting Texture Set Info");
-				GFxValue textureSetEntry;
+				ExtraInfoEntry * textureSetEntry;
 
-				CreateExtraInfoEntry(&textureSetEntry, movie, "Texture Set", "");
+				CreateExtraInfoEntry(textureSetEntry, "Texture Set", "");
 
-				GFxValue textureSetEntrySubArray;
-				movie->CreateArray(&textureSetEntrySubArray);
+				ExtraInfoEntry * textureSetEntrySubArray;
+				CreateExtraInfoEntry(textureSetEntrySubArray, "", "");
 
-				GetFormData(&textureSetEntrySubArray, movie, textureSet, nullptr);
+				GetFormData(textureSetEntrySubArray, textureSet, nullptr);
 
-				textureSetEntry.PushBack(&textureSetEntrySubArray);
+				textureSetEntry->PushBack(textureSetEntrySubArray);
 
-				modelTextureSubArray.PushBack(&textureSetEntry);
+				modelTextureSubArray->PushBack(textureSetEntry);
 
-				modelTextureEntry.PushBack(&modelTextureSubArray);
+				modelTextureEntry->PushBack(modelTextureSubArray);
 
-				resultArray->PushBack(&modelTextureEntry);
+				resultArray->PushBack(modelTextureEntry);
 			}
 
 			else
 			{
 				DebugMessage("Starting No texture set branch");
-				AddModelEntry(resultArray, movie, modelType, model);
+				AddModelEntry(resultArray, modelType, model);
 			}
 		}
 
 		DebugMessage("Ending AddModelEntry for modelTextureSwap");
 	}
 
-	void AddModelEntry(GFxValue * resultArray, GFxMovieView * movie, std::string modelType, TESModel * model )
+	void AddModelEntry(ExtraInfoEntry * resultArray,  std::string modelType, TESModel * model)
 	{
 		DebugMessage("Starting AddModelEntry for model");
 
 		if (model)
 		{
 			std::string modelPath;
-			modelPath.assign( model->GetModelName() );
+			modelPath.assign(model->GetModelName());
 
 			if (modelPath != "")
 			{
@@ -2643,24 +2660,24 @@ public:
 
 				DebugMessage("Get Model name");
 
-				GFxValue modelEntry;
-				CreateExtraInfoEntry(&modelEntry, movie, modelType, modelName);
+				ExtraInfoEntry * modelEntry;
+				CreateExtraInfoEntry(modelEntry, modelType, modelName);
 
 				DebugMessage("Splitting Model Path");
 
 
-				CreateFilePathSubarray(&modelEntry, movie, modelPath);
+				CreateFilePathSubarray(modelEntry, modelPath);
 
 				DebugMessage("Done Splitting Model Path");
 
-				resultArray->PushBack(&modelEntry);
+				resultArray->PushBack(modelEntry);
 			}
 		}
 
 		DebugMessage("Ending AddModelEntry for model");
 	}
 
-	void GetTextureSet(GFxValue * resultArray, GFxMovieView * movie, TESForm * pBaseForm )
+	void GetTextureSet(ExtraInfoEntry * resultArray,  TESForm * pBaseForm)
 	{
 		DebugMessage("Starting AddTextureSetEntry");
 
@@ -2669,14 +2686,14 @@ public:
 		if (pTextureSet)
 		{
 
-			GFxValue textureSetEntry;
-			CreateExtraInfoEntry(&textureSetEntry, movie, "Texture Set", "");
+			ExtraInfoEntry * textureSetEntry;
+			CreateExtraInfoEntry(textureSetEntry, "Texture Set", "");
 
-			GFxValue textureSetSubArray;
+			ExtraInfoEntry * textureSetSubArray;
 
-			movie->CreateArray(&textureSetSubArray);
+			CreateExtraInfoEntry(textureSetSubArray, "", "");
 
-			for (int i = 0; i < BGSTextureSet::kNumTextures; i++ )
+			for (int i = 0; i < BGSTextureSet::kNumTextures; i++)
 			{
 				TESTexture * texture = &pTextureSet->texturePaths[i];
 				std::string texturePath = texture->str;
@@ -2690,31 +2707,31 @@ public:
 
 				std::string textureType = GetTextureType(i);
 
-				GFxValue textureEntry;
+				ExtraInfoEntry * textureEntry;
 
-				CreateExtraInfoEntry(&textureEntry, movie, textureType, textureName);
+				CreateExtraInfoEntry(textureEntry, textureType, textureName);
 
 				if (texturePath != "")
 				{
-					CreateFilePathSubarray(&textureEntry, movie, texturePath);
+					CreateFilePathSubarray(textureEntry, texturePath);
 				}
 
-				textureSetSubArray.PushBack(&textureEntry);
+				textureSetSubArray->PushBack(textureEntry);
 			}
 
-			textureSetEntry.PushBack(&textureSetSubArray);
-			resultArray->PushBack(&textureSetEntry);
+			textureSetEntry->PushBack(textureSetSubArray);
+			resultArray->PushBack(textureSetEntry);
 		}
 
 		DebugMessage("Ending AddTextureSetEntry");
 	}
 
-	void CreateFilePathSubarray(GFxValue * mainEntry, GFxMovieView * movie, std::string filePath)
+	void CreateFilePathSubarray(ExtraInfoEntry * mainEntry,  std::string filePath)
 	{
 		DebugMessage("Starting CreateFilePathSubarray " + filePath);
 
-		GFxValue filePathSubArray;
-		movie->CreateArray(&filePathSubArray);
+		ExtraInfoEntry * filePathSubArray;
+		CreateExtraInfoEntry(filePathSubArray, "", "");
 
 		//loop through the string until the last slash is going
 		int firstSlash = filePath.find_first_of(deliminator);
@@ -2722,28 +2739,28 @@ public:
 		{
 			//DebugMessage("Splitting with index: " + IntToString(firstSlash) + " with remaining path " + modelPath);
 
-			GFxValue pathEntry;
+			ExtraInfoEntry * pathEntry;
 			std::string path = filePath.substr(0, firstSlash + 1);
 
-			CreateExtraInfoEntry(&pathEntry, movie, path, "");
-			filePathSubArray.PushBack(&pathEntry);
+			CreateExtraInfoEntry(pathEntry, path, "");
+			filePathSubArray->PushBack(pathEntry);
 
 			filePath = filePath.substr(firstSlash + 1); //get everything after the first slash
 			firstSlash = filePath.find_first_of(deliminator); //refind the first slash
 		}
 
-		GFxValue pathEntry;
+		ExtraInfoEntry * pathEntry;
 		//add everything after the last slash
-		CreateExtraInfoEntry(&pathEntry, movie, filePath, "");
+		CreateExtraInfoEntry(pathEntry, filePath, "");
 
-		filePathSubArray.PushBack(&pathEntry);
+		filePathSubArray->PushBack(pathEntry);
 
-		mainEntry->PushBack(&filePathSubArray);
+		mainEntry->PushBack(filePathSubArray);
 
 		DebugMessage("Ending CreateFilePathSubarray");
 	}
 
-	void GetRaceEntry(GFxValue * resultArray, GFxMovieView * movie, TESForm * pBaseForm)
+	void GetRaceEntry(ExtraInfoEntry * resultArray,  TESForm * pBaseForm)
 	{
 		DebugMessage("Starting GetRaceEntry");
 
@@ -2755,10 +2772,10 @@ public:
 			//editor ID
 			std::string editorID = pRace->editorId.Get();
 
-			GFxValue editorIDEntry;
+			ExtraInfoEntry * editorIDEntry;
 
-			CreateExtraInfoEntry(&editorIDEntry, movie, "EditorID", editorID);
-			resultArray->PushBack(&editorIDEntry);
+			CreateExtraInfoEntry(editorIDEntry, "EditorID", editorID);
+			resultArray->PushBack(editorIDEntry);
 
 
 			DebugMessage("Getting Models");
@@ -2766,8 +2783,8 @@ public:
 			TESModel * maleModel = &(pRace->models[0]);
 			TESModel * femaleModel = &(pRace->models[1]);
 
-			AddModelEntry(resultArray, movie, "Male Skeleton", maleModel);
-			AddModelEntry(resultArray, movie, "Female Skeleton", femaleModel);
+			AddModelEntry(resultArray, "Male Skeleton", maleModel);
+			AddModelEntry(resultArray, "Female Skeleton", femaleModel);
 
 			//Skins
 			if (MICGlobals::readRaceSkins
@@ -2778,18 +2795,18 @@ public:
 
 				std::string skinName = GetName(skin);
 
-				GFxValue skinEntry;
+				ExtraInfoEntry * skinEntry;
 
-				CreateExtraInfoEntry(&skinEntry, movie, "Skin", skinName);
+				CreateExtraInfoEntry(skinEntry, "Skin", skinName);
 
-				GFxValue skinSubEntry;
+				ExtraInfoEntry * skinSubEntry;
 
-				movie->CreateArray(&skinSubEntry);
+				CreateExtraInfoEntry(skinSubEntry, "", "");
 
-				GetFormData(&skinSubEntry, movie, skin, nullptr);
+				GetFormData(skinSubEntry, skin, nullptr);
 
-				skinEntry.PushBack(&skinSubEntry);
-				resultArray->PushBack(&skinEntry);
+				skinEntry->PushBack(skinSubEntry);
+				resultArray->PushBack(skinEntry);
 
 				DebugMessage("Done Getting Skin");
 			}
@@ -2798,38 +2815,39 @@ public:
 			int playableFlag = 0x00000001;
 			int childFlag = 0x00000004;
 
-			GFxValue playableEntry;
+			ExtraInfoEntry * playableEntry;
 
 			if ((pRace->data.raceFlags & playableFlag) == playableFlag)
 			{
-				CreateExtraInfoEntry(&playableEntry, movie, "Playable", "Yes");
+				CreateExtraInfoEntry(playableEntry, "Playable", "Yes");
 			}
 
 			else
 			{
-				CreateExtraInfoEntry(&playableEntry, movie, "Playable", "No");
+				CreateExtraInfoEntry(playableEntry, "Playable", "No");
 			}
 
-			resultArray->PushBack(&playableEntry);
+			resultArray->PushBack(playableEntry);
 
-			GFxValue childEntry;
+			ExtraInfoEntry * childEntry;
 
 			if ((pRace->data.raceFlags & childFlag) == childFlag)
 			{
-				CreateExtraInfoEntry(&childEntry, movie, "Child", "Yes");
+				CreateExtraInfoEntry(childEntry, "Child", "Yes");
 			}
 
 			else
 			{
-				CreateExtraInfoEntry(&childEntry, movie, "Child", "No");
+				CreateExtraInfoEntry(childEntry, "Child", "No");
 			}
 
-			resultArray->PushBack(&childEntry);
+			resultArray->PushBack(childEntry);
 		}
 
 		DebugMessage("Ending GetRaceEntry");
 	}
 
+	/*
 	void TraverseArray(GFxValue * scaleformArray, GFxMovieView * movie, int level, int level0Index, int level1Index, int level2Index, int level3Index)
 	{
 		int arrayLength = scaleformArray->GetArraySize();
@@ -2859,7 +2877,7 @@ public:
 					zeroIndex.SetNumber(level0Index);
 				}
 
-				resultArray.PushBack(&zeroIndex);
+				resultArray->PushBack(&zeroIndex);
 
 				if (level >= 1)
 				{
@@ -2874,7 +2892,7 @@ public:
 						oneIndex.SetNumber(level1Index);
 					}
 
-					resultArray.PushBack(&oneIndex);
+					resultArray->PushBack(&oneIndex);
 
 					if (level >= 2)
 					{
@@ -2889,7 +2907,7 @@ public:
 							twoIndex.SetNumber(level2Index);
 						}
 
-						resultArray.PushBack(&twoIndex);
+						resultArray->PushBack(&twoIndex);
 
 						if (level >= 3)
 						{
@@ -2904,20 +2922,20 @@ public:
 								threeIndex.SetNumber(level3Index);
 							}
 
-							resultArray.PushBack(&threeIndex);
+							resultArray->PushBack(&threeIndex);
 
 							if (level == 4)
 							{
 
 								GFxValue fourIndex;
 								threeIndex.SetNumber(i);
-								resultArray.PushBack(&fourIndex);
+								resultArray->PushBack(&fourIndex);
 							}
 						}
 					}
 				}
 
-				resultArray.PushBack(&arrayElement);
+				resultArray->PushBack(&arrayElement);
 
 				movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
 			}
@@ -2951,7 +2969,7 @@ public:
 				}
 			}
 		}
-	}
+	}*/
 };
 
 
@@ -2969,6 +2987,42 @@ public:
 	}
 };
 
+
+class MICScaleform_RetrieveExtraData : public GFxFunctionHandler
+{
+public:
+	virtual void	Invoke(Args * args)
+	{
+
+		DebugMessage("RetrieveExtraData: Invoke Start");
+
+		GFxMovieView * movie = args->movie;
+		GFxValue indexArray = args->args[0];
+
+		ExtraInfoEntry * extrainfoEntryToRetrieve = TraverseExtraInfoEntries(&MICGlobals::rootEntry, &indexArray, 0);
+
+		DebugMessage("RetrieveExtraData: Invoke End");
+	}
+
+	ExtraInfoEntry * TraverseExtraInfoEntries(ExtraInfoEntry * currentEntry, GFxValue * indexArray, int currentIndex)
+	{
+		GFxValue * indexToSelect;
+		indexArray->GetElement(currentIndex, indexToSelect);
+
+		ExtraInfoEntry * nextEntry = currentEntry->GetChild(indexToSelect->GetNumber());
+
+		if (currentIndex + 1 == indexArray->GetArraySize())
+		{
+			return nextEntry;
+		}
+
+		else
+		{
+			return TraverseExtraInfoEntries(nextEntry, indexArray, currentIndex + 1);
+		}
+	}
+};
+
 //// core hook
 bool moreInformativeConsoleScaleForm::InstallHooks(GFxMovieView * view, GFxValue * root)
 {
@@ -2977,6 +3031,6 @@ bool moreInformativeConsoleScaleForm::InstallHooks(GFxMovieView * view, GFxValue
 	RegisterFunction <MICScaleform_GetReferenceInfo>(root, view, "MICScaleform_GetReferenceInfo");
 	RegisterFunction <MICScaleform_GetExtraData>(root, view, "MICScaleform_GetExtraData");
 	RegisterFunction <MICScaleform_GetIniOptions>(root, view, "MICScaleform_GetIniOptions");
-
+	RegisterFunction <MICScaleform_RetrieveExtraData>(root, view, "MICScaleform_RetrieveExtraData");
 	return true;
 }
