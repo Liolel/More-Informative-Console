@@ -191,7 +191,7 @@ public:
 				MICGlobals::rootEntry.Clear();
 
 				GetFormData(&MICGlobals::rootEntry, pBaseForm, pRef);
-
+				 
 				DebugMessage("Get Form Information done");
 
 				//GFxValue * FormLocationData;
@@ -201,7 +201,7 @@ public:
 				//Send the data we created back to the console
 				GFxValue returnValue;
 				//MICGlobals::rootEntry.CreatePrimaryScaleformArray(&returnValue, movie);
-				GFxValue arguments;
+				//GFxValue arguments;
 
 				//UIStringHolder* stringHolder = UIStringHolder::GetSingleton();
 				//MenuManager* mm = MenuManager::GetSingleton();
@@ -219,6 +219,13 @@ public:
 				//consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.FinishExtraInfoData", &returnValue, &arguments, 0);
 			}
 		}
+
+		GFxValue returnValue;
+		GFxValue resultArray;
+		MICGlobals::rootEntry.CreatePrimaryScaleformArray(&resultArray, movie);
+
+		movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
+
 
 		DebugMessage("GetExtraData: Invoke End");
 	}
@@ -467,11 +474,10 @@ public:
 
 		DebugMessage("GetCommonFormData: Get Form Location Start");
 
-		ExtraInfoEntry *formLocationHolder, *formLocationData;
+		ExtraInfoEntry *formLocationHolder;
 
 		CreateExtraInfoEntry(formLocationHolder, "Form location information", "");
-		GetFormLocationData(formLocationData, pBaseForm, pRefForm);
-		formLocationHolder->PushBack(formLocationData);
+		GetFormLocationData(formLocationHolder, pBaseForm, pRefForm);
 		resultArray->PushBack(formLocationHolder);
 
 		if (pRefForm != nullptr)
@@ -487,8 +493,6 @@ public:
 	void GetFormLocationData(ExtraInfoEntry * & resultArray, TESForm* pBaseForm, TESForm* pRefForm)
 	{
 		DebugMessage("GetExtraData: GetFormLocationData Start");
-
-		CreateExtraInfoEntry(resultArray, "", "");
 
 		//if the target is a npc that has been created dynamically we want info on the base form the npc is created from
 		if (pBaseForm->formType == kFormType_NPC && pBaseForm->formID >= 0xFF000000)
@@ -552,9 +556,7 @@ public:
 				ExtraInfoEntry * allModsTouchingReferenceHolder;
 				CreateExtraInfoEntry(allModsTouchingReferenceHolder, "Reference found in", "");
 
-				ExtraInfoEntry * allModsTouchingReference;
-				GetModInfoData(allModsTouchingReference, refFormModInfo, SkyrimESMNotDetectedBug);
-				allModsTouchingReferenceHolder->PushBack(allModsTouchingReference);
+				GetModInfoData(allModsTouchingReferenceHolder, refFormModInfo, SkyrimESMNotDetectedBug);
 
 				resultArray->PushBack(allModsTouchingReferenceHolder);
 			}
@@ -584,9 +586,7 @@ public:
 			ExtraInfoEntry * allModsTouchingBaseHolder;
 			CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "");
 
-			ExtraInfoEntry * allModsTouchingBase;
-			GetModInfoData(allModsTouchingBase, baseFormModInfo, false);
-			allModsTouchingBaseHolder->PushBack(allModsTouchingBase);
+			GetModInfoData(allModsTouchingBaseHolder, baseFormModInfo, false);
 
 			resultArray->PushBack(allModsTouchingBaseHolder);
 		}
@@ -594,11 +594,9 @@ public:
 		DebugMessage("GetExtraData: GetFormLocationData End");
 	}
 
-	void GetModInfoData(ExtraInfoEntry * resultArray,  FormModInfoData* modInfoData, boolean SkyrimESMNotDetectedBug)
+	void GetModInfoData(ExtraInfoEntry * & resultArray,  FormModInfoData* modInfoData, boolean SkyrimESMNotDetectedBug)
 	{
 		DebugMessage("GetExtraData: GetModInfoData start");
-
-		CreateExtraInfoEntry(resultArray, "", "");
 
 		int numMods = modInfoData->size;
 
@@ -661,11 +659,8 @@ public:
 
 				CreateExtraInfoEntry(raceEntry, "Race", raceName);
 
-				ExtraInfoEntry * raceSubEntry;
-				CreateExtraInfoEntry(raceSubEntry, "", "");
-				GetFormData(raceSubEntry, pRace, nullptr);
+				GetFormData(raceEntry, pRace, nullptr);
 
-				raceEntry->PushBack(raceSubEntry);
 				resultArray->PushBack(raceEntry);
 
 				DebugMessage("GetCharacterData: Ending Race");
@@ -674,9 +669,6 @@ public:
 				ExtraInfoEntry * allSpellsEntry;
 
 				CreateExtraInfoEntry(allSpellsEntry, "Spells", "");
-
-				ExtraInfoEntry * SpellsArray;
-				CreateExtraInfoEntry(SpellsArray, "", "");
 
 				DebugMessage("GetCharacterData: Starting Added Spells");
 
@@ -690,7 +682,7 @@ public:
 						SpellItem* spell = pActor->addedSpells.Get(i);
 						GetSpellDataWrapper(spellEntry, spell, "Added Spell");
 
-						SpellsArray->PushBack(spellEntry);
+						allSpellsEntry->PushBack(spellEntry);
 					}
 				}
 
@@ -706,10 +698,8 @@ public:
 					SpellItem* spell = pActorBase->spellList.GetNthSpell(i);
 					GetSpellDataWrapper(spellEntry, spell, "Base Spell");
 
-					SpellsArray->PushBack(spellEntry);
+					allSpellsEntry->PushBack(spellEntry);
 				}
-
-				allSpellsEntry->PushBack(SpellsArray);
 
 				resultArray->PushBack(allSpellsEntry);
 
@@ -721,10 +711,6 @@ public:
 					ExtraInfoEntry * activeEffectsEntry;
 
 					CreateExtraInfoEntry(activeEffectsEntry, "Effects", "");
-
-					ExtraInfoEntry * activeEffectsArray;
-
-					CreateExtraInfoEntry(activeEffectsArray, "", "");;
 
 					tList<ActiveEffect> * effects = pActor->magicTarget.GetActiveEffects();
 
@@ -770,31 +756,27 @@ public:
 
 								CreateExtraInfoEntry(effectEntry, effectName, effectActive);
 
-								ExtraInfoEntry * effectEntrySubArray;
-
-								CreateExtraInfoEntry(effectEntrySubArray, "", "");
-
 								TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
 
 								if (effectBaseForm)
 								{
 									DebugMessage("GetCharacterData: Active Effect MGEF base form found");
 
-									GetCommonFormData(effectEntrySubArray, effectBaseForm, nullptr);
+									GetCommonFormData(effectEntry, effectBaseForm, nullptr);
 
 									//Magnitude
 									ExtraInfoEntry * magnitudeEntry;
 
 									float magnitude = pEffect->magnitude;
 									CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude));
-									effectEntrySubArray->PushBack(magnitudeEntry);
+									effectEntry->PushBack(magnitudeEntry);
 
 									//Duration
 									ExtraInfoEntry * durationEntry;
 
 									float duration = pEffect->duration;
 									CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration));
-									effectEntrySubArray->PushBack(durationEntry);
+									effectEntry->PushBack(durationEntry);
 
 
 									//Magnitude
@@ -802,11 +784,9 @@ public:
 
 									float elapsed = pEffect->elapsed;
 									CreateExtraInfoEntry(elapsedEntry, "Elapsed", FloatToString(elapsed));
-									effectEntrySubArray->PushBack(elapsedEntry);
+									effectEntry->PushBack(elapsedEntry);
 
-									GetMagicEffectData(effectEntrySubArray, effectBaseForm);
-
-									effectEntry->PushBack(effectEntrySubArray);
+									GetMagicEffectData(effectEntry, effectBaseForm);
 								}
 							}
 
@@ -815,7 +795,7 @@ public:
 								CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "");
 							}
 
-							activeEffectsArray->PushBack(effectEntry);
+							activeEffectsEntry->PushBack(effectEntry);
 
 
 							DebugMessage("GetCharacterData: Ending Active Effect");
@@ -833,7 +813,6 @@ public:
 						}
 					}
 
-					activeEffectsEntry->PushBack(activeEffectsArray);
 					resultArray->PushBack(activeEffectsEntry);
 
 					DebugMessage("GetExtraData: Active Effects Done");
@@ -854,12 +833,9 @@ public:
 					resultArray->PushBack(actorValueStamina);
 
 					//Get all actor values in a subarray
-					ExtraInfoEntry * actorValueArrayEntry;
-					CreateExtraInfoEntry(actorValueArrayEntry, "Actor Values", "");
-
 					ExtraInfoEntry * actorValueArray;
+					CreateExtraInfoEntry(actorValueArray, "Actor Values", "");
 
-					CreateExtraInfoEntry(actorValueArray, "", "");
 
 					for (int i = 0; i < ActorValueList::kNumActorValues; i++)
 					{
@@ -869,9 +845,7 @@ public:
 						actorValueArray->PushBack(actorValue);
 					}
 
-
-					actorValueArrayEntry->PushBack(actorValueArray);
-					resultArray->PushBack(actorValueArrayEntry);
+					resultArray->PushBack(actorValueArray);
 
 					DebugMessage("GetExtraData: GetCharacter actor values gotten");
 
@@ -899,11 +873,8 @@ public:
 
 							DebugMessage("Before getting package form data");
 
-							ExtraInfoEntry * packageSubArray;
-							CreateExtraInfoEntry(packageSubArray, "", "");
-							GetFormData(packageSubArray, currentPackage, nullptr);
+							GetFormData(packageEntry, currentPackage, nullptr);
 
-							packageEntry->PushBack(packageSubArray);
 							resultArray->PushBack(packageEntry);
 
 						}
@@ -962,8 +933,6 @@ public:
 
 					CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", "True");
 
-					ExtraInfoEntry * levelMultSubArray;
-					CreateExtraInfoEntry(levelMultSubArray, "", "");
 					double levelMult = (double)pNPC->actorData.level / 1000.0;
 					int minLevel = pNPC->actorData.minLevel;
 					int maxLevel = pNPC->actorData.maxLevel;
@@ -971,15 +940,13 @@ public:
 					ExtraInfoEntry * levelMultEntry, * minLevelEntry, * maxLevelEntry;
 
 					CreateExtraInfoEntry(levelMultEntry, "Level Mult", DoubleToString(levelMult));
-					levelMultSubArray->PushBack(levelMultEntry);
+					isPcLeveledEntry->PushBack(levelMultEntry);
 
 					CreateExtraInfoEntry(minLevelEntry, "Min level", IntToString(minLevel));
-					levelMultSubArray->PushBack(minLevelEntry);
+					isPcLeveledEntry->PushBack(minLevelEntry);
 
 					CreateExtraInfoEntry(maxLevelEntry, "Max Level", IntToString(maxLevel));
-					levelMultSubArray->PushBack(maxLevelEntry);
-
-					isPcLeveledEntry->PushBack(levelMultSubArray);
+					isPcLeveledEntry->PushBack(maxLevelEntry);
 				}
 				else
 				{
@@ -998,9 +965,6 @@ public:
 				ExtraInfoEntry * perks;
 				CreateExtraInfoEntry(perks, "Perks", "");
 
-				ExtraInfoEntry * perkSubArray;
-				CreateExtraInfoEntry(perkSubArray, "", "");
-
 				for (int i = 0; i < numPerks; i++)
 				{
 					DebugMessage("GetExtraData: Starting Perk num" + IntToString(i));
@@ -1017,19 +981,14 @@ public:
 
 						CreateExtraInfoEntry(perkEntry, name, "");
 
-						ExtraInfoEntry * perkEntrySubArray;
-						CreateExtraInfoEntry(perkEntrySubArray, "", "");
-
-						GetFormData(perkEntrySubArray, perk, nullptr);
+						GetFormData(perkEntry, perk, nullptr);
 
 						//ExtraInfoEntry * perkEntryRank;
 
 						//CreateExtraInfoEntry(perkEntryRank, "Rank", IntToString(rank) );
 						//perkEntrySubArray->PushBack(perkEntryRank);
 
-						perkEntry->PushBack(perkEntrySubArray);
-
-						perkSubArray->PushBack(perkEntry);
+						perks->PushBack(perkEntry);
 					}
 				}
 
@@ -1055,24 +1014,17 @@ public:
 
 							CreateExtraInfoEntry(perkEntry, name, "");
 
-							ExtraInfoEntry * perkEntrySubArray;
-							CreateExtraInfoEntry(perkEntrySubArray, "", "");
-
-							GetFormData(perkEntrySubArray, perk, nullptr);
+							GetFormData(perkEntry, perk, nullptr);
 
 							//ExtraInfoEntry * perkEntryRank;
 
 							//CreateExtraInfoEntry(perkEntryRank, "Rank", IntToString(rank));
 							//perkEntrySubArray->PushBack(perkEntryRank);
 
-							perkEntry->PushBack(perkEntrySubArray);
-
-							perkSubArray->PushBack(perkEntry);
+							perks->PushBack(perkEntry);
 						}
 					}
 				}
-
-				perks->PushBack(perkSubArray);
 
 				resultArray->PushBack(perks);
 
@@ -1086,24 +1038,19 @@ public:
 				ExtraInfoEntry * appearance;
 				CreateExtraInfoEntry(appearance, "Appearance", "");
 
-				ExtraInfoEntry * appearanceSubArray;
-				CreateExtraInfoEntry(appearanceSubArray, "", "");
-
 				float weight = pNPC->weight;
 
 				ExtraInfoEntry * weightEntry;
 
 				CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight));
-				appearanceSubArray->PushBack(weightEntry);
+				appearance->PushBack(weightEntry);
 
 				float height = pNPC->height;
 
 				ExtraInfoEntry * heightEntry;
 
 				CreateExtraInfoEntry(heightEntry, "Height", FloatToString(height));
-				appearanceSubArray->PushBack(heightEntry);
-
-				appearance->PushBack(appearanceSubArray);
+				appearance->PushBack(heightEntry);
 
 				resultArray->PushBack(appearance);
 
@@ -1120,10 +1067,6 @@ public:
 
 				if (numFactions > 0)
 				{
-					ExtraInfoEntry * factionsSubArray;
-
-					CreateExtraInfoEntry(factionsSubArray, "", "");
-
 					for (int i = 0; i < numFactions; i++)
 					{
 						TESActorBaseData::FactionInfo factionInfo = pActorBase->actorData.factions[i];
@@ -1138,16 +1081,11 @@ public:
 
 							CreateExtraInfoEntry(factionEntry, factionName, "Rank: " + IntToString(rank));
 
-							ExtraInfoEntry * factionEntrySubarrray;
-							CreateExtraInfoEntry(factionEntrySubarrray, "", "");;
-							GetFormData(factionEntrySubarrray, faction, nullptr);
-							factionEntry->PushBack(factionEntrySubarrray);
+							GetFormData(factionEntry, faction, nullptr);
 
-							factionsSubArray->PushBack(factionEntry);
+							factionsEntry->PushBack(factionEntry);
 						}
 					}
-
-					factionsEntry->PushBack(factionsSubArray);
 				}
 
 				resultArray->PushBack(factionsEntry);
@@ -1169,7 +1107,7 @@ public:
 		DebugMessage("GetExtraData: GetCharacter End");
 	}
 
-	void GetActorValue(ExtraInfoEntry * resultArray,  Actor * pActor, int id)
+	void GetActorValue(ExtraInfoEntry * & resultArray,  Actor * pActor, int id)
 	{
 		DebugMessage("GetExtraData: GetActover Value Start");
 
@@ -1184,21 +1122,15 @@ public:
 
 			//create a subarray for the base  current and maximum
 
-			ExtraInfoEntry * subArray;
-
-			CreateExtraInfoEntry(subArray, "", "");
-
 			ExtraInfoEntry * baseValueEntry, * currentValueEntry, * maxValueEntry;
 
 			CreateExtraInfoEntry(baseValueEntry, "Base", FloatToString(baseValue));
 			CreateExtraInfoEntry(currentValueEntry, "Current", FloatToString(currentValue));
 			CreateExtraInfoEntry(maxValueEntry, "Max", FloatToString(maxValue));
 
-			subArray->PushBack(baseValueEntry);
-			subArray->PushBack(currentValueEntry);
-			subArray->PushBack(maxValueEntry);
-
-			resultArray->PushBack(subArray);
+			resultArray->PushBack(baseValueEntry);
+			resultArray->PushBack(currentValueEntry);
+			resultArray->PushBack(maxValueEntry);
 		}
 
 		else
@@ -1318,9 +1250,6 @@ public:
 
 			CreateExtraInfoEntry(magicEffectsEntry, "Magic Effects", "");
 
-			ExtraInfoEntry * magicEffectsArray;
-			CreateExtraInfoEntry(magicEffectsArray, "", "");
-
 			int numEffects = pMagicItem->effectItemList.count;
 
 			for (int i = 0; i < numEffects; i++)
@@ -1351,31 +1280,27 @@ public:
 
 					CreateExtraInfoEntry(effectEntry, effectName, effectActive);
 
-					ExtraInfoEntry * effectEntrySubArray;
-
-					CreateExtraInfoEntry(effectEntrySubArray, "", "");
-
 					TESForm *effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
 
 					if (effectBaseForm)
 					{
 						DebugMessage("GetExtraData: Active Effect MGEF base form found");
 
-						GetCommonFormData(effectEntrySubArray, effectBaseForm, nullptr);
+						GetCommonFormData(effectEntry, effectBaseForm, nullptr);
 
 						//Magnitude
 						ExtraInfoEntry * magnitudeEntry;
 
 						float magnitude = pEffect->magnitude;
 						CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude));
-						effectEntrySubArray->PushBack(magnitudeEntry);
+						effectEntry->PushBack(magnitudeEntry);
 
 						//Duration
 						ExtraInfoEntry * durationEntry;
 
 						float duration = pEffect->duration;
 						CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration));
-						effectEntrySubArray->PushBack(durationEntry);
+						effectEntry->PushBack(durationEntry);
 
 
 						//Magnitude
@@ -1383,11 +1308,9 @@ public:
 
 						float area = pEffect->area;
 						CreateExtraInfoEntry(areaEntry, "Area", FloatToString(area));
-						effectEntrySubArray->PushBack(areaEntry);
+						effectEntry->PushBack(areaEntry);
 
-						GetMagicEffectData(effectEntrySubArray, effectBaseForm);
-
-						effectEntry->PushBack(effectEntrySubArray);
+						GetMagicEffectData(effectEntry, effectBaseForm);
 					}
 				}
 
@@ -1396,7 +1319,7 @@ public:
 					CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "");
 				}
 
-				magicEffectsArray->PushBack(effectEntry);
+				magicEffectsEntry->PushBack(effectEntry);
 
 
 				DebugMessage("GetSpellData: Ending Active Effect");
@@ -1404,7 +1327,6 @@ public:
 
 			}
 
-			magicEffectsEntry->PushBack(magicEffectsArray);
 			resultArray->PushBack(magicEffectsEntry);
 
 			DebugMessage("GetSpellData: Done general magic item code");
@@ -1480,7 +1402,7 @@ public:
 	}
 
 	//wrapper for getting both the common form data and the spell data for a spell
-	void GetSpellDataWrapper(ExtraInfoEntry * spellEntry,  SpellItem* spell, std::string source)
+	void GetSpellDataWrapper(ExtraInfoEntry * & spellEntry,  SpellItem* spell, std::string source)
 	{
 		DebugMessage("GetSpellDataWrapper: Starting spell");
 
@@ -1497,13 +1419,8 @@ public:
 
 			CreateExtraInfoEntry(spellEntry, spellName, source);
 
-			ExtraInfoEntry * spellEntrySubArray;
-			CreateExtraInfoEntry(spellEntrySubArray, "", "");
-
-			GetCommonFormData(spellEntrySubArray, spellBaseForm, nullptr);
-			GetSpellData(spellEntrySubArray, spellBaseForm);
-
-			spellEntry->PushBack(spellEntrySubArray);
+			GetCommonFormData(spellEntry, spellBaseForm, nullptr);
+			GetSpellData(spellEntry, spellBaseForm);
 		}
 
 		else
@@ -1522,10 +1439,6 @@ public:
 
 		CreateExtraInfoEntry(equipmentEntry, "Equipment", "");
 
-		ExtraInfoEntry * equipmentSubArray;
-
-		CreateExtraInfoEntry(equipmentSubArray, "", "");
-
 		//weapons and shouts
 
 		//left hand
@@ -1538,12 +1451,9 @@ public:
 
 			CreateExtraInfoEntry(leftHandEntry, "Left Hand:", name);
 
-			ExtraInfoEntry * leftHandSubArray;
-			CreateExtraInfoEntry(leftHandSubArray, "", "");
 
-			GetFormData(leftHandSubArray, leftHand, nullptr);
-			leftHandEntry->PushBack(leftHandSubArray);
-			equipmentSubArray->PushBack(leftHandEntry);
+			GetFormData(leftHandEntry, leftHand, nullptr);
+			equipmentEntry->PushBack(leftHandEntry);
 		}
 
 		//right hand
@@ -1556,12 +1466,8 @@ public:
 
 			CreateExtraInfoEntry(rightHandEntry, "Right Hand:", name);
 
-			ExtraInfoEntry * rightHandSubArray;
-			CreateExtraInfoEntry(rightHandSubArray, "", "");
-
-			GetFormData(rightHandSubArray, rightHand, nullptr);
-			rightHandEntry->PushBack(rightHandSubArray);
-			equipmentSubArray->PushBack(rightHandEntry);
+			GetFormData(rightHandEntry, rightHand, nullptr);
+			equipmentEntry->PushBack(rightHandEntry);
 		}
 
 		//shout
@@ -1574,12 +1480,8 @@ public:
 
 			CreateExtraInfoEntry(ShoutEntry, "Shout:", name);
 
-			ExtraInfoEntry * shoutSubArray;
-			CreateExtraInfoEntry(shoutSubArray, "", "");
-
-			GetFormData(shoutSubArray, shout, nullptr);
-			ShoutEntry->PushBack(shoutSubArray);
-			equipmentSubArray->PushBack(ShoutEntry);
+			GetFormData(ShoutEntry, shout, nullptr);
+			equipmentEntry->PushBack(ShoutEntry);
 		}
 
 		//check each equip slot
@@ -1604,20 +1506,13 @@ public:
 
 				CreateExtraInfoEntry(equipedItemEntry, slotName, name);
 
-				ExtraInfoEntry * equipedItemEntrySubArray;
-				CreateExtraInfoEntry(equipedItemEntrySubArray, "", "");
-
-				GetFormData(equipedItemEntrySubArray, equipedItem, nullptr);
-				equipedItemEntry->PushBack(equipedItemEntrySubArray);
-				equipmentSubArray->PushBack(equipedItemEntry);
+				GetFormData(equipedItemEntry, equipedItem, nullptr);
+				equipmentEntry->PushBack(equipedItemEntry);
 
 			}
 
 			DebugMessage("GetEquipment: Ending EquipSlot item");
 		}
-
-
-		equipmentEntry->PushBack(equipmentSubArray);
 
 		resultArray->PushBack(equipmentEntry);
 
@@ -1632,14 +1527,10 @@ public:
 
 		CreateExtraInfoEntry(inventoryEntry, "Inventory", "");
 
-		ExtraInfoEntry * inventorySubArray;
-
-		CreateExtraInfoEntry(inventorySubArray, "", "");
-
-		if (inventory != nullptr)
+		/*if (inventory != nullptr)
 		{
 			MICGlobals::reducedMode = true;
-		}
+		}*/
 
 		//go through the inventory (these are anything changed from the base form)
 		if (inventory != nullptr
@@ -1668,14 +1559,9 @@ public:
 
 					CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount));
 
-					ExtraInfoEntry * inventoryItemEntrySubArray;
-					CreateExtraInfoEntry(inventoryItemEntrySubArray, "", "");
+					GetFormData(inventoryItemEntry, itemForm, nullptr);
 
-					GetFormData(inventoryItemEntrySubArray, itemForm, nullptr);
-
-					inventoryItemEntry->PushBack(inventoryItemEntrySubArray);
-
-					inventorySubArray->PushBack(inventoryItemEntry);
+					inventoryEntry->PushBack(inventoryItemEntry);
 				}
 
 				DebugMessage("GetInventory: Ending inventory item");
@@ -1722,14 +1608,9 @@ public:
 						CreateExtraInfoEntry(inventoryItemEntry, name, FormIDToString(itemForm->formID));
 					}
 
-					ExtraInfoEntry * inventoryItemEntrySubArray;
-					CreateExtraInfoEntry(inventoryItemEntrySubArray, "", "");
+					GetFormData(inventoryItemEntry, itemForm, nullptr);
 
-					GetFormData(inventoryItemEntrySubArray, itemForm, nullptr);
-
-					inventoryItemEntry->PushBack(inventoryItemEntrySubArray);
-
-					inventorySubArray->PushBack(inventoryItemEntry);
+					inventoryEntry->PushBack(inventoryItemEntry);
 				}
 
 
@@ -1737,11 +1618,9 @@ public:
 			}
 		}
 
-		inventoryEntry->PushBack(inventorySubArray);
-
 		resultArray->PushBack(inventoryEntry);
 
-		MICGlobals::reducedMode = false;
+		//MICGlobals::reducedMode = false;
 
 		DebugMessage("GetInventory: GetInventory End");
 	}
@@ -1763,12 +1642,8 @@ public:
 				ExtraInfoEntry * maleSkinEntry;
 				CreateExtraInfoEntry(maleSkinEntry, "Male skin", "");
 
-				ExtraInfoEntry * maleSkinSubEntry;
-				CreateExtraInfoEntry(maleSkinSubEntry, "", "");
+				GetFormData(maleSkinEntry, maleSkin, nullptr);
 
-				GetFormData(maleSkinSubEntry, maleSkin, nullptr);
-
-				maleSkinEntry->PushBack(maleSkinSubEntry);
 				resultArray->PushBack(maleSkinEntry);
 			}
 
@@ -1779,16 +1654,12 @@ public:
 			DebugMessage("GetArmaData: After Cast");
 			if (femaleSkin)
 			{
-				ExtraInfoEntry * maleSkinEntry;
-				CreateExtraInfoEntry(maleSkinEntry, "Female skin", "");
+				ExtraInfoEntry * femaleSkinEntry;
+				CreateExtraInfoEntry(femaleSkinEntry, "Female skin", "");
 
-				ExtraInfoEntry * maleSkinSubEntry;
-				CreateExtraInfoEntry(maleSkinSubEntry, "", "");
+				GetFormData(femaleSkinEntry, femaleSkin, nullptr);
 
-				GetFormData(maleSkinSubEntry, femaleSkin, nullptr);
-
-				maleSkinEntry->PushBack(maleSkinSubEntry);
-				resultArray->PushBack(maleSkinEntry);
+				resultArray->PushBack(femaleSkinEntry);
 			}
 
 			//races
@@ -1803,13 +1674,8 @@ public:
 
 			CreateExtraInfoEntry(defaultRacesEntry, "Primary Race", defaultRaceName);
 
-			ExtraInfoEntry * defaultRacesEntrySubArray;
+			GetFormData(defaultRacesEntry, defaultRace, nullptr);
 
-			CreateExtraInfoEntry(defaultRacesEntrySubArray, "", "");
-
-			GetFormData(defaultRacesEntrySubArray, defaultRace, nullptr);
-
-			defaultRacesEntry->PushBack(defaultRacesEntrySubArray);
 			resultArray->PushBack(defaultRacesEntry);
 
 			//Additional races
@@ -1819,10 +1685,6 @@ public:
 				ExtraInfoEntry * additionalRacesEntry;
 
 				CreateExtraInfoEntry(additionalRacesEntry, "Additional Races", "");
-
-				ExtraInfoEntry * additionalRacesEntrySubArray;
-
-				CreateExtraInfoEntry(additionalRacesEntrySubArray, "", "");
 
 				for (int i = 0; i < pArma->additionalRaces.count; i++)
 				{
@@ -1836,18 +1698,11 @@ public:
 
 						CreateExtraInfoEntry(additionalRaceEntry, additionalRaceName, "");
 
-						ExtraInfoEntry * additionalRaceEntrySubArray;
+						GetFormData(additionalRaceEntry, additionalRace, nullptr);
 
-						CreateExtraInfoEntry(additionalRaceEntrySubArray, "", "");
-
-						GetFormData(additionalRaceEntrySubArray, additionalRace, nullptr);
-
-						additionalRaceEntry->PushBack(additionalRaceEntrySubArray);
-						additionalRacesEntrySubArray->PushBack(additionalRaceEntry);
+						additionalRacesEntry->PushBack(additionalRaceEntry);
 					}
 				}
-
-				additionalRacesEntry->PushBack(additionalRacesEntrySubArray);
 
 				resultArray->PushBack(additionalRacesEntry);
 			}
@@ -1909,9 +1764,6 @@ public:
 
 			CreateExtraInfoEntry(equipSlotsEntry, "Equip Slots", "");
 
-			ExtraInfoEntry * equipSlotsEntrySubArray;
-			CreateExtraInfoEntry(equipSlotsEntrySubArray, "", "");
-
 			for (int i = 0; i <= 31; i++)
 			{
 				int mask = 1 << i;
@@ -1924,11 +1776,10 @@ public:
 					ExtraInfoEntry * equipSlotEntry;
 
 					CreateExtraInfoEntry(equipSlotEntry, slotName, "");
-					equipSlotsEntrySubArray->PushBack(equipSlotEntry);
+					equipSlotsEntry->PushBack(equipSlotEntry);
 				}
 			}
 
-			equipSlotsEntry->PushBack(equipSlotsEntrySubArray);
 			resultArray->PushBack(equipSlotsEntry);
 
 			if (!MICGlobals::reducedMode)
@@ -1936,9 +1787,6 @@ public:
 				ExtraInfoEntry * armorAddonsEntry;
 
 				CreateExtraInfoEntry(armorAddonsEntry, "Armor Entry", "");
-
-				ExtraInfoEntry * armorAddonsSubArray;
-				CreateExtraInfoEntry(armorAddonsSubArray, "", "");
 
 				for (int i = 0; i < pArmor->armorAddons.count; i++)
 				{
@@ -1958,17 +1806,12 @@ public:
 
 						CreateExtraInfoEntry(armorAddonEntry, armorAddonName, "");
 
-						ExtraInfoEntry * armorAddonSubArray;
-						CreateExtraInfoEntry(armorAddonSubArray, "", "");
+						GetFormData(armorAddonEntry, pArmor->armorAddons[i], nullptr);
 
-						GetFormData(armorAddonSubArray, pArmor->armorAddons[i], nullptr);
-
-						armorAddonEntry->PushBack(armorAddonSubArray);
-						armorAddonsSubArray->PushBack(armorAddonEntry);
+						armorAddonsEntry->PushBack(armorAddonEntry);
 					}
 				}
 
-				armorAddonsEntry->PushBack(armorAddonsSubArray);
 				resultArray->PushBack(armorAddonsEntry);
 			}
 		}
@@ -2120,42 +1963,38 @@ public:
 			ExtraInfoEntry * positionEntry;
 			CreateExtraInfoEntry(positionEntry, "Position", "");
 
-			ExtraInfoEntry * positionSubArray;
-			CreateExtraInfoEntry(positionSubArray, "", "");
-
 			//position
 			float xPos = pRef->pos.x;
 			ExtraInfoEntry * xPositionEntry;
 			CreateExtraInfoEntry(xPositionEntry, "X Position", FloatToString(xPos));
-			positionSubArray->PushBack(xPositionEntry);
+			positionEntry->PushBack(xPositionEntry);
 
 			float yPos = pRef->pos.y;
 			ExtraInfoEntry * yPositionEntry;
 			CreateExtraInfoEntry(yPositionEntry, "Y Position", FloatToString(yPos));
-			positionSubArray->PushBack(yPositionEntry);
+			positionEntry->PushBack(yPositionEntry);
 
 			float zPos = pRef->pos.z;
 			ExtraInfoEntry * zPositionEntry;
 			CreateExtraInfoEntry(zPositionEntry, "Z Position", FloatToString(zPos));
-			positionSubArray->PushBack(zPositionEntry);
+			positionEntry->PushBack(zPositionEntry);
 
 			//rotation
 			float xRot = pRef->rot.x;
 			ExtraInfoEntry * xRotationEntry;
 			CreateExtraInfoEntry(xRotationEntry, "X Rotation", FloatToString(xRot));
-			positionSubArray->PushBack(xRotationEntry);
+			positionEntry->PushBack(xRotationEntry);
 
 			float yRot = pRef->rot.y;
 			ExtraInfoEntry * yRotationEntry;
 			CreateExtraInfoEntry(yRotationEntry, "Y Rotation", FloatToString(yRot));
-			positionSubArray->PushBack(yRotationEntry);
+			positionEntry->PushBack(yRotationEntry);
 
 			float zRot = pRef->rot.z;
 			ExtraInfoEntry * zRotationEntry;
 			CreateExtraInfoEntry(zRotationEntry, "Z Rotation", FloatToString(zRot));
-			positionSubArray->PushBack(zRotationEntry);
+			positionEntry->PushBack(zRotationEntry);
 
-			positionEntry->PushBack(positionSubArray);
 			resultArray->PushBack(positionEntry);
 		}
 
@@ -2211,11 +2050,8 @@ public:
 
 					DebugMessage("Before getting owner form data");
 
-					ExtraInfoEntry * ownershipSubarray;
-					CreateExtraInfoEntry(ownershipSubarray, "", "");
-					GetFormData(ownershipSubarray, owner, nullptr);
+					GetFormData(ownershipEntry, owner, nullptr);
 
-					ownershipEntry->PushBack(ownershipSubarray);
 					resultArray->PushBack(ownershipEntry);
 
 				}
@@ -2609,26 +2445,16 @@ public:
 
 				CreateExtraInfoEntry(modelTextureEntry, modelType, modelName);
 
-				ExtraInfoEntry * modelTextureSubArray;
-				CreateExtraInfoEntry(modelTextureSubArray, "", "");
-
-				AddModelEntry(modelTextureSubArray, "Model", model);
+				AddModelEntry(modelTextureEntry, "Model", model);
 
 				DebugMessage("Starting Texture Set Info");
 				ExtraInfoEntry * textureSetEntry;
 
 				CreateExtraInfoEntry(textureSetEntry, "Texture Set", "");
 
-				ExtraInfoEntry * textureSetEntrySubArray;
-				CreateExtraInfoEntry(textureSetEntrySubArray, "", "");
+				GetFormData(textureSetEntry, textureSet, nullptr);
 
-				GetFormData(textureSetEntrySubArray, textureSet, nullptr);
-
-				textureSetEntry->PushBack(textureSetEntrySubArray);
-
-				modelTextureSubArray->PushBack(textureSetEntry);
-
-				modelTextureEntry->PushBack(modelTextureSubArray);
+				modelTextureEntry->PushBack(textureSetEntry);
 
 				resultArray->PushBack(modelTextureEntry);
 			}
@@ -2689,10 +2515,6 @@ public:
 			ExtraInfoEntry * textureSetEntry;
 			CreateExtraInfoEntry(textureSetEntry, "Texture Set", "");
 
-			ExtraInfoEntry * textureSetSubArray;
-
-			CreateExtraInfoEntry(textureSetSubArray, "", "");
-
 			for (int i = 0; i < BGSTextureSet::kNumTextures; i++)
 			{
 				TESTexture * texture = &pTextureSet->texturePaths[i];
@@ -2716,10 +2538,9 @@ public:
 					CreateFilePathSubarray(textureEntry, texturePath);
 				}
 
-				textureSetSubArray->PushBack(textureEntry);
+				textureSetEntry->PushBack(textureEntry);
 			}
 
-			textureSetEntry->PushBack(textureSetSubArray);
 			resultArray->PushBack(textureSetEntry);
 		}
 
@@ -2729,9 +2550,6 @@ public:
 	void CreateFilePathSubarray(ExtraInfoEntry * mainEntry,  std::string filePath)
 	{
 		DebugMessage("Starting CreateFilePathSubarray " + filePath);
-
-		ExtraInfoEntry * filePathSubArray;
-		CreateExtraInfoEntry(filePathSubArray, "", "");
 
 		//loop through the string until the last slash is going
 		int firstSlash = filePath.find_first_of(deliminator);
@@ -2743,7 +2561,7 @@ public:
 			std::string path = filePath.substr(0, firstSlash + 1);
 
 			CreateExtraInfoEntry(pathEntry, path, "");
-			filePathSubArray->PushBack(pathEntry);
+			mainEntry->PushBack(pathEntry);
 
 			filePath = filePath.substr(firstSlash + 1); //get everything after the first slash
 			firstSlash = filePath.find_first_of(deliminator); //refind the first slash
@@ -2753,9 +2571,7 @@ public:
 		//add everything after the last slash
 		CreateExtraInfoEntry(pathEntry, filePath, "");
 
-		filePathSubArray->PushBack(pathEntry);
-
-		mainEntry->PushBack(filePathSubArray);
+		mainEntry->PushBack(pathEntry);
 
 		DebugMessage("Ending CreateFilePathSubarray");
 	}
@@ -2799,13 +2615,8 @@ public:
 
 				CreateExtraInfoEntry(skinEntry, "Skin", skinName);
 
-				ExtraInfoEntry * skinSubEntry;
+				GetFormData(skinEntry, skin, nullptr);
 
-				CreateExtraInfoEntry(skinSubEntry, "", "");
-
-				GetFormData(skinSubEntry, skin, nullptr);
-
-				skinEntry->PushBack(skinSubEntry);
 				resultArray->PushBack(skinEntry);
 
 				DebugMessage("Done Getting Skin");
@@ -2994,22 +2805,55 @@ public:
 	virtual void	Invoke(Args * args)
 	{
 
-		DebugMessage("RetrieveExtraData: Invoke Start");
+		DebugMessage("RetrieveExtraData: Invoke Start, NumArgs " + IntToString( args->numArgs) );
 
 		GFxMovieView * movie = args->movie;
-		GFxValue indexArray = args->args[0];
+		GFxValue * indexArray = &args->args[0];
 
-		ExtraInfoEntry * extrainfoEntryToRetrieve = TraverseExtraInfoEntries(&MICGlobals::rootEntry, &indexArray, 0);
+		/*
+		if (args->args[0].GetType() == GFxValue::kType_Array)
+		{
+			DebugMessage("Array");//+ IntToString(indexArray->GetArraySize() ) );
+		}
+
+		else
+		{
+			DebugMessage("Not Array " + IntToString(args->args[0].GetType()));
+		}*/
+
+
+		ExtraInfoEntry * extrainfoEntryToRetrieve = TraverseExtraInfoEntries(&MICGlobals::rootEntry, indexArray, 0);
+
+		GFxValue returnValue;
+		GFxValue resultArray;
+		extrainfoEntryToRetrieve->CreatePrimaryScaleformArray(&resultArray, movie);
+
+		movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
 
 		DebugMessage("RetrieveExtraData: Invoke End");
 	}
 
 	ExtraInfoEntry * TraverseExtraInfoEntries(ExtraInfoEntry * currentEntry, GFxValue * indexArray, int currentIndex)
 	{
-		GFxValue * indexToSelect;
-		indexArray->GetElement(currentIndex, indexToSelect);
+		//DebugMessage("Traverse Current Index " + IntToString(currentIndex) );
 
-		ExtraInfoEntry * nextEntry = currentEntry->GetChild(indexToSelect->GetNumber());
+		GFxValue indexToSelect;
+		indexArray->GetElement(currentIndex, &indexToSelect);
+
+		/*
+		if (indexToSelect.GetType() == GFxValue::kType_Number)
+		{
+			DebugMessage("Number");
+		}
+
+		else
+		{
+			DebugMessage("Not Number " + IntToString(indexToSelect.GetType()));
+		}*/
+
+		//DebugMessage("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntToString(indexToSelect.GetNumber()));
+
+		ExtraInfoEntry * nextEntry = currentEntry->GetChild(indexToSelect.GetNumber());
 
 		if (currentIndex + 1 == indexArray->GetArraySize())
 		{
