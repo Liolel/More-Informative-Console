@@ -1668,16 +1668,19 @@ public:
 
 											   //Primary race
 			TESRace * defaultRace = pArma->race.race;
-			std::string defaultRaceName = GetName(defaultRace);
 
-			ExtraInfoEntry * defaultRacesEntry;
+			if (defaultRace)
+			{
+				std::string defaultRaceName = GetName(defaultRace);
 
-			CreateExtraInfoEntry(defaultRacesEntry, "Primary Race", defaultRaceName);
+				ExtraInfoEntry * defaultRacesEntry;
 
-			GetFormData(defaultRacesEntry, defaultRace, nullptr);
+				CreateExtraInfoEntry(defaultRacesEntry, "Primary Race", defaultRaceName);
 
-			resultArray->PushBack(defaultRacesEntry);
+				GetFormData(defaultRacesEntry, defaultRace, nullptr);
 
+				resultArray->PushBack(defaultRacesEntry);
+			}
 			//Additional races
 
 			if (pArma->additionalRaces.count > 0)
@@ -2851,7 +2854,7 @@ public:
 			DebugMessage("Not Number " + IntToString(indexToSelect.GetType()));
 		}*/
 
-		//DebugMessage("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntToString(indexToSelect.GetNumber()));
+		DebugMessage("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntToString(indexToSelect.GetNumber()));
 
 		ExtraInfoEntry * nextEntry = currentEntry->GetChild(indexToSelect.GetNumber());
 
