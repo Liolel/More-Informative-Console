@@ -34,15 +34,18 @@ std::string GetName(TESForm* pBaseForm);
 int NumberOfItemInContainer(TESForm * item, TESContainer * container);
 bool HasItem(EntryDataList * inventory, TESForm * item);
 std::string GetFormTypeName(int formType);
+std::string GetExtraDataTypeName(int extraDataType);
 std::string GetArmorWeightClassName(int weightClass);
 std::string GetEquipSlotName(int slot);
 std::string GetWeaponAnimationTypeName(int weaponType);
 std::string GetEquipTypeName(int formID);
+std::string GetLockLevel(int lockLevel);
 
 std::string IntToString(int number);
 std::string FloatToString(float number);
 std::string DoubleToString(double number);
 std::string FormIDToString(int formID);
+std::string BooleanToYesNoString(bool boolean);
 
 int GetSmallestBitFlag(int flags);
 std::string GetFileName(std::string filePath);

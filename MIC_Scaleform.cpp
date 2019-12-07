@@ -194,29 +194,7 @@ public:
 				 
 				DebugMessage("Get Form Information done");
 
-				//GFxValue * FormLocationData;
-
-				//result.GetElement(4, FormLocationData);
-
-				//Send the data we created back to the console
 				GFxValue returnValue;
-				//MICGlobals::rootEntry.CreatePrimaryScaleformArray(&returnValue, movie);
-				//GFxValue arguments;
-
-				//UIStringHolder* stringHolder = UIStringHolder::GetSingleton();
-				//MenuManager* mm = MenuManager::GetSingleton();
-
-				//IMenu* consoleMenu = mm->GetMenu(&stringHolder->console);
-
-				//consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.StartExtraInfoData", &returnValue, &arguments, 0);
-
-				//TraverseArray(&result, consoleMenu->view, 0, -1, -1,-1, -1);
-
-				//int arraySize;
-	
-				//DebugMessage(IntToString(result.GetArraySize()));
-
-				//consoleMenu->view->Invoke("_root.consoleFader_mc.Console_mc.FinishExtraInfoData", &returnValue, &arguments, 0);
 			}
 		}
 
@@ -440,6 +418,15 @@ public:
 		CreateExtraInfoEntry(nameArray, "Name", name);
 
 		resultArray->PushBack(nameArray);
+
+		const char* editorID = pBaseForm->GetName();
+		
+		if (editorID)
+		{
+			ExtraInfoEntry* editorIDEntry;
+			CreateExtraInfoEntry(editorIDEntry, "Editor ID", editorID);
+			resultArray->PushBack(editorIDEntry);
+		}
 
 		DebugMessage("GetCommonFormData: Get FormID Start");
 
@@ -2016,23 +2003,6 @@ public:
 		{
 			BaseExtraList *extraList = &pRef->extraData;
 
-			if (MICOptions::MICDebugMode)
-			{
-				//Placeholder for seeing what has editor IDs
-				ExtraInfoEntry * editorIDEntry;
-
-				if (extraList->HasType(kExtraData_EditorID))
-				{
-					CreateExtraInfoEntry(editorIDEntry, "Editor ID", "Yes");
-				}
-				else
-				{
-					CreateExtraInfoEntry(editorIDEntry, "Editor ID", "No");
-				}
-
-				resultArray->PushBack(editorIDEntry);
-			}
-
 			if (extraList->HasType(kExtraData_Ownership))
 			{
 				DebugMessage("Starting kExtraData_Ownership");
@@ -2063,23 +2033,73 @@ public:
 				DebugMessage("Ending kExtraData_Ownership");
 			}
 
-
-			if (MICOptions::MICDebugMode)
+			DebugMessage("Starting lock checks");
+			//Handle locks
+			ExtraLock* lockData = nullptr;
+			
+			//Check if the selected reference has a lock
+			if (extraList->HasType(kExtraData_Lock))
 			{
-				//Placeholder for seeing what has editor IDs
-				ExtraInfoEntry * editorIDEntry;
-
-				if (extraList->HasType(kExtraData_Package))
-				{
-					CreateExtraInfoEntry(editorIDEntry, "Extra Data Package", "Yes");
-				}
-				else
-				{
-					CreateExtraInfoEntry(editorIDEntry, "Extra Data Package", "No");
-				}
-
-				resultArray->PushBack(editorIDEntry);
+				BSExtraData* data = extraList->GetByType(kExtraData_Lock);
+				lockData = DYNAMIC_CAST(data, BSExtraData, ExtraLock);
 			}
+
+			//if the reference doesn't have a lock check if there is a linked reference with a lock
+			if (!lockData
+				 && extraList->HasType(kExtraData_Teleport) )
+			{
+				DebugMessage("Starting checking linked reference");
+				BSExtraData* data = extraList->GetByType(kExtraData_Teleport);
+				ExtraTeleport* teleportData = DYNAMIC_CAST(data, BSExtraData, ExtraTeleport);
+
+				UInt32 linkedReferenceHandle = teleportData->data->dest;
+
+				#if SKSE_VERSION_INTEGER_BETA <= 12
+					TESObjectREFR* linkedRef = nullptr;
+					LookupREFRByHandle(linkedReferenceHandle, &linkedRef);
+				#else
+					NiPointer<TESObjectREFR> linkedRef;
+					LookupREFRByHandle(linkedReferenceHandle, linkedRef);
+				#endif
+				
+				if (linkedRef)
+				{
+						BaseExtraList* linkedRefExtraList = &linkedRef->extraData;
+
+						if (linkedRefExtraList->HasType(kExtraData_Lock))
+						{
+							BSExtraData* data = linkedRefExtraList->GetByType(kExtraData_Lock);
+							lockData = DYNAMIC_CAST(data, BSExtraData, ExtraLock);
+						}
+				}
+				DebugMessage("Ending checking linked reference");
+			}
+
+			if (lockData)
+			{
+				GetLockData(resultArray, lockData);
+			}
+
+			DebugMessage("Ending lock checks");
+
+			//Extra Data Test
+			ExtraInfoEntry* extraDataTypes;
+			CreateExtraInfoEntry(extraDataTypes, "Extra Data", "");
+
+			for (int i = 1; i <= 0xB3; i++)
+			{
+
+				//Placeholder for seeing what has editor IDs
+				if (extraList->HasType(i))
+				{		
+					ExtraInfoEntry* extraDataEntry;
+					CreateExtraInfoEntry(extraDataEntry, GetExtraDataTypeName( i ), "");
+					extraDataTypes->PushBack(extraDataEntry);
+				}
+
+			}
+
+			resultArray->PushBack(extraDataTypes);
 
 			/**
 			if (extraList->HasType(kExtraData_Package))
@@ -2121,6 +2141,99 @@ public:
 
 		DebugMessage("Ending GetBSExtraData");
 	}
+	void GetLockData(ExtraInfoEntry* resultArray, ExtraLock* lockData)
+	{		
+		if (lockData->state)
+		{
+			//Placeholder for seeing what has editor IDs
+			ExtraInfoEntry* lockEntry;
+
+			CreateExtraInfoEntry(lockEntry, "Lock", "");
+
+			bool isLocked = (lockData->state->flags & LockState::Flag::kLocked) == LockState::Flag::kLocked;
+			
+			ExtraInfoEntry* isLockedEntry;
+			CreateExtraInfoEntry(isLockedEntry, "Is locked", BooleanToYesNoString(isLocked));
+			lockEntry->PushBack(isLockedEntry);
+
+			int lockLevel = lockData->state->lockLevel;
+			std::string lockLevelName = GetLockLevel(lockLevel);
+
+			ExtraInfoEntry * lockLevelEntry;
+			CreateExtraInfoEntry(lockLevelEntry, "Lock level", lockLevelName);
+			lockEntry->PushBack(lockLevelEntry);
+
+			TESForm* key = lockData->state->key;
+			ExtraInfoEntry* keyEntry;
+
+			if (key)
+			{
+				std::string keyName = GetName(key);
+
+				CreateExtraInfoEntry(keyEntry, "Key", keyName);
+
+				GetFormData(keyEntry, key, nullptr);
+
+				lockEntry->PushBack(keyEntry);
+			}
+
+			else
+			{
+				CreateExtraInfoEntry(keyEntry, "Key", "None");
+				lockEntry->PushBack(keyEntry);
+			}
+
+			/*
+			int unknown1 = lockData->state->unk01;
+			ExtraInfoEntry* unk01;
+			CreateExtraInfoEntry(unk01, "unk01", IntToString( unknown1) );
+			lockEntry->PushBack(unk01);
+
+			int unknown2 = lockData->state->unk02;
+			ExtraInfoEntry* unk02;
+			CreateExtraInfoEntry(unk02, "unk02", IntToString(unknown2));
+			lockEntry->PushBack(unk02);
+
+			int unknown4 = lockData->state->unk04;
+			ExtraInfoEntry* unk04;
+			CreateExtraInfoEntry(unk04, "unk04", IntToString(unknown4));
+			lockEntry->PushBack(unk04);
+
+			int unknown11 = lockData->state->unk11;
+			ExtraInfoEntry* unk11;
+			CreateExtraInfoEntry(unk11, "unk11", IntToString(unknown11));
+			lockEntry->PushBack(unk11);
+
+			int unknown12 = lockData->state->unk12;
+			ExtraInfoEntry* unk12;
+			CreateExtraInfoEntry(unk12, "unk12", IntToString(unknown12));
+			lockEntry->PushBack(unk12);
+
+			int unknown14 = lockData->state->unk14;
+			ExtraInfoEntry* unk14;
+			CreateExtraInfoEntry(unk14, "unk14", IntToString(unknown14));
+			lockEntry->PushBack(unk14);
+
+			int unknown18 = lockData->state->unk18;
+			ExtraInfoEntry* unk18;
+			CreateExtraInfoEntry(unk18, "unk18", IntToString(unknown18));
+			lockEntry->PushBack(unk18);
+
+			int unknown1C = lockData->state->unk1C;
+			ExtraInfoEntry* unk1C;
+			CreateExtraInfoEntry(unk1C, "unk1C", IntToString(unknown1C));
+			lockEntry->PushBack(unk1C);
+
+			int flags = (UInt8)lockData->state->flags;
+			ExtraInfoEntry* flagsEntry;
+			CreateExtraInfoEntry(flagsEntry, "Flags", IntToString(flags));
+			lockEntry->PushBack(flagsEntry); */
+
+			resultArray->PushBack(lockEntry);
+		}
+
+	}
+
 	/*
 	void StandardItemData(ExtraInfoEntry * pFxVal, TESForm * pForm, InventoryEntryData * pEntry)
 	{
@@ -2660,130 +2773,6 @@ public:
 
 		DebugMessage("Ending GetRaceEntry");
 	}
-
-	/*
-	void TraverseArray(GFxValue * scaleformArray, GFxMovieView * movie, int level, int level0Index, int level1Index, int level2Index, int level3Index)
-	{
-		int arrayLength = scaleformArray->GetArraySize();
-
-		GFxValue returnValue;
-
-		for (int i = 0; i < arrayLength; i++)
-		{
-			GFxValue arrayElement; 
-			scaleformArray->GetElement(i, &arrayElement);
-
-			if ( level >= 2 || arrayElement.GetType() == GFxValue::kType_String)
-			{
-				//send result
-				GFxValue resultArray;
-
-				movie->CreateArray(&resultArray);
-
-				GFxValue zeroIndex;
-
-				if (level == 0)
-				{
-					zeroIndex.SetNumber(i);
-				}
-				else
-				{
-					zeroIndex.SetNumber(level0Index);
-				}
-
-				resultArray->PushBack(&zeroIndex);
-
-				if (level >= 1)
-				{
-					GFxValue oneIndex;
-
-					if (level == 1)
-					{
-						oneIndex.SetNumber(i);
-					}
-					else
-					{
-						oneIndex.SetNumber(level1Index);
-					}
-
-					resultArray->PushBack(&oneIndex);
-
-					if (level >= 2)
-					{
-						GFxValue twoIndex;
-
-						if (level == 2)
-						{
-							twoIndex.SetNumber(i);
-						}
-						else
-						{
-							twoIndex.SetNumber(level2Index);
-						}
-
-						resultArray->PushBack(&twoIndex);
-
-						if (level >= 3)
-						{
-							GFxValue threeIndex;
-
-							if (level == 2)
-							{
-								threeIndex.SetNumber(i);
-							}
-							else
-							{
-								threeIndex.SetNumber(level3Index);
-							}
-
-							resultArray->PushBack(&threeIndex);
-
-							if (level == 4)
-							{
-
-								GFxValue fourIndex;
-								threeIndex.SetNumber(i);
-								resultArray->PushBack(&fourIndex);
-							}
-						}
-					}
-				}
-
-				resultArray->PushBack(&arrayElement);
-
-				movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
-			}
-
-			else if (arrayElement.GetType() == GFxValue::kType_Array)
-			{
-				if (level <= 1)
-				{
-					if (level == 0)
-					{
-						level0Index = i;
-					}
-
-					else if (level == 1)
-					{
-						level1Index = i;
-					}
-
-					else if (level == 2)
-					{
-						level2Index = i;
-					}
-
-					else if (level == 3)
-					{
-						level3Index = i;
-					}
-
-
-					TraverseArray(&arrayElement, movie, level + 1, level0Index, level1Index, level2Index, level3Index );
-				}
-			}
-		}
-	}*/
 };
 
 

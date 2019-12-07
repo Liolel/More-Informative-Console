@@ -6,7 +6,7 @@
 #include <shlobj.h>
 
 IDebugLog					gLog;
-const char*					kLogPath = "\\My Games\\Skyrim Special Edition\\Logs\\More Informative Console.log";
+const char*					kLogPath = "\\My Games\\Skyrim Special Edition\\SKSE\\More Informative Console.log";
 PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
 SKSEScaleformInterface*		g_SKSEScaleformInterface = NULL;
 
@@ -22,7 +22,7 @@ extern "C"
 		//Populate the info strucutre
 		info->infoVersion	= PluginInfo::kInfoVersion;
 		info->name			= "More Informative Console";
-		info->version		= 0.2;
+		info->version		= 0.4;
 
 		//Store plugin handle so we can identify ourselves later
 		g_pluginHandle = skse->GetPluginHandle();
