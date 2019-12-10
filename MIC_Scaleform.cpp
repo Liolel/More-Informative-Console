@@ -168,35 +168,60 @@ public:
 
 		movie->CreateArray(&result);
 
-#if SKSE_VERSION_INTEGER_BETA <= 12
-		TESObjectREFR* pRef = nullptr;
-		LookupREFRByHandle(g_consoleHandle, &pRef);
-#else
-		UInt32 handle = (*g_consoleHandle);
+		//Determine mode to use
+		GFxValue* modeGFX = &args->args[0];
+		int modeInt = modeGFX->GetNumber();
 
-		NiPointer<TESObjectREFR> pRef;
-		LookupREFRByHandle(handle, pRef);
-#endif
-		if (pRef != nullptr)
+		if (modeInt == Constant_ModeConsoleHandle)
 		{
+#if SKSE_VERSION_INTEGER_BETA <= 12
+			TESObjectREFR* pRef = nullptr;
+			LookupREFRByHandle(g_consoleHandle, &pRef);
+#else
+			UInt32 handle = (*g_consoleHandle);
 
-			DebugMessage("GetExtraData: pRefFound");
-
-			TESForm* pBaseForm = pRef->baseForm;
-
-			if (pBaseForm != nullptr)
+			NiPointer<TESObjectREFR> pRef;
+			LookupREFRByHandle(handle, pRef);
+#endif
+			if (pRef != nullptr)
 			{
-				DebugMessage("GetExtraData: BaseFound");
 
-				MICGlobals::rootEntry.Clear();
+				DebugMessage("GetExtraData: pRefFound");
 
-				GetFormData(&MICGlobals::rootEntry, pBaseForm, pRef);
-				 
-				DebugMessage("Get Form Information done");
+				TESForm* pBaseForm = pRef->baseForm;
 
-				GFxValue returnValue;
+				if (pBaseForm != nullptr)
+				{
+					DebugMessage("GetExtraData: BaseFound");
+
+					MICGlobals::rootEntry.Clear();
+
+					GetFormData(&MICGlobals::rootEntry, pBaseForm, pRef);
+
+					DebugMessage("Get Form Information done");
+
+					GFxValue returnValue;
+				}
 			}
 		}
+
+		else if (modeInt == Constant_ModeWorldInformation)
+		{
+			MICGlobals::rootEntry.Clear();
+			ExtraInfoEntry* test;
+			CreateExtraInfoEntry(test, "World Information", "");
+			MICGlobals::rootEntry.PushBack(test);
+		}
+
+		else if (modeInt == Constant_ModeMFG)
+		{
+			MICGlobals::rootEntry.Clear();
+			ExtraInfoEntry* test;
+			CreateExtraInfoEntry(test, "MFG", "");
+			MICGlobals::rootEntry.PushBack(test);
+		}
+
+		//else if( modeInt == Constant_Mod)
 
 		GFxValue returnValue;
 		GFxValue resultArray;

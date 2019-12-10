@@ -49,3 +49,7 @@ std::string BooleanToYesNoString(bool boolean);
 
 int GetSmallestBitFlag(int flags);
 std::string GetFileName(std::string filePath);
+
+const int Constant_ModeConsoleHandle = 0;
+const int Constant_ModeWorldInformation = 1;
+const int Constant_ModeMFG = 2;
