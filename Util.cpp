@@ -1185,6 +1185,30 @@ std::string GetName(TESForm* pBaseForm)
 			break;
 		}
 
+		case kFormType_WorldSpace:
+		{
+			DebugMessage("GetExtraData: GetName Worldspace");
+			TESWorldSpace* pWorld = DYNAMIC_CAST(pBaseForm, TESForm, TESWorldSpace);
+			if (pWorld && pWorld->fullName.name.data )
+			{
+				name = pWorld->fullName.name.data;
+			}
+
+			break;
+		}
+
+		case kFormType_Cell:
+		{
+			DebugMessage("GetExtraData: GetName Worldspace");
+			TESObjectCELL* pCell = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCELL);
+			if (pCell && pCell->fullName.name.data)
+			{
+				name = pCell->fullName.name.data;
+			}
+
+			break;
+		}
+
 		//for objects with no name data show the formID
 		case kFormType_Package:
 		{

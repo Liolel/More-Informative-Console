@@ -208,9 +208,7 @@ public:
 		else if (modeInt == Constant_ModeWorldInformation)
 		{
 			MICGlobals::rootEntry.Clear();
-			ExtraInfoEntry* test;
-			CreateExtraInfoEntry(test, "World Information", "");
-			MICGlobals::rootEntry.PushBack(test);
+			GetWorldData(&MICGlobals::rootEntry);
 		}
 
 		else if (modeInt == Constant_ModeMFG)
@@ -306,6 +304,12 @@ public:
 		{
 			DebugMessage("GetExtraData: Get Form Data ARMA found");
 			GetArmaData(resultArray, pBaseForm);
+		}
+
+		else if (pBaseForm->GetFormType() == kFormType_Cell)
+		{
+			DebugMessage("GetExtraData: Get Form Data CELL found");
+			GetCellEntry(resultArray, pBaseForm);
 		}
 
 		//get inventory
@@ -2028,20 +2032,30 @@ public:
 		{
 			BaseExtraList *extraList = &pRef->extraData;
 
+			ProcessExtraDataList(resultArray, extraList);
+		}
+
+		DebugMessage("Ending GetBSExtraData");
+	}
+
+	void ProcessExtraDataList(ExtraInfoEntry* resultArray, BaseExtraList* extraList)
+	{
+		if (extraList)
+		{
 			if (extraList->HasType(kExtraData_Ownership))
 			{
 				DebugMessage("Starting kExtraData_Ownership");
 
-				BSExtraData * data = extraList->GetByType(kExtraData_Ownership);
-				ExtraOwnership * ownershipData = DYNAMIC_CAST(data, BSExtraData, ExtraOwnership);
+				BSExtraData* data = extraList->GetByType(kExtraData_Ownership);
+				ExtraOwnership* ownershipData = DYNAMIC_CAST(data, BSExtraData, ExtraOwnership);
 
 				if (ownershipData)
 				{
-					TESForm * owner = ownershipData->owner;
+					TESForm* owner = ownershipData->owner;
 					std::string ownerName = GetName(owner);
 
 					//Placeholder for seeing what has editor IDs
-					ExtraInfoEntry * ownershipEntry;
+					ExtraInfoEntry* ownershipEntry;
 
 					CreateExtraInfoEntry(ownershipEntry, "Owner", ownerName);
 
@@ -2061,7 +2075,7 @@ public:
 			DebugMessage("Starting lock checks");
 			//Handle locks
 			ExtraLock* lockData = nullptr;
-			
+
 			//Check if the selected reference has a lock
 			if (extraList->HasType(kExtraData_Lock))
 			{
@@ -2071,7 +2085,7 @@ public:
 
 			//if the reference doesn't have a lock check if there is a linked reference with a lock
 			if (!lockData
-				 && extraList->HasType(kExtraData_Teleport) )
+				&& extraList->HasType(kExtraData_Teleport))
 			{
 				DebugMessage("Starting checking linked reference");
 				BSExtraData* data = extraList->GetByType(kExtraData_Teleport);
@@ -2079,23 +2093,25 @@ public:
 
 				UInt32 linkedReferenceHandle = teleportData->data->dest;
 
-				#if SKSE_VERSION_INTEGER_BETA <= 12
-					TESObjectREFR* linkedRef = nullptr;
-					LookupREFRByHandle(linkedReferenceHandle, &linkedRef);
-				#else
-					NiPointer<TESObjectREFR> linkedRef;
-					LookupREFRByHandle(linkedReferenceHandle, linkedRef);
-				#endif
-				
+
+
+#if SKSE_VERSION_INTEGER_BETA <= 12
+				TESObjectREFR* linkedRef = nullptr;
+				LookupREFRByHandle(linkedReferenceHandle, &linkedRef);
+#else
+				NiPointer<TESObjectREFR> linkedRef;
+				LookupREFRByHandle(linkedReferenceHandle, linkedRef);
+#endif
+
 				if (linkedRef)
 				{
-						BaseExtraList* linkedRefExtraList = &linkedRef->extraData;
+					BaseExtraList* linkedRefExtraList = &linkedRef->extraData;
 
-						if (linkedRefExtraList->HasType(kExtraData_Lock))
-						{
-							BSExtraData* data = linkedRefExtraList->GetByType(kExtraData_Lock);
-							lockData = DYNAMIC_CAST(data, BSExtraData, ExtraLock);
-						}
+					if (linkedRefExtraList->HasType(kExtraData_Lock))
+					{
+						BSExtraData* data = linkedRefExtraList->GetByType(kExtraData_Lock);
+						lockData = DYNAMIC_CAST(data, BSExtraData, ExtraLock);
+					}
 				}
 				DebugMessage("Ending checking linked reference");
 			}
@@ -2116,16 +2132,15 @@ public:
 
 				//Placeholder for seeing what has editor IDs
 				if (extraList->HasType(i))
-				{		
+				{
 					ExtraInfoEntry* extraDataEntry;
-					CreateExtraInfoEntry(extraDataEntry, GetExtraDataTypeName( i ), "");
+					CreateExtraInfoEntry(extraDataEntry, GetExtraDataTypeName(i), "");
 					extraDataTypes->PushBack(extraDataEntry);
 				}
 
 			}
 
 			resultArray->PushBack(extraDataTypes);
-
 			/**
 			if (extraList->HasType(kExtraData_Package))
 			{
@@ -2160,12 +2175,8 @@ public:
 			DebugMessage("Ending kExtraData_Package");
 			}*/
 		}
-
-
-
-
-		DebugMessage("Ending GetBSExtraData");
 	}
+
 	void GetLockData(ExtraInfoEntry* resultArray, ExtraLock* lockData)
 	{		
 		if (lockData->state)
@@ -2257,6 +2268,47 @@ public:
 			resultArray->PushBack(lockEntry);
 		}
 
+	}
+
+	void GetWorldData(ExtraInfoEntry* resultArray)
+	{
+		PlayerCharacter* pPC = (*g_thePlayer);
+
+		if (pPC)
+		{
+			DebugMessage("Starting Worldspace");
+
+			TESWorldSpace* currentWorldSpace = pPC->currentWorldSpace;
+
+			if (currentWorldSpace)
+			{
+				std::string worldSpaceName = GetName(currentWorldSpace);
+
+				ExtraInfoEntry* worldSpaceEntry;
+				CreateExtraInfoEntry(worldSpaceEntry, "World Space", worldSpaceName);
+
+				GetFormData(worldSpaceEntry, currentWorldSpace, nullptr);
+				resultArray->PushBack(worldSpaceEntry);
+			}
+
+			DebugMessage("Starting Cell");
+
+			TESObjectCELL* currentCell = pPC->parentCell;
+
+			if (currentCell )
+			{
+				std::string cellName = GetName(currentCell);
+
+				ExtraInfoEntry* cellEntry;
+				CreateExtraInfoEntry(cellEntry, "Cell", cellName);
+
+				GetFormData(cellEntry, currentCell, nullptr);
+
+				//BSExtraData * extraData = currentCell->unk048.extraData;
+
+				resultArray->PushBack(cellEntry);
+			}
+		}
 	}
 
 	/*
@@ -2797,6 +2849,48 @@ public:
 		}
 
 		DebugMessage("Ending GetRaceEntry");
+	}
+
+	void GetCellEntry(ExtraInfoEntry* resultArray, TESForm* pBaseForm)
+	{
+		DebugMessage("Starting GetCellEntry");
+
+		TESObjectCELL* pCell = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCELL);
+		if (pCell)
+		{
+
+			LightingCoordinates * lightningCoordinates = (LightingCoordinates*)(&(pCell->unk060));
+			
+			if (lightningCoordinates->coordinates)
+			{
+				
+				Coordinates* coordinates = lightningCoordinates->coordinates;
+
+				std::string coordinateString = IntToString(coordinates->cellX) + "," + IntToString(coordinates->cellY);
+
+				ExtraInfoEntry* coordinateEntry;
+
+				CreateExtraInfoEntry(coordinateEntry, "Coordinates", coordinateString);
+
+				resultArray->PushBack(coordinateEntry);
+			}
+
+			BSExtraData * extraData = pCell->unk048.extraData;
+
+			while (extraData)
+			{
+				int extraDataType = extraData->GetType();
+				std::string extraDataString = GetExtraDataTypeName(extraDataType);
+
+				ExtraInfoEntry* extraDataTypeEntry;
+
+				CreateExtraInfoEntry(extraDataTypeEntry, "Extra Data", extraDataString);
+				resultArray->PushBack(extraDataTypeEntry);
+
+				extraData = extraData->next;
+			}
+			
+		}
 	}
 };
 

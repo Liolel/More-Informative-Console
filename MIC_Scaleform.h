@@ -110,3 +110,25 @@ public:
 	Data* data;	// 10
 };
 STATIC_ASSERT(sizeof(ExtraTeleport) == 0x18);
+
+//https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/TESObjectCELL.h
+
+struct Coordinates	// XCLC
+{
+	SInt32	cellX;			// 00
+	SInt32	cellY;			// 04
+	char* maxHeightData;	// 08
+	UInt64	unk18;			// 10
+	float	worldX;			// 18
+	float	worldY;			// 1C
+	UInt64	unk20;			// 20
+};
+STATIC_ASSERT(sizeof(Coordinates) == 0x28);
+
+
+union LightingCoordinates
+{
+	UInt32* lighting;		// XCLL
+	Coordinates* coordinates;	// XCLC
+};
+STATIC_ASSERT(sizeof(LightingCoordinates) == 0x8);
