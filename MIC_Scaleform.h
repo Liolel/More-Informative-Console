@@ -132,3 +132,34 @@ union LightingCoordinates
 	Coordinates* coordinates;	// XCLC
 };
 STATIC_ASSERT(sizeof(LightingCoordinates) == 0x8);
+
+//https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/BSIMusicTrack.h
+enum class MUSIC_STATUS : UInt32
+{
+	kInactive = 0,
+	kPlaying = 1,
+	kPaused = 2,
+	kFinishing = 3,
+	kFinished = 4
+};
+
+/*
+class BGSMusicTrack : public BSIMusicTrack
+{
+public:
+	
+	virtual ~BGSMusicTrack();						// 00
+
+	// override (BSIMusicTrack)
+	virtual bool	TestCanPlay();			// 07 - { return conditions ? conditions->Run(g_thePlayer, g_thePlayer) : true; }
+
+	// add
+	virtual bool	InitTrack(TESFile* a_mod);		// 0B
+	virtual bool	LoadTrack(TESFile* a_mod) = 0;	// 0C
+
+
+	// members
+	Condition *	conditions;	// 10
+	UInt64		unk18;		// 18
+};
+STATIC_ASSERT(sizeof(BGSMusicTrack) == 0x20);*/

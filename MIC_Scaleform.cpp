@@ -2309,6 +2309,39 @@ public:
 				resultArray->PushBack(cellEntry);
 			}
 		}
+
+		//Find the current music track
+		
+		DataHandler* dataHandler = DataHandler::GetSingleton();
+
+		if (dataHandler)
+		{
+			DebugMessage("Starting Music");
+			tArray<BGSMusicTrackFormWrapper*> *	musicTrackArray = (tArray<BGSMusicTrackFormWrapper*>*)(&(dataHandler->arrMUST));
+
+			int numberOfMusicTracks = musicTrackArray->count;
+
+			for (int i = 0; i <= numberOfMusicTracks; i++)
+			{
+				BGSMusicTrackFormWrapper* wrapper;
+				musicTrackArray->GetNthItem(i, wrapper);
+
+				if (wrapper)
+				{
+					BSIMusicTrack * musicTrack = &(wrapper->track);
+
+					MUSIC_STATUS musicTrackStatus = (MUSIC_STATUS)musicTrack->Unk_08();
+
+					if( musicTrackStatus == MUSIC_STATUS::kPlaying)
+					{
+						std::string  formIDString = FormIDToString(wrapper->formID);
+						ExtraInfoEntry* musicEntry;
+						CreateExtraInfoEntry(musicEntry, "Music", formIDString);
+						resultArray->PushBack(musicEntry);
+					}
+				}
+			}
+		}
 	}
 
 	/*
