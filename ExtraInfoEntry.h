@@ -1,8 +1,7 @@
 #pragma once
 
 #include <Vector>
-#include "ScaleformValue.h"
-#include "ScaleformMovie.h"
+#include "RE/Skyrim.h"
 #include "Util.h"
 
 class ExtraInfoEntry
@@ -14,8 +13,8 @@ public:
 	void PushBack(ExtraInfoEntry * subArrayEntry);
 
 	ExtraInfoEntry* GetChild(int index );
-	void CreatePrimaryScaleformArray(GFxValue * mainScaleFormArray, GFxMovieView * root);
-	void CreateSecondaryScaleformArray(GFxValue * scaleFormArray, GFxMovieView * root);
+	void CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovieView * root);
+	void CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray, RE::GFxMovieView * root);
 
 private:
 

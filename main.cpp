@@ -1,34 +1,36 @@
 #pragma once
-#include "skse64/PluginAPI.h"
+#include "SKSE/API.h"
+#include "SKSE/Logger.h"
+#include "skse64_common/Utilities.h"
 #include "MIC_Scaleform.h"
 #include "Util.h"
 #include "Simpleini.h"
 #include <shlobj.h>
 
-IDebugLog					gLog;
+//					gLog;
 const char*					kLogPath = "\\My Games\\Skyrim Special Edition\\SKSE\\More Informative Console.log";
-PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
-SKSEScaleformInterface*		g_SKSEScaleformInterface = NULL;
+//PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
+//SKSEScaleformInterface*		g_SKSEScaleformInterface = NULL;
 
 extern "C"
 {
-	bool SKSEPlugin_Query(const SKSEInterface * skse, PluginInfo * info)
+	bool SKSEPlugin_Query(const SKSE::QueryInterface* skse, SKSE::PluginInfo* info)
 	{
-		gLog.OpenRelative(CSIDL_MYDOCUMENTS, kLogPath);
+		SKSE::Logger::OpenRelative(FOLDERID_Documents, kLogPath);
 
 		_MESSAGE("More Informative Console");
 		_MESSAGE("Initalizing");
 
 		//Populate the info strucutre
-		info->infoVersion	= PluginInfo::kInfoVersion;
+		info->infoVersion	= SKSE::PluginInfo::kVersion;
 		info->name			= "More Informative Console";
 		info->version		= 0.4;
 
 		//Store plugin handle so we can identify ourselves later
-		g_pluginHandle = skse->GetPluginHandle();
+		//g_pluginHandle = skse->GetPluginHandle();
 
 		//Runtime error checks
-		if(skse->isEditor)
+		if(skse->IsEditor())
 			{ _MESSAGE("Plugin loaded in editor"); return false; }
 
 		// all is well
@@ -38,7 +40,7 @@ extern "C"
 	void readINI()
 	{
 		//Read ini
-		const std::string& iniPath = GetRuntimeDirectory() + R"(Data\SKSE\plugins\MoreInformativeConsole.ini)";
+		const std::string& iniPath = GetRuntimeDirectory() + "\\Data\\SKSE\\plugins\\MoreInformativeConsole.ini";
 
 		CSimpleIniA ini;
 		SI_Error iniError = ini.LoadFile(iniPath.c_str());
@@ -59,15 +61,30 @@ extern "C"
 		}
 	}
 
-	bool SKSEPlugin_Load(const SKSEInterface * skse)
+	bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 	{
 		_MESSAGE("Establishing interfaces...");
 
-		SKSEScaleformInterface::RegisterCallback callback = moreInformativeConsoleScaleForm::InstallHooks;
+		if (!SKSE::Init(a_skse)) {
+			return false;
+		}
+
+		const auto scaleform = SKSE::GetScaleformInterface();
+		/*
+		RE::UI::GetSingleton()->Register
+
+		scaleform->Register("MIC", moreInformativeConsoleScaleForm::InstallHooks)
+
+		//SKSEScaleformInterface::RegisterCallback callback = moreInformativeConsoleScaleForm::InstallHooks;
+
+		/*
+		_MESSAGE("Establishing interfaces 2..." );
 
 		g_SKSEScaleformInterface = (SKSEScaleformInterface *)skse->QueryInterface(kInterface_Scaleform);
-		g_SKSEScaleformInterface->Register("MIC", callback);
 
+
+		_MESSAGE("Establishing interfaces 3...");
+		g_SKSEScaleformInterface->Register("MIC", callback);*/
 		readINI();
 
 		_MESSAGE("Plugin Initialization complete.");

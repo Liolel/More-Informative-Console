@@ -1,17 +1,5 @@
 #include "MIC_Scaleform.h"
-#include "GameRTTI.h"
-#include "GameObjects.h"
-#include "GameData.h"
-#include "GameBSExtraData.h"
-#include "GameExtraData.h"
-#include "PapyrusActor.cpp"
-#include "Util.h"
-#include "GameMenus.h"
-#include <memory>
-#include <vector>
-#include <skse64\GameData.h>
-#include <skse64_common\skse_version.h>
-#include "PapyrusActorValueInfo.h"
+#include "RE/Skyrim.h"
 #include <Windows.h>
 
 const int actorValueHealthIndex = 24;
@@ -23,13 +11,14 @@ const char deliminator = '\\';
 namespace MICGlobals
 {
 	boolean readRaceSkins = true; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
-	TESRace* filterARMAByRace = nullptr; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
+	//TESRace* filterARMAByRace = nullptr; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
 	boolean reducedMode = false; //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstancesv
 	int maxInventoryBeforeReducedMode = 750; //Maximum inventory size before triggering reduced mode
 	ExtraInfoEntry rootEntry("", "");
 }
 
-class MICScaleform_GetReferenceInfo : public GFxFunctionHandler
+/*
+class MICScaleform_GetReferenceInfo : public RE::GFxFunctionHandler
 {
 public:
 	virtual void	Invoke(Args * args)
@@ -42,8 +31,8 @@ public:
 		//ASSERT(args->numArgs >= 1);
 
 #if SKSE_VERSION_INTEGER_BETA <= 12
-		TESObjectREFR* pRef = nullptr;
-		LookupREFRByHandle(g_consoleHandle, &pRef);
+		TESObjectREFR* pRef = RE::Console::GetSelectedRef();
+		//LookupREFRByHandle(g_consoleHandle, &pRef);
 #else
 		UInt32 handle = (*g_consoleHandle);
 
@@ -397,6 +386,7 @@ public:
 
 	}*/
 
+	/*
 	//get data common to all form types
 	void GetCommonFormData(ExtraInfoEntry * resultArray, TESForm* pBaseForm, TESForm* pRefForm)
 	{
@@ -826,6 +816,7 @@ public:
 							//	scaleformExtend::MagicItemData(effectView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
 
 							//activeEffects->PushBack(effect);
+							/*
 						}
 					}
 
@@ -1119,7 +1110,7 @@ public:
 		{
 		RegisterNumber(pFxVal, "perkPoints", (double)pPC->numPerkPoints);
 		}*/
-
+		/*
 		DebugMessage("GetExtraData: GetCharacter End");
 	}
 
@@ -1243,8 +1234,8 @@ public:
 			RegisterNumber(pFxVal, "castTime", pEffectSetting->properties.castingTime);
 			RegisterNumber(pFxVal, "delayTime", pEffectSetting->properties.delayTime);
 			RegisterNumber(pFxVal, "castType", pEffectSetting->properties.castType);*/
+			/*
 		}
-
 		DebugMessage("GetExtraData: GetMagicEffectData End");
 	}
 
@@ -1256,7 +1247,7 @@ public:
 		case kFormType_Ingredient:
 		case kFormType_Potion:
 		case kFormType_Enchantment:
-		{ */
+		{ */ /*
 		MagicItem * pMagicItem = DYNAMIC_CAST(pBaseForm, TESForm, MagicItem);
 		if (pMagicItem)
 		{
@@ -1384,7 +1375,7 @@ public:
 			BGSEquipSlot * equipSlot = pSpellItem->equipType.GetEquipSlot();
 			if (equipSlot)
 			RegisterNumber(pFxVal, "equipSlot", equipSlot->formID); */
-
+			/*
 			DebugMessage("GetSpellData: Ending spell item code");
 		}
 		/*
@@ -1414,7 +1405,7 @@ public:
 		scaleformExtend::FormData(restrictionsView, pEnchantItem->data.restrictions, bRecursive ? bExtra : false, bRecursive);
 		pFxVal->SetMember("restrictions", &restrictions);
 		}
-		}	*/
+		}	*//*
 	}
 
 	//wrapper for getting both the common form data and the spell data for a spell
@@ -1549,6 +1540,7 @@ public:
 		}*/
 
 		//go through the inventory (these are anything changed from the base form)
+		/*
 		if (inventory != nullptr
 			&& inventory->Count() > 0)
 		{
@@ -1593,7 +1585,7 @@ public:
 
 				DebugMessage("GetInventory: Starting container item");
 
-				TESForm *itemForm = baseContainer->entries[i]->form;
+				RE::TESForm *itemForm = baseContainer->entries[i]->form;
 
 				//only display items which have not changed from the base form
 				bool displayItem = true;
@@ -1892,7 +1884,7 @@ public:
 
 			/*RegisterNumber(pFxVal, "minRange", pWeapon->minRange());
 			RegisterNumber(pFxVal, "maxRange", pWeapon->maxRange()); Data for npc AI*/
-
+			/*
 			BGSEquipSlot * equipSlot = pWeapon->equipType.GetEquipSlot();
 			if (equipSlot)
 			{
@@ -2174,6 +2166,7 @@ public:
 
 			DebugMessage("Ending kExtraData_Package");
 			}*/
+			/*
 		}
 	}
 
@@ -2264,7 +2257,7 @@ public:
 			ExtraInfoEntry* flagsEntry;
 			CreateExtraInfoEntry(flagsEntry, "Flags", IntToString(flags));
 			lockEntry->PushBack(flagsEntry); */
-
+			/*
 			resultArray->PushBack(lockEntry);
 		}
 
@@ -2408,7 +2401,7 @@ public:
 	break;
 	}
 	}*/
-
+	/*
 	void GetModelTextures(ExtraInfoEntry * resultArray,  TESForm* pBaseForm)
 	{
 		DebugMessage("Starting GetModelTextures " + GetFormTypeName(pBaseForm->formType));
@@ -2634,7 +2627,7 @@ public:
 		_MESSAGE(textureSet->texturePaths[i].str);
 		}
 		}*/
-
+		/*
 
 		DebugMessage("Ending GetModelTextures");
 	}
@@ -2965,7 +2958,7 @@ public:
 			DebugMessage("Not Array " + IntToString(args->args[0].GetType()));
 		}*/
 
-
+		/*
 		ExtraInfoEntry * extrainfoEntryToRetrieve = TraverseExtraInfoEntries(&MICGlobals::rootEntry, indexArray, 0);
 
 		GFxValue returnValue;
@@ -2994,7 +2987,7 @@ public:
 		{
 			DebugMessage("Not Number " + IntToString(indexToSelect.GetType()));
 		}*/
-
+		/*
 		DebugMessage("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntToString(indexToSelect.GetNumber()));
 
 		ExtraInfoEntry * nextEntry = currentEntry->GetChild(indexToSelect.GetNumber());
@@ -3012,7 +3005,7 @@ public:
 };
 
 //// core hook
-bool moreInformativeConsoleScaleForm::InstallHooks(GFxMovieView * view, GFxValue * root)
+bool moreInformativeConsoleScaleForm::InstallHooks(RE::GFxMovieView * view, RE::GFxValue * root)
 {
 	DebugMessage("Install Hooks Called");
 
@@ -3021,4 +3014,4 @@ bool moreInformativeConsoleScaleForm::InstallHooks(GFxMovieView * view, GFxValue
 	RegisterFunction <MICScaleform_GetIniOptions>(root, view, "MICScaleform_GetIniOptions");
 	RegisterFunction <MICScaleform_RetrieveExtraData>(root, view, "MICScaleform_RetrieveExtraData");
 	return true;
-}
+}*/

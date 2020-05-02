@@ -16,6 +16,7 @@ namespace MICOptions
 	int BaseInfoFormat = 2; //How much information to display in the base info window
 }
 
+/*
 std::vector<std::string> FormTypes =
 {
 	"NONE",
@@ -349,14 +350,14 @@ std::vector<std::string> ExtraDataTypes =
 
 
 const char deliminator = '\\';
-
+*/
 void DebugMessage(std::string message)
 {
 	if (MICOptions::MICDebugMode)
 	{
 		_MESSAGE(message.c_str());
 	}
-}
+}/*
 
 
 std::string GetActorValueName(int id)
@@ -1594,14 +1595,14 @@ bool HasItem(EntryDataList * inventory, TESForm * item)
 
 	return hasItem;
 }
-
+*/
 std::string IntToString(int number)
 {
 	std::ostringstream ss;
 	ss << number;
 	return ss.str();
 }
-
+/*
 std::string FloatToString(float number)
 {
 	std::ostringstream ss;
@@ -1682,4 +1683,4 @@ std::string GetFileName(std::string filePath)
 	}
 
 	return fileName;
-}
+}*/
