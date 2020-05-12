@@ -1,12 +1,18 @@
 #pragma once
 
-//#include "GameReferences.h"
-#include "RE/Skyrim.h"
+#include "RE//Skyrim.h"
+#include "MIC_Scaleform.h"
 #include <string>
 #include <iomanip>
 #include <sstream>
 #include <vector>
 #include "ExtraInfoEntry.h"
+
+namespace moreInformativeConsoleScaleForm
+{
+	bool InstallHooks(RE::GFxMovieView* a_view, RE::GFxValue* a_root);
+
+}
 
 namespace MICGlobals
 {
@@ -17,13 +23,8 @@ namespace MICGlobals
 	extern ExtraInfoEntry rootEntry;
 }
 
+
 /*
-namespace moreInformativeConsoleScaleForm
-{
-	bool InstallHooks(GFxMovieView * view, GFxValue * root);
-
-}
-
 struct FormModInfoData
 {
 	ModInfo ** entries;     // array of ModInfo* - mods that change this form.

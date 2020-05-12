@@ -69,7 +69,11 @@ extern "C"
 			return false;
 		}
 
+		
 		const auto scaleform = SKSE::GetScaleformInterface();
+
+		scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
+		
 		/*
 		RE::UI::GetSingleton()->Register
 
@@ -86,6 +90,8 @@ extern "C"
 		_MESSAGE("Establishing interfaces 3...");
 		g_SKSEScaleformInterface->Register("MIC", callback);*/
 		readINI();
+
+		//Console::Register();
 
 		_MESSAGE("Plugin Initialization complete.");
 		return true;
