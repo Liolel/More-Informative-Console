@@ -14,8 +14,7 @@ namespace MICOptions
 	extern int BaseInfoFormat; //How much information to display in the base info window
 }
 
-
-void DebugMessage(std::string message);
+//void DebugMessage(std::string message);
 
 /*
 std::string GetActorValueName(int id);
@@ -37,11 +36,13 @@ std::string GetWeaponAnimationTypeName(int weaponType);
 std::string GetEquipTypeName(int formID);
 std::string GetLockLevel(int lockLevel);
 */
+//Convert various data types to strings to display in UI
 std::string IntToString(int number);
 /*
 std::string FloatToString(float number);
-std::string DoubleToString(double number);
+std::string DoubleToString(double number);*/
 std::string FormIDToString(int formID);
+/*
 std::string BooleanToYesNoString(bool boolean);
 
 int GetSmallestBitFlag(int flags);

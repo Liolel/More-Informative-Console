@@ -2,7 +2,7 @@
 
 #include <Vector>
 #include "RE/Skyrim.h"
-#include "Util.h"
+#include "Util/GeneralUtil.h"
 
 class ExtraInfoEntry
 {

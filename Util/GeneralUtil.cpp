@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Util.h"
+#include "GeneralUtil.h"
 #include <sstream>
 #include <vector>
 #include <memory>
@@ -351,15 +351,8 @@ std::vector<std::string> ExtraDataTypes =
 
 const char deliminator = '\\';
 */
-void DebugMessage(std::string message)
-{
-	if (MICOptions::MICDebugMode)
-	{
-		_MESSAGE(message.c_str());
-	}
-}/*
 
-
+/*
 std::string GetActorValueName(int id)
 {
 	std::string actorValueName;
@@ -1617,6 +1610,7 @@ std::string DoubleToString(double number)
 	return ss.str();
 }
 
+*/
 std::string FormIDToString(int formID)
 {
 	std::ostringstream ss;
@@ -1624,7 +1618,7 @@ std::string FormIDToString(int formID)
 	sprintf_s(sResult.get(), MAX_PATH, "%08X", formID);
 	return sResult.get();
 }
-
+/*
 std::string BooleanToYesNoString(bool boolean)
 {
 	std::string output = "";

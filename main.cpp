@@ -24,7 +24,7 @@ extern "C"
 		//Populate the info strucutre
 		info->infoVersion	= SKSE::PluginInfo::kVersion;
 		info->name			= "More Informative Console";
-		info->version		= 0.4;
+		info->version		= 4;
 
 		//Store plugin handle so we can identify ourselves later
 		//g_pluginHandle = skse->GetPluginHandle();
@@ -58,6 +58,17 @@ extern "C"
 			MICOptions::FieldsToDisplay = ini.GetLongValue("UI", "FieldsToDisplay", false);
 			MICOptions::Scale = (double)ini.GetLongValue("UI", "Scale", false) / 100.0;
 			MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
+
+			//Set the logger print level based on if debug mode is enabled
+			if (MICOptions::MICDebugMode)
+			{
+				SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
+			}
+
+			else
+			{
+				SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kMessage);
+			}
 		}
 	}
 

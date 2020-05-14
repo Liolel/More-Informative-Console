@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RE//Skyrim.h"
-#include "MIC_Scaleform.h"
 #include <string>
 #include <iomanip>
 #include <sstream>

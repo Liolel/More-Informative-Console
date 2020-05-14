@@ -1,4 +1,6 @@
 #include "ExtraInfoEntry.h"
+#include "RE/Skyrim.h"
+#include "SKSE/API.h"
 
 ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2)
 {
@@ -41,7 +43,7 @@ void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArr
 		{
 			RE::GFxValue subArrayEntry;
 			subarray[i]->CreateSecondaryScaleformArray(&subArrayEntry, root);
-			mainScaleFormArray->PushBack(&subArrayEntry);
+			mainScaleFormArray->PushBack(subArrayEntry);
 		}
 	}
 }
@@ -58,9 +60,9 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray
 	GFxExtraInfoContents.SetString(entry2.c_str());
 	GFxExtraInfoCount.SetString(arraySize.c_str());
 
-	scaleFormArray->PushBack(&GFxExtraInfoName);
-	scaleFormArray->PushBack(&GFxExtraInfoContents);
-	scaleFormArray->PushBack(&GFxExtraInfoCount);
+	scaleFormArray->PushBack(GFxExtraInfoName);
+	scaleFormArray->PushBack(GFxExtraInfoContents);
+	scaleFormArray->PushBack(GFxExtraInfoCount);
 
-	DebugMessage(entry1 + " " + entry2 + " " + IntToString(subarray.size()));
+	_DMESSAGE( (entry1 + " " + entry2 + " " + IntToString(subarray.size()) ).c_str());
 }

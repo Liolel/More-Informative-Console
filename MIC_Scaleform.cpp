@@ -1,4 +1,5 @@
 #include "MIC_Scaleform.h"
+#include "Scaleform/MICScaleform_GetReferenceInfo.h"
 #include "RE/Skyrim.h"
 #include "SKSE/API.h"
 #include <Windows.h>
@@ -18,133 +19,8 @@ namespace MICGlobals
 	ExtraInfoEntry rootEntry("", "");
 }
 
-class MICScaleform_GetReferenceInfo : public RE::GFxFunctionHandler
-{
-public:
-	//using RE::GFxFunctionHandler::Call;
-	virtual void Call(Params& a_params) override
-	{
-		_MESSAGE("GetReferenceInfo: Called");
+MICScaleform_GetReferenceInfo* getReferenceInfo = nullptr;
 
-		std::string refFormFromMod, refFormLastChangedBy;
-		int numModsModifyingRef;
-
-		//Get the reference selected in the console
-		RE::TESObjectREFR* pRef = RE::Console::GetSelectedRef().get();
-		if (pRef != nullptr)
-		{
-			_MESSAGE("GetReferenceInfo: PRef found");
-		}
-	}
-};
-
-/*
-//using RE::GFxFunctionHandler::Call;
-void MICScaleform_GetReferenceInfo::Call(Params& a_params)
-{
-
-	
-	/*
-	if (pRef != nullptr)
-	{
-		DebugMessage("GetReferenceInfo: pRef passed");
-		args->movie->CreateObject(args->result);
-		std::unique_ptr<char[]>	sResult(new char[MAX_PATH]);
-
-		RE::TESForm* pBaseForm = pRef->baseForm;
-
-		if (pBaseForm != nullptr)
-		{
-			DebugMessage("GetReferenceInfo: pBase passed");
-			sprintf_s(sResult.get(), MAX_PATH, "%08X", pRef->formID);
-			RegisterString(args->result, args->movie, "refFormID", sResult.get());
-			RegisterString(args->result, args->movie, "refFormType", GetFormTypeName(pRef->formType).c_str());
-
-			const char* pRefName = CALL_MEMBER_FN(pRef, GetReferenceName)();
-			RegisterString(args->result, args->movie, "referenceName", pRefName);
-			FormModInfoData* refFormModInfo = (FormModInfoData*)pRef->unk08;
-
-			if (refFormModInfo != nullptr)
-			{
-				DebugMessage("GetReferenceInfo: Inside Ref modInfo");
-				numModsModifyingRef = refFormModInfo->size;
-
-				refFormFromMod = refFormModInfo->entries[0]->name;
-
-				//fix for weird bug where refs first defined in Skyrim.Esm aren't always detected properly
-				if ( ( (pRef->formID & 0xFF000000 ) == 0)
-					&& refFormFromMod != "Skyrim.esm")
-				{
-					refFormFromMod = "Skyrim.esm";
-				}
-
-				refFormLastChangedBy = refFormModInfo->entries[numModsModifyingRef - 1]->name;
-
-				RegisterString(args->result, args->movie, "refFormDefinedIn", refFormFromMod.c_str());
-				RegisterString(args->result, args->movie, "refFormLastChangedBy", refFormLastChangedBy.c_str());
-
-
-			}
-
-			DebugMessage("GetReferenceInfo: Before FF actor if");
-			if (pBaseForm->formType == kFormType_NPC && pBaseForm->formID >= 0xFF000000)
-			{
-				DebugMessage("GetReferenceInfo: Inside FF actor if");
-				TESNPC* pBaseActor = DYNAMIC_CAST(pBaseForm, TESForm, TESNPC);
-
-				if (pBaseActor)
-				{
-					DebugMessage("GetReferenceInfo: Inside second FF actor if");
-					TESNPC* pBaseActorTemplate = pBaseActor->GetRootTemplate();
-
-					if (pBaseActorTemplate)
-					{
-						pBaseForm = DYNAMIC_CAST(pBaseActorTemplate, TESNPC, TESForm);
-					}
-				}
-			}
-
-			DebugMessage("GetReferenceInfo: In non FF actor base form");
-			sprintf_s(sResult.get(), MAX_PATH, "%08X", pBaseForm->formID);
-			RegisterString(args->result, args->movie, "baseFormID", sResult.get());
-			RegisterString(args->result, args->movie, "baseFormType", GetFormTypeName(pBaseForm->formType).c_str());
-
-
-
-			DebugMessage("GetReferenceInfo: Before base modInfo");
-			FormModInfoData* baseFormModInfo = (FormModInfoData*)pBaseForm->unk08;
-
-			if (baseFormModInfo != nullptr)
-			{
-
-				DebugMessage("GetReferenceInfo: Inside Base modInfo");
-				int numModsModifyingBase = baseFormModInfo->size;
-
-				std::string baseFormFromMod = baseFormModInfo->entries[0]->name;
-				std::string baseFormLastChangedBy = baseFormModInfo->entries[numModsModifyingBase - 1]->name;
-
-				RegisterString(args->result, args->movie, "baseFormDefinedIn", baseFormFromMod.c_str());
-				RegisterString(args->result, args->movie, "baseFormLastChangedBy", baseFormLastChangedBy.c_str());
-
-
-				std::string modsModifying = "GetReferenceInfo: # Mods " + std::to_string(numModsModifyingBase) + " base # mods" + std::to_string(numModsModifyingRef) + " reference ";
-				std::string baseModifiedBy = "GetReferenceInfo: Base From " + baseFormFromMod + " last changed by" + baseFormLastChangedBy;
-				std::string refModifiedBy = "GetReferenceInfo: Ref From " + refFormFromMod + " last changed by" + refFormLastChangedBy;
-
-
-				DebugMessage(modsModifying.c_str());
-				DebugMessage(baseModifiedBy.c_str());
-				DebugMessage(refModifiedBy.c_str());
-
-			}
-			DebugMessage("GetReferenceInfo: After FF actor if");
-
-		}
-	}
-	*
-	/*
-	DebugMessage("GetReferenceInfo: Method End");
-}
 /*
 
 class MICScaleform_GetExtraData : public GFxFunctionHandler
@@ -3008,13 +2884,10 @@ public:
 	}
 };*/
 
-
-MICScaleform_GetReferenceInfo* getReferenceInfo = nullptr;
-
 //// core hook
 bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE::GFxValue* a_root )
 {
-	DebugMessage("Install Hooks Called");
+	_DMESSAGE("Install Hooks Called");
 
 	if (getReferenceInfo == nullptr)
 	{
@@ -3026,14 +2899,14 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 	RE::GFxValue name;
 
 	a_view->GetVariable(&name, "_name");
-	_MESSAGE(name.GetString());
+	_DMESSAGE(name.GetString());
 
-	_MESSAGE( a_view->GetMovieDef()->GetFileURL() );
+	_DMESSAGE( a_view->GetMovieDef()->GetFileURL() );
 
 	bool result = a_view->GetVariable(&globals, "_global");
 	if (result)
 	{
-		_MESSAGE("GotGlobal");
+		_DMESSAGE("GotGlobal");
 
 		RE::GFxValue MIC;
 
@@ -3047,7 +2920,7 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 		if (result3)
 		{
 			RE::GFxValue	resultGFx;
-			_MESSAGE("Added Method");
+			_DMESSAGE("Added Method");
 			//MIC.Invoke("MICScaleform_GetReferenceInfo", &resultGFx);
 
 			//RE::GFxFunctionHandler::Params * params;
@@ -3059,7 +2932,7 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 
 		if (result2)
 		{
-			_MESSAGE("Added MIC");
+			_DMESSAGE("Added MIC");
 		}
 
 		/*
@@ -3077,10 +2950,10 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 
 		if (found )
 		{
-			_MESSAGE("_global.MIC Found");
-			_MESSAGE(IntToString( (int)MICFunction.GetType() ).c_str() );
-		    _MESSAGE(IntToString((int)globals.GetType()).c_str());
-			_MESSAGE(IntToString((int)MIC.GetType()).c_str());
+			_DMESSAGE("_global.MIC Found");
+			_DMESSAGE(IntToString( (int)MICFunction.GetType() ).c_str() );
+			_DMESSAGE(IntToString((int)globals.GetType()).c_str());
+			_DMESSAGE(IntToString((int)MIC.GetType()).c_str());
 		}
 		
 		/*
@@ -3097,9 +2970,9 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 
 		if (found)
 		{
-			_MESSAGE("MIC.MICScaleform_GetReferenceInfo Found 2");
-			_MESSAGE(IntToString((int)MICFunction3.GetType()).c_str());
-			_MESSAGE(IntToString((int)fnValue.GetType()).c_str());
+			_DMESSAGE("MIC.MICScaleform_GetReferenceInfo Found 2");
+			_DMESSAGE(IntToString((int)MICFunction3.GetType()).c_str());
+			_DMESSAGE(IntToString((int)fnValue.GetType()).c_str());
 		}
 
 		RE::GFxValue MICFunction4;
@@ -3107,7 +2980,7 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 
 		if (found)
 		{
-			_MESSAGE("_global.MIC.MICScaleform_GetReferenceInfo Found");
+			_DMESSAGE("_global.MIC.MICScaleform_GetReferenceInfo Found");
 		}
 	}
 

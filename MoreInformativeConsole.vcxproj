@@ -135,7 +135,9 @@
     <ClCompile Include="ExtraInfoEntry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MIC_Scaleform.cpp" />
-    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Scaleform\MICScaleform_GetReferenceInfo.cpp" />
+    <ClCompile Include="Util\GeneralUtil.cpp" />
+    <ClCompile Include="Util\ScaleformUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\common\common_vc14.sln" />
@@ -165,8 +167,10 @@
   <ItemGroup>
     <ClInclude Include="ExtraInfoEntry.h" />
     <ClInclude Include="MIC_Scaleform.h" />
+    <ClInclude Include="Scaleform\MICScaleform_GetReferenceInfo.h" />
     <ClInclude Include="Simpleini.h" />
-    <ClInclude Include="Util.h" />
+    <ClInclude Include="Util\GeneralUtil.h" />
+    <ClInclude Include="Util\ScaleformUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
