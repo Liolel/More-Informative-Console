@@ -32,7 +32,7 @@ ExtraInfoEntry* ExtraInfoEntry::GetChild(int index)
 	return subarray[index];
 }
 
-void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovieView * root)
+void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovie * root)
 {
 	root->CreateArray(mainScaleFormArray);
 
@@ -48,7 +48,7 @@ void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArr
 	}
 }
 
-void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray, RE::GFxMovieView * root)
+void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray, RE::GFxMovie * root)
 {
 	root->CreateArray(scaleFormArray);
 
@@ -65,4 +65,10 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray
 	scaleFormArray->PushBack(GFxExtraInfoCount);
 
 	_DMESSAGE( (entry1 + " " + entry2 + " " + IntToString(subarray.size()) ).c_str());
+}
+
+
+void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents)
+{
+	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents);
 }

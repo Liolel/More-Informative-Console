@@ -135,8 +135,15 @@
     <ClCompile Include="ExtraInfoEntry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MIC_Scaleform.cpp" />
+    <ClCompile Include="globals.cpp" />
+    <ClCompile Include="Scaleform\MICScaleform_GetExtraData.cpp" />
+    <ClCompile Include="Scaleform\MICScaleform_GetIniOptions.cpp" />
     <ClCompile Include="Scaleform\MICScaleform_GetReferenceInfo.cpp" />
+    <ClCompile Include="Scaleform\MICScaleform_RetrieveExtraData.cpp" />
+    <ClCompile Include="TESForms\TESForm.cpp" />
+    <ClCompile Include="TESForms\TESNPC.cpp" />
     <ClCompile Include="Util\GeneralUtil.cpp" />
+    <ClCompile Include="Util\NameUtil.cpp" />
     <ClCompile Include="Util\ScaleformUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,9 +174,16 @@
   <ItemGroup>
     <ClInclude Include="ExtraInfoEntry.h" />
     <ClInclude Include="MIC_Scaleform.h" />
+    <ClInclude Include="globals.h" />
+    <ClInclude Include="Scaleform\MICScaleform_GetExtraData.h" />
+    <ClInclude Include="Scaleform\MICScaleform_GetIniOptions.h" />
     <ClInclude Include="Scaleform\MICScaleform_GetReferenceInfo.h" />
+    <ClInclude Include="Scaleform\MICScaleform_RetrieveExtraData.h" />
     <ClInclude Include="Simpleini.h" />
+    <ClInclude Include="TESForms\TESForm.h" />
+    <ClInclude Include="TESForms\TESNPC.h" />
     <ClInclude Include="Util\GeneralUtil.h" />
+    <ClInclude Include="Util\NameUtil.h" />
     <ClInclude Include="Util\ScaleformUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

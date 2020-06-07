@@ -13,8 +13,8 @@ public:
 	void PushBack(ExtraInfoEntry * subArrayEntry);
 
 	ExtraInfoEntry* GetChild(int index );
-	void CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovieView * root);
-	void CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray, RE::GFxMovieView * root);
+	void CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovie * root);
+	void CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray, RE::GFxMovie * root);
 
 private:
 
@@ -23,3 +23,5 @@ private:
 
 	std::vector<ExtraInfoEntry*> subarray;
 };
+
+void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents);

@@ -1,5 +1,8 @@
 #include "MIC_Scaleform.h"
 #include "Scaleform/MICScaleform_GetReferenceInfo.h"
+#include "Scaleform/MICScaleform_GetIniOptions.h"
+#include "Scaleform/MICScaleform_RetrieveExtraData.h"
+#include "Scaleform/MICScaleform_GetExtraData.h"
 #include "RE/Skyrim.h"
 #include "SKSE/API.h"
 #include <Windows.h>
@@ -10,95 +13,12 @@ const int actorValueStaminahIndex = 26;
 const int playerBaseFormID = 0x7;
 const char deliminator = '\\';
 
-namespace MICGlobals
-{
-	boolean readRaceSkins = true; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
-	//TESRace* filterARMAByRace = nullptr; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
-	boolean reducedMode = false; //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstancesv
-	int maxInventoryBeforeReducedMode = 750; //Maximum inventory size before triggering reduced mode
-	ExtraInfoEntry rootEntry("", "");
-}
-
 MICScaleform_GetReferenceInfo* getReferenceInfo = nullptr;
+MICScaleform_GetIniOptions* getIniOptions = nullptr;
+MICScaleform_RetrieveExtraData* retrieveExtraData = nullptr;
+MICScaleform_GetExtraData* getExtraData = nullptr;
 
 /*
-
-class MICScaleform_GetExtraData : public GFxFunctionHandler
-{
-public:
-	virtual void	Invoke(Args * args)
-	{
-
-		DebugMessage("GetExtraData: Invoke Start");
-
-		GFxMovieView * movie = args->movie;
-
-		GFxValue result;
-
-		movie->CreateArray(&result);
-
-		//Determine mode to use
-		GFxValue* modeGFX = &args->args[0];
-		int modeInt = modeGFX->GetNumber();
-
-		if (modeInt == Constant_ModeConsoleHandle)
-		{
-#if SKSE_VERSION_INTEGER_BETA <= 12
-			TESObjectREFR* pRef = nullptr;
-			LookupREFRByHandle(g_consoleHandle, &pRef);
-#else
-			UInt32 handle = (*g_consoleHandle);
-
-			NiPointer<TESObjectREFR> pRef;
-			LookupREFRByHandle(handle, pRef);
-#endif
-			if (pRef != nullptr)
-			{
-
-				DebugMessage("GetExtraData: pRefFound");
-
-				TESForm* pBaseForm = pRef->baseForm;
-
-				if (pBaseForm != nullptr)
-				{
-					DebugMessage("GetExtraData: BaseFound");
-
-					MICGlobals::rootEntry.Clear();
-
-					GetFormData(&MICGlobals::rootEntry, pBaseForm, pRef);
-
-					DebugMessage("Get Form Information done");
-
-					GFxValue returnValue;
-				}
-			}
-		}
-
-		else if (modeInt == Constant_ModeWorldInformation)
-		{
-			MICGlobals::rootEntry.Clear();
-			GetWorldData(&MICGlobals::rootEntry);
-		}
-
-		else if (modeInt == Constant_ModeMFG)
-		{
-			MICGlobals::rootEntry.Clear();
-			ExtraInfoEntry* test;
-			CreateExtraInfoEntry(test, "MFG", "");
-			MICGlobals::rootEntry.PushBack(test);
-		}
-
-		//else if( modeInt == Constant_Mod)
-
-		GFxValue returnValue;
-		GFxValue resultArray;
-		MICGlobals::rootEntry.CreatePrimaryScaleformArray(&resultArray, movie);
-
-		movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
-
-
-		DebugMessage("GetExtraData: Invoke End");
-	}
 
 	//general wrapper for all get form methods
 	void GetFormData(ExtraInfoEntry * resultArray, TESForm* pBaseForm, TESObjectREFR* pRefForm)
@@ -246,25 +166,6 @@ public:
 
 		DebugMessage("GetExtraData: Get Form Data End");
 	}
-
-	void CreateExtraInfoEntry(ExtraInfoEntry * & extraInfoEntry, std::string extraInfoName, std::string extraInfoContents)
-	{
-		extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents);
-	}
-	/*
-	void CreateExtraInfoEntry(ExtraInfoEntry * valueArray,  std::string extraInfoName, std::string extraInfoContents)
-	{
-	movie->CreateArray(valueArray);
-
-	ExtraInfoEntry * GFxExtraInfoName, GFxExtraInfoContents;
-
-	GFxExtraInfoName.SetString(extraInfoName.c_str());
-	GFxExtraInfoContents.SetString(extraInfoContents.c_str());
-
-	valueArray->PushBack(GFxExtraInfoName);
-	valueArray->PushBack(GFxExtraInfoContents);
-
-	}*/
 
 	/*
 	//get data common to all form types
@@ -2801,87 +2702,13 @@ public:
 };
 
 
-
-class MICScaleform_GetIniOptions : public GFxFunctionHandler
-{
-public:
-	virtual void	Invoke(Args * args)
-	{
-		args->movie->CreateObject(args->result);
-		RegisterNumber(args->result, "Transparency", MICOptions::Transparency);
-		RegisterNumber(args->result, "Scale", MICOptions::Scale);
-		RegisterNumber(args->result, "FieldsToDisplay", MICOptions::FieldsToDisplay);
-		RegisterNumber(args->result, "BaseInfoFormat", MICOptions::BaseInfoFormat);
-	}
-};
-
-
 class MICScaleform_RetrieveExtraData : public GFxFunctionHandler
 {
 public:
 	virtual void	Invoke(Args * args)
 	{
 
-		DebugMessage("RetrieveExtraData: Invoke Start, NumArgs " + IntToString( args->numArgs) );
-
-		GFxMovieView * movie = args->movie;
-		GFxValue * indexArray = &args->args[0];
-
-		/*
-		if (args->args[0].GetType() == GFxValue::kType_Array)
-		{
-			DebugMessage("Array");//+ IntToString(indexArray->GetArraySize() ) );
-		}
-
-		else
-		{
-			DebugMessage("Not Array " + IntToString(args->args[0].GetType()));
-		}*/
-
-		/*
-		ExtraInfoEntry * extrainfoEntryToRetrieve = TraverseExtraInfoEntries(&MICGlobals::rootEntry, indexArray, 0);
-
-		GFxValue returnValue;
-		GFxValue resultArray;
-		extrainfoEntryToRetrieve->CreatePrimaryScaleformArray(&resultArray, movie);
-
-		movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
-
-		DebugMessage("RetrieveExtraData: Invoke End");
-	}
-
-	ExtraInfoEntry * TraverseExtraInfoEntries(ExtraInfoEntry * currentEntry, GFxValue * indexArray, int currentIndex)
-	{
-		//DebugMessage("Traverse Current Index " + IntToString(currentIndex) );
-
-		GFxValue indexToSelect;
-		indexArray->GetElement(currentIndex, &indexToSelect);
-
-		/*
-		if (indexToSelect.GetType() == GFxValue::kType_Number)
-		{
-			DebugMessage("Number");
-		}
-
-		else
-		{
-			DebugMessage("Not Number " + IntToString(indexToSelect.GetType()));
-		}*/
-		/*
-		DebugMessage("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntToString(indexToSelect.GetNumber()));
-
-		ExtraInfoEntry * nextEntry = currentEntry->GetChild(indexToSelect.GetNumber());
-
-		if (currentIndex + 1 == indexArray->GetArraySize())
-		{
-			return nextEntry;
-		}
-
-		else
-		{
-			return TraverseExtraInfoEntries(nextEntry, indexArray, currentIndex + 1);
-		}
-	}
+		
 };*/
 
 //// core hook
@@ -2894,113 +2721,51 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 		getReferenceInfo = new MICScaleform_GetReferenceInfo;
 	}
 
+	if (getIniOptions == nullptr)
+	{
+		getIniOptions = new MICScaleform_GetIniOptions;
+	}
+
+	if (retrieveExtraData == nullptr)
+	{
+		retrieveExtraData = new MICScaleform_RetrieveExtraData;
+	}
+
+	if (getExtraData == nullptr)
+	{
+		getExtraData = new MICScaleform_GetExtraData;
+	}
 
 	RE::GFxValue globals;
-	RE::GFxValue name;
-
-	a_view->GetVariable(&name, "_name");
-	_DMESSAGE(name.GetString());
 
 	_DMESSAGE( a_view->GetMovieDef()->GetFileURL() );
 
 	bool result = a_view->GetVariable(&globals, "_global");
 	if (result)
 	{
-		_DMESSAGE("GotGlobal");
-
+		//Create Object to hold new functions
 		RE::GFxValue MIC;
-
-
-
 		a_view->CreateObject(&MIC);
 
 		RE::GFxValue	fnValue;
 		a_view->CreateFunction(&fnValue, getReferenceInfo);
-		bool result3 = MIC.SetMember("MICScaleform_GetReferenceInfo", fnValue);
-		if (result3)
-		{
-			RE::GFxValue	resultGFx;
-			_DMESSAGE("Added Method");
-			//MIC.Invoke("MICScaleform_GetReferenceInfo", &resultGFx);
-
-			//RE::GFxFunctionHandler::Params * params;
-
-			//MICGlobals::getReferenceInfo->Call(*params);
-		}
-
-		bool result2 = globals.SetMember("MIC", MIC);
-
-		if (result2)
-		{
-			_DMESSAGE("Added MIC");
-		}
-
-		/*
-		RE::GFxValue skse;
-
-		bool result3 = globals.GetMember("skse", &skse);
-
-		if (result3)
-		{
-			_MESSAGE("Got SKSE");
-		}*/
+		MIC.SetMember("MICScaleform_GetReferenceInfo", fnValue);
 		
-		RE::GFxValue MICFunction;
-		bool found = a_view->GetVariable(&MICFunction, "_global.MIC");
+		RE::GFxValue	fnValue2;
+		a_view->CreateFunction(&fnValue2, getIniOptions);
+		MIC.SetMember("MICScaleform_GetIniOptions", fnValue2);
 
-		if (found )
-		{
-			_DMESSAGE("_global.MIC Found");
-			_DMESSAGE(IntToString( (int)MICFunction.GetType() ).c_str() );
-			_DMESSAGE(IntToString((int)globals.GetType()).c_str());
-			_DMESSAGE(IntToString((int)MIC.GetType()).c_str());
-		}
-		
-		/*
-		RE::GFxValue MICFunction2;
-		found = MICFunction.GetMember("MICScaleform_GetReferenceInfo", &MICFunction2);
+		RE::GFxValue	fnValue3;
+		a_view->CreateFunction(&fnValue3, retrieveExtraData);
+		MIC.SetMember("MICScaleform_RetrieveExtraData", fnValue3);
 
-		if (found)
-		{
-			_MESSAGE("MIC.MICScaleform_GetReferenceInfo Found 1");
-		}*/
-		
-		RE::GFxValue MICFunction3;
-		found = MIC.GetMember("MICScaleform_GetReferenceInfo", &MICFunction3);
+		RE::GFxValue	fnValue4;
+		a_view->CreateFunction(&fnValue4, getExtraData);
+		MIC.SetMember("MICScaleform_GetExtraData", fnValue4);
 
-		if (found)
-		{
-			_DMESSAGE("MIC.MICScaleform_GetReferenceInfo Found 2");
-			_DMESSAGE(IntToString((int)MICFunction3.GetType()).c_str());
-			_DMESSAGE(IntToString((int)fnValue.GetType()).c_str());
-		}
-
-		RE::GFxValue MICFunction4;
-		found = a_view->GetVariable(&MICFunction, "_global.MIC.MICScaleform_GetReferenceInfo");
-
-		if (found)
-		{
-			_DMESSAGE("_global.MIC.MICScaleform_GetReferenceInfo Found");
-		}
+		//Store object with functions
+		globals.SetMember("MIC", MIC);
 	}
 
-
-
-	//_MESSAGE(fnValue.
-
-	//MICScaleform_GetReferenceInfo* reference = Get;
-
-	//a_view->CreateFunction(a_root, MICGlobals::getReferenceInfo);
-
-	//RE::RegisterFunction <MICScaleform_GetReferenceInfo>(root, view, "MICScaleform_GetReferenceInfo");
-
-	
-	//const auto scaleform = SKSE::GetScaleformInterface();
-	//scaleform->Register(MICScaleform_GetReferenceInfo::Call, "");
-	
-	//RE::RegisterFunction <MICScaleform_GetReferenceInfo>(root, view, "MICScaleform_GetReferenceInfo");
-	/*RegisterFunction <MICScaleform_GetExtraData>(root, view, "MICScaleform_GetExtraData");
-	RegisterFunction <MICScaleform_GetIniOptions>(root, view, "MICScaleform_GetIniOptions");
-	RegisterFunction <MICScaleform_RetrieveExtraData>(root, view, "MICScaleform_RetrieveExtraData");*/
 	return true;
 }

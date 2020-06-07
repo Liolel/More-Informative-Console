@@ -3,7 +3,7 @@
 #include "SKSE/Logger.h"
 #include "skse64_common/Utilities.h"
 #include "MIC_Scaleform.h"
-#include "Util.h"
+#include "globals.h"
 #include "Simpleini.h"
 #include <shlobj.h>
 

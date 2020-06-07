@@ -7,3 +7,12 @@ void RegisterString(RE::GFxValue* object, RE::GFxMovie* movie, std::string strin
 
 	object->SetMember(stringName.c_str(), gfxString);
 }
+
+
+void RegisterNumber(RE::GFxValue* object, std::string numberName, double number)
+{
+	RE::GFxValue gfxNumber;
+	gfxNumber.SetNumber(number);
+
+	object->SetMember(numberName.c_str(), gfxNumber);
+}
