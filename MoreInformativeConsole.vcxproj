@@ -139,6 +139,7 @@
     <ClCompile Include="Scaleform\MICScaleform_GetExtraData.cpp" />
     <ClCompile Include="Scaleform\MICScaleform_GetIniOptions.cpp" />
     <ClCompile Include="Scaleform\MICScaleform_GetReferenceInfo.cpp" />
+    <ClCompile Include="Scaleform\MICScaleform_Log.cpp" />
     <ClCompile Include="Scaleform\MICScaleform_RetrieveExtraData.cpp" />
     <ClCompile Include="TESForms\TESForm.cpp" />
     <ClCompile Include="TESForms\TESNPC.cpp" />
@@ -159,9 +160,6 @@
     <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
       <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\skse64\skse64.vcxproj">
-      <Project>{7028b79c-06e3-4d9a-b38c-1dc3680b1bdb}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\skse64_common\skse64_common.vcxproj">
       <Project>{20c6411c-596f-4b85-be4e-8bc91f59d8a6}</Project>
       <Private>false</Private>
@@ -178,6 +176,7 @@
     <ClInclude Include="Scaleform\MICScaleform_GetExtraData.h" />
     <ClInclude Include="Scaleform\MICScaleform_GetIniOptions.h" />
     <ClInclude Include="Scaleform\MICScaleform_GetReferenceInfo.h" />
+    <ClInclude Include="Scaleform\MICScaleform_Log.h" />
     <ClInclude Include="Scaleform\MICScaleform_RetrieveExtraData.h" />
     <ClInclude Include="Simpleini.h" />
     <ClInclude Include="TESForms\TESForm.h" />

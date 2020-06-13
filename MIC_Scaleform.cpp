@@ -3,6 +3,7 @@
 #include "Scaleform/MICScaleform_GetIniOptions.h"
 #include "Scaleform/MICScaleform_RetrieveExtraData.h"
 #include "Scaleform/MICScaleform_GetExtraData.h"
+#include "Scaleform/MICScaleform_Log.h"
 #include "RE/Skyrim.h"
 #include "SKSE/API.h"
 #include <Windows.h>
@@ -17,6 +18,7 @@ MICScaleform_GetReferenceInfo* getReferenceInfo = nullptr;
 MICScaleform_GetIniOptions* getIniOptions = nullptr;
 MICScaleform_RetrieveExtraData* retrieveExtraData = nullptr;
 MICScaleform_GetExtraData* getExtraData = nullptr;
+MICScaleform_Log* MICScaleformlog = nullptr;
 
 /*
 
@@ -2736,6 +2738,12 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 		getExtraData = new MICScaleform_GetExtraData;
 	}
 
+	
+	if (MICScaleformlog == nullptr)
+	{
+		MICScaleformlog = new MICScaleform_Log;
+	}
+
 	RE::GFxValue globals;
 
 	_DMESSAGE( a_view->GetMovieDef()->GetFileURL() );
@@ -2762,6 +2770,10 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 		RE::GFxValue	fnValue4;
 		a_view->CreateFunction(&fnValue4, getExtraData);
 		MIC.SetMember("MICScaleform_GetExtraData", fnValue4);
+		
+		RE::GFxValue	fnValue5;
+		a_view->CreateFunction(&fnValue5, MICScaleformlog);
+		MIC.SetMember("MICScaleform_Log", fnValue5);
 
 		//Store object with functions
 		globals.SetMember("MIC", MIC);

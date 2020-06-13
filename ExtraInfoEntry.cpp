@@ -39,8 +39,11 @@ void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArr
 	if (!subarray.empty())
 	{
 		
+		_DMESSAGE( IntToString(subarray.size()).c_str());
+
 		for (int i = 0; i < subarray.size(); i++)
 		{
+			_DMESSAGE("Inside loop 1");
 			RE::GFxValue subArrayEntry;
 			subarray[i]->CreateSecondaryScaleformArray(&subArrayEntry, root);
 			mainScaleFormArray->PushBack(subArrayEntry);
@@ -64,7 +67,7 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray
 	scaleFormArray->PushBack(GFxExtraInfoContents);
 	scaleFormArray->PushBack(GFxExtraInfoCount);
 
-	_DMESSAGE( (entry1 + " " + entry2 + " " + IntToString(subarray.size()) ).c_str());
+	//_DMESSAGE( (entry1 + " " + entry2 + " " + arraySize ).c_str()); //This causes crashes somehow?
 }
 
 

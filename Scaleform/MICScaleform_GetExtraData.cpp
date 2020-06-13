@@ -63,13 +63,18 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 
 	//else if( modeInt == Constant_Mod)
 
-	RE::GFxValue returnValue;
+	//RE::GFxValue returnValue;
 	RE::GFxValue resultArray;
+
+	//Convert the results into an array we can send to the swf
 	MICGlobals::rootEntry.CreatePrimaryScaleformArray(&resultArray, movie);
 
 	//Returning the desired results can crash the game if the method called takes too long to return the value. Invoking an method in the console.swf when we've finished running our code
 	//Seems to prevent this crash
-	movie->Invoke("_root.consoleFader_mc.Console_mc.AddExtraInfo", &returnValue, &resultArray, 1);
+	RE::GFxValue root;
+	movie->GetVariable(&root, "_root.consoleFader_mc.Console_mc");
+	
+	root.Invoke("AddExtraInfo", 0, &resultArray, 1);
 
 	_DMESSAGE("GetExtraData: Invoke End");
 }

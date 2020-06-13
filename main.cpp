@@ -63,11 +63,13 @@ extern "C"
 			if (MICOptions::MICDebugMode)
 			{
 				SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
+				SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
 			}
 
 			else
 			{
 				SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kMessage);
+				SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kMessage);
 			}
 		}
 	}
