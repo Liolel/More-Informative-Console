@@ -6,6 +6,14 @@ ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2)
 {
 	this->entry1 = entry1;
 	this->entry2 = entry2;
+	this->priority = priorityDefault;
+}
+
+ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2, int priority)
+{
+	this->entry1 = entry1;
+	this->entry2 = entry2;
+	this->priority = priority;
 }
 
 void ExtraInfoEntry::Clear()
@@ -34,16 +42,14 @@ ExtraInfoEntry* ExtraInfoEntry::GetChild(int index)
 
 void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovie * root)
 {
+	_DMESSAGE("Creating scaleform array");
+
 	root->CreateArray(mainScaleFormArray);
 
 	if (!subarray.empty())
 	{
-		
-		_DMESSAGE( IntToString(subarray.size()).c_str());
-
 		for (int i = 0; i < subarray.size(); i++)
 		{
-			_DMESSAGE("Inside loop 1");
 			RE::GFxValue subArrayEntry;
 			subarray[i]->CreateSecondaryScaleformArray(&subArrayEntry, root);
 			mainScaleFormArray->PushBack(subArrayEntry);
@@ -68,6 +74,25 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray
 	scaleFormArray->PushBack(GFxExtraInfoCount);
 
 	//_DMESSAGE( (entry1 + " " + entry2 + " " + arraySize ).c_str()); //This causes crashes somehow?
+}
+
+bool comparePrioritys(ExtraInfoEntry * extraInfoEntryA, ExtraInfoEntry * extraInforEntryB)
+{
+	return extraInfoEntryA->priority > extraInforEntryB->priority;
+}
+
+//Sort each vector by priority
+void ExtraInfoEntry::Finalize()
+{
+	if (!subarray.empty())
+	{
+		std::stable_sort(subarray.begin(), subarray.end(), comparePrioritys);
+		
+		for (int i = 0; i < subarray.size(); i++)
+		{
+			subarray[i]->Finalize();
+		}
+	}
 }
 
 

@@ -153,7 +153,7 @@ std::string GetFormTypeName(int formType)
 	return FormTypes[formType];
 }
 
-/*
+
 std::string GetName(RE::TESForm* pBaseForm)
 {
 	_DMESSAGE("GetExtraData: GetName Start");
@@ -162,18 +162,18 @@ std::string GetName(RE::TESForm* pBaseForm)
 
 	switch (pBaseForm->GetFormType())
 	{
-	case RE::FormType::NPC:
-	{
-		_DMESSAGE("GetExtraData: GetName NPC");
-
-		RE::TESNPC* pNPC = static_cast<RE::TESNPC*>(pBaseForm);
-		if (pNPC)
+		case RE::FormType::NPC:
 		{
-			name = pNPC->fullName.c_str();
-		}
+			_DMESSAGE("GetExtraData: GetName NPC");
 
-		break;
-	}
+			RE::TESNPC* pNPC = static_cast<RE::TESNPC*>(pBaseForm);
+			if (pNPC)
+			{
+				name = pNPC->fullName.c_str();
+			}
+
+			break;
+		}
 
 	/*
 	case kFormType_EffectSetting:
@@ -461,10 +461,10 @@ std::string GetName(RE::TESForm* pBaseForm)
 		name = FormIDToString(pBaseForm->formID);
 		break;
 	}
-	
+	*/
 	}
 
 	_DMESSAGE(("GetExtraData: GetName End: " + name).c_str());
-
+	
 	return name;
-}*/
+}

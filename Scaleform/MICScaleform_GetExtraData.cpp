@@ -3,6 +3,7 @@
 #include "MICScaleform_GetExtraData.h"
 #include "MoreInformativeConsole/Util/ScaleformUtil.h"
 #include "MoreInformativeConsole/globals.h"
+#include "MoreInformativeConsole/TESForms/TESForm.h"
 
 
 void MICScaleform_GetExtraData::Call(Params& a_params)
@@ -21,8 +22,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 		RE::TESObjectREFR* ref = RE::Console::GetSelectedRef().get();
 		if (ref != nullptr)
 		{
-
-			_DMESSAGE("GetExtraData: pRefFound");
+			_DMESSAGE("GetExtraData: refFound");
 
 			RE::TESBoundObject* baseForm = ref->data.objectReference;
 
@@ -31,14 +31,9 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 				_DMESSAGE("GetExtraData: BaseFound");
 
 				MICGlobals::rootEntry.Clear();
+				GetFormData(&MICGlobals::rootEntry, baseForm, ref);
 
-				ExtraInfoEntry* test;
-				CreateExtraInfoEntry(test, "Object", "");
-				MICGlobals::rootEntry.PushBack(test);
-
-				//GetFormData(&MICGlobals::rootEntry, pBaseForm, pRef);
-
-				//DebugMessage("Get Form Information done");
+				_DMESSAGE("Get Form Information done");
 			}
 		}
 	}
@@ -61,7 +56,8 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 		MICGlobals::rootEntry.PushBack(test);
 	}
 
-	//else if( modeInt == Constant_Mod)
+	//Sort the final results
+	MICGlobals::rootEntry.Finalize();
 
 	//RE::GFxValue returnValue;
 	RE::GFxValue resultArray;
