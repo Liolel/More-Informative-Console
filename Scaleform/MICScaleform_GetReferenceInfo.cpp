@@ -3,6 +3,7 @@
 #include "MoreInformativeConsole/Util/ScaleformUtil.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
 #include "MoreInformativeConsole/TESForms/TESForm.h"
+#include "MoreInformativeConsole/TESForms/TESNPC.h"
 
 void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 {
@@ -33,9 +34,7 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 			// TODO: Do I want to actually get the root template or do I want to just go up to the first non FF level?
 			if (baseForm->formType == RE::FormType::NPC && baseForm->formID >= 0xFF000000)
 			{
-				RE::TESNPC* npc = static_cast<RE::TESNPC*>(baseForm);
-				RE::TESNPC* rootNPC = npc->GetRootFaceNPC();
-				baseForm = static_cast<RE::TESBoundObject*>(rootNPC);
+				baseForm = GetRootTemplate(baseForm);
 			}
 
 			//get the form ids

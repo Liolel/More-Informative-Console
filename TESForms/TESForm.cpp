@@ -28,14 +28,22 @@ std::string GetFirstFormLocationName(RE::TESForm* form)
 std::string GetLastFormLocationName(RE::TESForm* form)
 {
 	std::string formName = "Unknown";
+	int lastFileIndex = GetNumberOfSourceFiles(form) - 1;
+	formName = GetNthFormLocationName( form, lastFileIndex);
+
+	return formName;
+}
+
+int GetNumberOfSourceFiles(RE::TESForm* form )
+{
+	int numberOfFiles = 0;
 
 	if( GetHasSourceFileArray(form) )
 	{
-		UInt32 numberOfSourceFiles = form->sourceFiles.array->size();
-		formName = GetNthFormLocationName( form, numberOfSourceFiles - 1 );
+		numberOfFiles = form->sourceFiles.array->size();
 	}
 
-	return formName;
+	return numberOfFiles;
 }
 
 
@@ -195,10 +203,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	if (baseForm->formType == RE::FormType::NPC && baseForm->formID >= 0xFF000000)
 	{
 		_DMESSAGE("Found actor with FF base form");
-		
-		RE::TESNPC* npc = static_cast<RE::TESNPC*>(baseForm);
-		RE::TESNPC* rootNPC = npc->GetRootFaceNPC();
-		baseForm = static_cast<RE::TESForm*>(rootNPC);
+		baseForm = GetRootTemplate(baseForm);
 	}
 
 	std::string name = "";
@@ -227,7 +232,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	const char* editorID = baseForm->GetFormEditorID();
 
-	if (editorID)
+	if (editorID != "")
 	{
 		ExtraInfoEntry* editorIDEntry;
 		CreateExtraInfoEntry(editorIDEntry, "Editor ID", editorID);
@@ -260,20 +265,126 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	//mod location info
 
-	/*
-	DebugMessage("GetCommonFormData: Get Form Location Start");
-
+	
+	
 	ExtraInfoEntry* formLocationHolder;
 
 	CreateExtraInfoEntry(formLocationHolder, "Form location information", "");
-	GetFormLocationData(formLocationHolder, pBaseForm, pRefForm);
+	GetFormLocationData(formLocationHolder, baseForm, refForm);
 	resultArray->PushBack(formLocationHolder);
 
+	/*
 	if (pRefForm != nullptr)
 	{
 		GetPositionData(resultArray, pRefForm);
-	}
-	*/
+	}*/
+	
 
 	_DMESSAGE("GetCommonFormData: GetCommonFormData End");
+}
+
+//get information related to where mods the form is found in
+void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
+{
+	_DMESSAGE("GetExtraData: GetFormLocationData Start");
+
+	//this method may be called at a time we only have a base form, and in that case skip anything related to the reform
+	if (refForm != nullptr 
+		&& GetHasSourceFileArray( refForm ) )
+	{
+		_DMESSAGE("GetExtraData: GetFormLocationData ref mod info found");
+
+		//Reference Form
+		int numModsModifyingRef = GetNumberOfSourceFiles(refForm);
+
+		std::string refFirstDefinedIn = GetFirstFormLocationName(refForm);
+		boolean SkyrimESMNotDetectedBug = false;
+
+		//fix for weird bug where refs first defined in Skyrim.Esm aren't always detected properly
+		if( ( (refForm->formID & 0xFF000000) == 0)
+			&& refFirstDefinedIn != "Skyrim.esm")
+		{
+			refFirstDefinedIn = "Skyrim.esm";
+			SkyrimESMNotDetectedBug = true;
+		}
+
+		ExtraInfoEntry* referenceDefinedIn;
+		CreateExtraInfoEntry(referenceDefinedIn, "Reference defined in", refFirstDefinedIn);
+
+		resultArray->PushBack(referenceDefinedIn);
+
+		std::string refLastDefinedIn = GetLastFormLocationName(refForm);
+
+		ExtraInfoEntry* referenceLastChangedBy;
+		CreateExtraInfoEntry(referenceLastChangedBy, "Reference last modified by", refLastDefinedIn);
+
+		resultArray->PushBack(referenceLastChangedBy);
+
+		ExtraInfoEntry* allModsTouchingReferenceHolder;
+		CreateExtraInfoEntry(allModsTouchingReferenceHolder, "Reference found in", "");
+
+		GetModInfoData(allModsTouchingReferenceHolder, refForm, SkyrimESMNotDetectedBug);
+
+		resultArray->PushBack(allModsTouchingReferenceHolder);
+	}
+	//Base Form
+
+	_DMESSAGE("GetExtraData: GetFormLocationData at pBaseSection section");
+	
+	if (GetHasSourceFileArray(baseForm) )
+	{
+		_DMESSAGE("GetExtraData: GetFormLocationData baseFormModInfo found");
+
+		int numModsModifyingBase = GetNumberOfSourceFiles(baseForm);
+
+		std::string baseFirstDefinedIn = GetFirstFormLocationName(baseForm);
+
+		ExtraInfoEntry* baseDefinedIn;
+		CreateExtraInfoEntry(baseDefinedIn, "Base defined in", baseFirstDefinedIn);
+
+		resultArray->PushBack(baseDefinedIn);
+
+		std::string baseLastDefinedIn = GetLastFormLocationName(baseForm);
+
+		ExtraInfoEntry* baseLastChangedBy;
+		CreateExtraInfoEntry(baseLastChangedBy, "Base last modified by", baseLastDefinedIn);
+
+		resultArray->PushBack(baseLastChangedBy);
+
+		ExtraInfoEntry* allModsTouchingBaseHolder;
+		CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "");
+
+		GetModInfoData(allModsTouchingBaseHolder, baseForm, false);
+
+		resultArray->PushBack(allModsTouchingBaseHolder);
+	}
+
+	_DMESSAGE("GetExtraData: GetFormLocationData End");
+}
+
+void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm * form, boolean SkyrimESMNotDetectedBug)
+{
+	_DMESSAGE("GetExtraData: GetModInfoData start");
+
+	int numMods = GetNumberOfSourceFiles(form);
+
+	if (SkyrimESMNotDetectedBug)
+	{
+		ExtraInfoEntry* modEntry;
+
+		CreateExtraInfoEntry(modEntry, "Mod", "Skyrim.esm");
+		resultArray->PushBack(modEntry);
+	}
+
+	for (int i = 0; i < numMods; i++)
+	{
+		ExtraInfoEntry* modEntry;
+
+		std::string modName = GetNthFormLocationName(form, i);
+
+		CreateExtraInfoEntry(modEntry, "Mod", modName);
+		resultArray->PushBack(modEntry);
+	}
+
+	_DMESSAGE("GetExtraData: GetModInfoData end");
 }
