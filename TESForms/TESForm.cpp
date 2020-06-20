@@ -1,4 +1,5 @@
 #include "TESForm.h"
+#include "TESObjectREFR.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
@@ -53,6 +54,12 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	_DMESSAGE( ( "GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType) + " " + FormIDToString(baseForm->formID) ).c_str() );
 
 	GetCommonFormData(resultArray, baseForm, refForm);
+
+	if (refForm != nullptr)
+	{
+		GetReferenceFormData(resultArray, refForm);
+	}
+
 	/*
 	if (pBaseForm != nullptr
 		&& pBaseForm->GetFormType() == kFormType_NPC
@@ -226,16 +233,16 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	}
 
 	ExtraInfoEntry* nameArray;
-	CreateExtraInfoEntry(nameArray, "Name", name);
+	CreateExtraInfoEntry(nameArray, "Name", name, priority_Name);
 
 	resultArray->PushBack(nameArray);
-
-	const char* editorID = baseForm->GetFormEditorID();
+	
+	std::string editorID = baseForm->GetFormEditorID();
 
 	if (editorID != "")
 	{
 		ExtraInfoEntry* editorIDEntry;
-		CreateExtraInfoEntry(editorIDEntry, "Editor ID", editorID);
+		CreateExtraInfoEntry(editorIDEntry, "Editor ID", editorID, priority_EditorID);
 		resultArray->PushBack(editorIDEntry);
 	}
 
@@ -243,14 +250,14 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	std::string formID = FormIDToString(baseForm->formID);
 
 	ExtraInfoEntry* formIDArray;
-	CreateExtraInfoEntry(formIDArray, "Base form ID", formID);
+	CreateExtraInfoEntry(formIDArray, "Base form ID", formID, priority_FormID);
 	resultArray->PushBack(formIDArray);
 
 	//base form type
 	std::string baseFormType = GetFormTypeName((int)baseForm->formType);
 
 	ExtraInfoEntry* formTypeEntry;
-	CreateExtraInfoEntry(formTypeEntry, "Base Type", baseFormType);
+	CreateExtraInfoEntry(formTypeEntry, "Base Type", baseFormType, priority_FormType);
 	resultArray->PushBack(formTypeEntry);
 
 	//ref formid
@@ -259,26 +266,13 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 		std::string refFormID = FormIDToString(refForm->formID);
 
 		ExtraInfoEntry* formIDArray;
-		CreateExtraInfoEntry(formIDArray, "Ref form ID", refFormID);
+		CreateExtraInfoEntry(formIDArray, "Ref form ID", refFormID, priority_FormID);
 		resultArray->PushBack(formIDArray);
 	}
 
 	//mod location info
 
-	
-	
-	ExtraInfoEntry* formLocationHolder;
-
-	CreateExtraInfoEntry(formLocationHolder, "Form location information", "");
-	GetFormLocationData(formLocationHolder, baseForm, refForm);
-	resultArray->PushBack(formLocationHolder);
-
-	/*
-	if (pRefForm != nullptr)
-	{
-		GetPositionData(resultArray, pRefForm);
-	}*/
-	
+	GetFormLocationData(resultArray, baseForm, refForm);
 
 	_DMESSAGE("GetCommonFormData: GetCommonFormData End");
 }
@@ -287,6 +281,9 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
 {
 	_DMESSAGE("GetExtraData: GetFormLocationData Start");
+
+	ExtraInfoEntry* formLocationHolder;
+	CreateExtraInfoEntry(formLocationHolder, "Form location information", "", priority_FormLocation);
 
 	//this method may be called at a time we only have a base form, and in that case skip anything related to the reform
 	if (refForm != nullptr 
@@ -311,21 +308,21 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		ExtraInfoEntry* referenceDefinedIn;
 		CreateExtraInfoEntry(referenceDefinedIn, "Reference defined in", refFirstDefinedIn);
 
-		resultArray->PushBack(referenceDefinedIn);
+		formLocationHolder->PushBack(referenceDefinedIn);
 
 		std::string refLastDefinedIn = GetLastFormLocationName(refForm);
 
 		ExtraInfoEntry* referenceLastChangedBy;
 		CreateExtraInfoEntry(referenceLastChangedBy, "Reference last modified by", refLastDefinedIn);
 
-		resultArray->PushBack(referenceLastChangedBy);
+		formLocationHolder->PushBack(referenceLastChangedBy);
 
 		ExtraInfoEntry* allModsTouchingReferenceHolder;
 		CreateExtraInfoEntry(allModsTouchingReferenceHolder, "Reference found in", "");
 
 		GetModInfoData(allModsTouchingReferenceHolder, refForm, SkyrimESMNotDetectedBug);
 
-		resultArray->PushBack(allModsTouchingReferenceHolder);
+		formLocationHolder->PushBack(allModsTouchingReferenceHolder);
 	}
 	//Base Form
 
@@ -342,22 +339,24 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		ExtraInfoEntry* baseDefinedIn;
 		CreateExtraInfoEntry(baseDefinedIn, "Base defined in", baseFirstDefinedIn);
 
-		resultArray->PushBack(baseDefinedIn);
+		formLocationHolder->PushBack(baseDefinedIn);
 
 		std::string baseLastDefinedIn = GetLastFormLocationName(baseForm);
 
 		ExtraInfoEntry* baseLastChangedBy;
 		CreateExtraInfoEntry(baseLastChangedBy, "Base last modified by", baseLastDefinedIn);
 
-		resultArray->PushBack(baseLastChangedBy);
+		formLocationHolder->PushBack(baseLastChangedBy);
 
 		ExtraInfoEntry* allModsTouchingBaseHolder;
 		CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "");
 
 		GetModInfoData(allModsTouchingBaseHolder, baseForm, false);
 
-		resultArray->PushBack(allModsTouchingBaseHolder);
+		formLocationHolder->PushBack(allModsTouchingBaseHolder);
 	}
+
+	resultArray->PushBack(formLocationHolder);
 
 	_DMESSAGE("GetExtraData: GetFormLocationData End");
 }

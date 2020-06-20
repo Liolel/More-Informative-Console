@@ -7,7 +7,7 @@ namespace MICGlobals
 	//TESRace* filterARMAByRace = nullptr; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
 	boolean reducedMode = false; //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstancesv
 	int maxInventoryBeforeReducedMode = 750; //Maximum inventory size before triggering reduced mode
-	ExtraInfoEntry rootEntry("", "");
+	ExtraInfoEntry rootEntry("", "", priority_Default);
 }
 
 namespace MICOptions

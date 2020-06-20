@@ -7,7 +7,6 @@
 class ExtraInfoEntry
 {
 public:
-	ExtraInfoEntry(std::string entry1, std::string entry2);
 	ExtraInfoEntry(std::string entry1, std::string entry2, int priority);
 
 	void Clear();
@@ -30,7 +29,18 @@ private:
 };
 
 void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents);
+void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, int priority);
 
 //Constants for priorities for easy modification
 
-const int priorityDefault = 0;
+const int priority_Default = 0;
+
+//Basic form information should have the highest priority
+const int priority_Name = 100000;
+const int priority_EditorID = 99990;
+const int priority_FormID = 99980;
+const int priority_FormType = 99970;
+const int priority_FormLocation = 99960; //Mods form is found in
+
+const int priority_Reference_Location = 50000; //XYZ position of reference
+const int priority_Reference_Enabled = 10000; //Is the reference enabled or disabled

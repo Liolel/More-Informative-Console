@@ -1120,14 +1120,14 @@ std::string IntToString(int number)
 	ss << number;
 	return ss.str();
 }
-/*
+
 std::string FloatToString(float number)
 {
 	std::ostringstream ss;
 	ss << number;
 	return ss.str();
 }
-
+/*
 std::string DoubleToString(double number)
 {
 	std::ostringstream ss;

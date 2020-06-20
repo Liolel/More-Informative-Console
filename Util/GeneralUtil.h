@@ -23,9 +23,9 @@ std::string GetLockLevel(int lockLevel);
 */
 //Convert various data types to strings to display in UI
 std::string IntToString(int number);
-/*
+
 std::string FloatToString(float number);
-std::string DoubleToString(double number);*/
+/*std::string DoubleToString(double number);*/
 std::string FormIDToString(int formID);
 /*
 std::string BooleanToYesNoString(bool boolean);

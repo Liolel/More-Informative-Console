@@ -132,6 +132,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BSExtraData\BSExtraData.cpp" />
     <ClCompile Include="ExtraInfoEntry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MIC_Scaleform.cpp" />
@@ -143,6 +144,7 @@
     <ClCompile Include="Scaleform\MICScaleform_RetrieveExtraData.cpp" />
     <ClCompile Include="TESForms\TESForm.cpp" />
     <ClCompile Include="TESForms\TESNPC.cpp" />
+    <ClCompile Include="TESForms\TESObjectREFR.cpp" />
     <ClCompile Include="Util\GeneralUtil.cpp" />
     <ClCompile Include="Util\NameUtil.cpp" />
     <ClCompile Include="Util\ScaleformUtil.cpp" />
@@ -170,6 +172,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BSExtraData\BSExtraData.h" />
     <ClInclude Include="ExtraInfoEntry.h" />
     <ClInclude Include="MIC_Scaleform.h" />
     <ClInclude Include="globals.h" />
@@ -181,6 +184,7 @@
     <ClInclude Include="Simpleini.h" />
     <ClInclude Include="TESForms\TESForm.h" />
     <ClInclude Include="TESForms\TESNPC.h" />
+    <ClInclude Include="TESForms\TESObjectREFR.h" />
     <ClInclude Include="Util\GeneralUtil.h" />
     <ClInclude Include="Util\NameUtil.h" />
     <ClInclude Include="Util\ScaleformUtil.h" />

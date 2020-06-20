@@ -10,7 +10,7 @@ std::string GetFirstFormLocationName(RE::TESForm* form);
 std::string GetLastFormLocationName(RE::TESForm* form);
 int GetNumberOfSourceFiles(RE::TESForm* form);
 
-//Methods for retrieving data common toall forms
+//Methods for retrieving data common to all forms
 void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm);
 void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
 

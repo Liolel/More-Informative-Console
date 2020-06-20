@@ -2,13 +2,6 @@
 #include "RE/Skyrim.h"
 #include "SKSE/API.h"
 
-ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2)
-{
-	this->entry1 = entry1;
-	this->entry2 = entry2;
-	this->priority = priorityDefault;
-}
-
 ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2, int priority)
 {
 	this->entry1 = entry1;
@@ -98,5 +91,10 @@ void ExtraInfoEntry::Finalize()
 
 void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents)
 {
-	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents);
+	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents, priority_Default);
+}
+
+void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, int priority)
+{
+	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents, priority);
 }
