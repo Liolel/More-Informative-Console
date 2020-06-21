@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BSExtraData\BSExtraData.cpp" />
+    <ClCompile Include="BSExtraData\ExtraEnableStateParent.cpp" />
     <ClCompile Include="ExtraInfoEntry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MIC_Scaleform.cpp" />
@@ -173,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BSExtraData\BSExtraData.h" />
+    <ClInclude Include="BSExtraData\ExtraEnableStateParent.h" />
     <ClInclude Include="ExtraInfoEntry.h" />
     <ClInclude Include="MIC_Scaleform.h" />
     <ClInclude Include="globals.h" />

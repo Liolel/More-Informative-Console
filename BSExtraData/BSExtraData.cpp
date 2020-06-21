@@ -1,26 +1,31 @@
-/*
+#include "BSExtraData.h"
+#include "ExtraEnableStateParent.h"
+
 
 //get data stored in the BSExtraData format
-void GetBSExtraData(ExtraInfoEntry* resultArray, TESForm* pRefForm)
+void GetBSExtraData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
-	DebugMessage("Starting GetBSExtraData");
+	_DMESSAGE("Starting GetBSExtraData");
 
-	TESObjectREFR* pRef = DYNAMIC_CAST(pRefForm, TESForm, TESObjectREFR);
+	RE::ExtraDataList* extraList = &refForm->extraList;
 
-	if (pRef)
-	{
-		BaseExtraList* extraList = &pRef->extraData;
+	ProcessExtraDataList(resultArray, extraList);
 
-		ProcessExtraDataList(resultArray, extraList);
-	}
-
-	DebugMessage("Ending GetBSExtraData");
+	_DMESSAGE("Ending GetBSExtraData");
 }
 
-void ProcessExtraDataList(ExtraInfoEntry* resultArray, BaseExtraList* extraList)
+void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList)
 {
 	if (extraList)
 	{
+		if (extraList->HasType(RE::ExtraDataType::kEnableStateParent))
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kEnableStateParent);
+			RE::ExtraEnableStateParent* enableParentInformation = static_cast<RE::ExtraEnableStateParent*>(data);
+
+			ProcessEnableParentInformation(resultArray, enableParentInformation);
+		}
+		/*
 		if (extraList->HasType(kExtraData_Ownership))
 		{
 			DebugMessage("Starting kExtraData_Ownership");
@@ -119,7 +124,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, BaseExtraList* extraList)
 
 		}
 
-		resultArray->PushBack(extraDataTypes);
+		resultArray->PushBack(extraDataTypes);*/
 		/**
 		if (extraList->HasType(kExtraData_Package))
 		{
@@ -152,7 +157,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, BaseExtraList* extraList)
 
 
 		DebugMessage("Ending kExtraData_Package");
-		}*//*
+		}*/
 		
 	}
-}*/
+}

@@ -44,3 +44,4 @@ const int priority_FormLocation = 99960; //Mods form is found in
 
 const int priority_Reference_Location = 50000; //XYZ position of reference
 const int priority_Reference_Enabled = 10000; //Is the reference enabled or disabled
+const int priority_ExtraData_EnableParent = 9999; //Enable Parent Information

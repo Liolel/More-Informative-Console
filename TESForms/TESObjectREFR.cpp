@@ -1,5 +1,6 @@
 #include "TESObjectREFR.h"
 #include "MoreInformativeConsole/Util/GeneralUtil.h"
+#include "MoreInformativeConsole/BSExtraData/BSExtraData.h"
 
 void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
@@ -11,9 +12,12 @@ void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refFor
 	boolean isDisabled = refForm->IsDisabled();
 
 	ExtraInfoEntry* enabledStatusEntry;
-	std::string enabledStatus = !isDisabled ? "Yes" : "No";
+	std::string enabledStatus = BooleanToYesNoString(!isDisabled);
 	CreateExtraInfoEntry(enabledStatusEntry, "Is Enabled", enabledStatus, priority_Reference_Enabled);
 
+	resultArray->PushBack(enabledStatusEntry);
+
+	GetBSExtraData(resultArray, refForm);
 }
 
 

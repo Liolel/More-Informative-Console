@@ -1143,7 +1143,7 @@ std::string FormIDToString(int formID)
 	sprintf_s(sResult.get(), MAX_PATH, "%08X", formID);
 	return sResult.get();
 }
-/*
+
 std::string BooleanToYesNoString(bool boolean)
 {
 	std::string output = "";
@@ -1160,7 +1160,7 @@ std::string BooleanToYesNoString(bool boolean)
 
 	return output;
 }
-
+/*
 //get the smallest bit that is 1 in the flags passed
 int GetSmallestBitFlag(int flags)
 {
@@ -1203,3 +1203,8 @@ std::string GetFileName(std::string filePath)
 
 	return fileName;
 }*/
+
+bool HasFlag(int Flags, int flag) 
+{
+	return ( Flags & flag ) == flag; 
+}
