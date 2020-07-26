@@ -1121,6 +1121,14 @@ std::string IntToString(int number)
 	return ss.str();
 }
 
+std::string IntAsDoubleToString(double number)
+{
+	int numberInt = (int)number;
+
+	return IntToString(numberInt);
+}
+
+
 std::string FloatToString(float number)
 {
 	std::ostringstream ss;

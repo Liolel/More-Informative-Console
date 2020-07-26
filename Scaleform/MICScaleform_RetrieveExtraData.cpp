@@ -35,9 +35,9 @@ ExtraInfoEntry* MICScaleform_RetrieveExtraData::TraverseExtraInfoEntries(ExtraIn
 	RE::GFxValue indexToSelect;
 	indexArray->GetElement(currentIndex, &indexToSelect);
 
-	_DMESSAGE( ("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntToString(indexToSelect.GetNumber() ) ).c_str() );
+	_DMESSAGE( ("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntAsDoubleToString(indexToSelect.GetNumber() ) ).c_str() );
 
-	ExtraInfoEntry * nextEntry = currentEntry->GetChild(indexToSelect.GetNumber());
+	ExtraInfoEntry * nextEntry = currentEntry->GetChild((int)indexToSelect.GetNumber());
 
 	if (currentIndex + 1 == indexArray->GetArraySize())
 	{

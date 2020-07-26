@@ -56,7 +56,7 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray
 
 	RE::GFxValue GFxExtraInfoName, GFxExtraInfoContents, GFxExtraInfoCount;
 
-	std::string arraySize = IntToString(subarray.size());
+	std::string arraySize = IntToString((int)subarray.size());
 
 	GFxExtraInfoName.SetString(entry1.c_str());
 	GFxExtraInfoContents.SetString(entry2.c_str());
@@ -71,7 +71,7 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray
 
 bool comparePrioritys(ExtraInfoEntry * extraInfoEntryA, ExtraInfoEntry * extraInforEntryB)
 {
-	return extraInfoEntryA->priority > extraInforEntryB->priority;
+	return extraInfoEntryA->priority < extraInforEntryB->priority;
 }
 
 //Sort each vector by priority
@@ -94,7 +94,7 @@ void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfo
 	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents, priority_Default);
 }
 
-void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, int priority)
+void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, priority priority)
 {
 	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents, priority);
 }

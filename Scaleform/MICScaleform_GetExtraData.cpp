@@ -14,7 +14,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 
 	//Determine mode to use
 	RE::GFxValue* modeGFX = &a_params.args[0];
-	int modeInt = modeGFX->GetNumber();
+	int modeInt = (int)modeGFX->GetNumber();
 
 	if (modeInt == Constant_ModeConsoleHandle)
 	{

@@ -24,6 +24,7 @@ std::string GetLockLevel(int lockLevel);
 */
 //Convert various data types to strings to display in UI
 std::string IntToString(int number);
+std::string IntAsDoubleToString(double number); //This is for converting numbers that should be displayed as ints but are stored in double form due to how SKSE integrates with the console.swf file 
 
 std::string FloatToString(float number);
 /*std::string DoubleToString(double number);*/

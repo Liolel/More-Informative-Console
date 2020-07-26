@@ -28,20 +28,21 @@ private:
 	std::vector<ExtraInfoEntry*> subarray;
 };
 
+enum priority
+{
+	priority_Name,
+	priority_EditorID,
+	priority_FormID,
+	priority_FormType,
+	priority_FormLocation, //Mods form is found in
+	priority_Reference_Location, //XYZ position of reference
+	priority_Reference_Enabled, //Is the reference enabled or disabled
+	priority_ExtraData_EnableParent, //Enable Parent Information
+	priority_Default
+};
+
 void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents);
-void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, int priority);
+void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, priority priority);
 
-//Constants for priorities for easy modification
+//Enum for priority order Highest up takes precedence in sorting
 
-const int priority_Default = 0;
-
-//Basic form information should have the highest priority
-const int priority_Name = 100000;
-const int priority_EditorID = 99990;
-const int priority_FormID = 99980;
-const int priority_FormType = 99970;
-const int priority_FormLocation = 99960; //Mods form is found in
-
-const int priority_Reference_Location = 50000; //XYZ position of reference
-const int priority_Reference_Enabled = 10000; //Is the reference enabled or disabled
-const int priority_ExtraData_EnableParent = 9999; //Enable Parent Information

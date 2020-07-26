@@ -1,5 +1,6 @@
 #include "TESForm.h"
 #include "TESObjectREFR.h"
+#include "TESRace.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
@@ -60,16 +61,16 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		GetReferenceFormData(resultArray, refForm);
 	}
 
-	/*
-	if (pBaseForm != nullptr
-		&& pBaseForm->GetFormType() == kFormType_NPC
-		&& (pRefForm == nullptr
-			|| pRefForm->GetFormType() == kFormType_Character))
+	
+	if (baseForm != nullptr
+		&& baseForm->GetFormType() == RE::FormType::NPC
+		&& (refForm == nullptr
+			|| refForm->GetFormType() == RE::FormType::ActorCharacter))
 	{
-		DebugMessage("GetExtraData: Get Form Data character found");
-		GetCharacterData(resultArray, pRefForm, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data character found");
+		GetCharacterData(resultArray, refForm, baseForm);
 	}
-
+	/*
 	else if (pBaseForm->GetFormType() == kFormType_EffectSetting)
 	{
 		DebugMessage("GetExtraData: Get Form Data magic effect found");
@@ -109,14 +110,14 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	{
 		DebugMessage("GetExtraData: Get Form Data Faction found");
 		//GetContainerData(resultArray, pBaseForm);
-	}
+	}*/
 
-	else if (pBaseForm->GetFormType() == kFormType_Race)
+	else if (baseForm->GetFormType() == RE::FormType::Race)
 	{
-		DebugMessage("GetExtraData: Get Form Data Race found");
-		GetRaceEntry(resultArray, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data Race found");
+		GetRaceEntry(resultArray, baseForm);
 	}
-
+	/*
 	else if (pBaseForm->GetFormType() == kFormType_TextureSet)
 	{
 		DebugMessage("GetExtraData: Get Form Data Texture Set found");

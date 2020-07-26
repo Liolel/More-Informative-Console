@@ -8,10 +8,6 @@
 #include "SKSE/API.h"
 #include <Windows.h>
 
-const int actorValueHealthIndex = 24;
-const int actorValueMagickaIndex = 25;
-const int actorValueStaminahIndex = 26;
-const int playerBaseFormID = 0x7;
 const char deliminator = '\\';
 
 MICScaleform_GetReferenceInfo* getReferenceInfo = nullptr;
