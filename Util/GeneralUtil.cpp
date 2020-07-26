@@ -1208,3 +1208,41 @@ bool HasFlag(int Flags, int flag)
 {
 	return ( Flags & flag ) == flag; 
 }
+
+
+//Taken from skse64_common
+std::string GetRuntimePath()
+{
+	static char	appPath[4096] = { 0 };
+
+	if (appPath[0])
+		return appPath;
+
+	GetModuleFileName(GetModuleHandle(NULL), appPath, sizeof(appPath));
+
+	return appPath;
+}
+
+//Taken from skse64_common
+const std::string& GetRuntimeDirectory()
+{
+	static std::string s_runtimeDirectory;
+
+	if (s_runtimeDirectory.empty())
+	{
+		std::string	runtimePath = GetRuntimePath();
+
+		// truncate at last slash
+		std::string::size_type	lastSlash = runtimePath.rfind('\\');
+		if (lastSlash != std::string::npos)	// if we don't find a slash something is VERY WRONG
+		{
+			s_runtimeDirectory = runtimePath.substr(0, lastSlash + 1);
+		}
+		else
+		{
+			_MESSAGE("no slash in runtime path? (%s)", runtimePath.c_str());
+		}
+	}
+
+	return s_runtimeDirectory;
+}

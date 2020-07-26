@@ -1,10 +1,10 @@
 #pragma once
 #include "SKSE/API.h"
 #include "SKSE/Logger.h"
-#include "skse64_common/Utilities.h"
 #include "MIC_Scaleform.h"
 #include "globals.h"
 #include "Simpleini.h"
+#include "Util/GeneralUtil.h"
 #include <shlobj.h>
 
 //					gLog;
@@ -14,6 +14,7 @@ const char*					kLogPath = "\\My Games\\Skyrim Special Edition\\SKSE\\More Infor
 
 extern "C"
 {
+
 	bool SKSEPlugin_Query(const SKSE::QueryInterface* skse, SKSE::PluginInfo* info)
 	{
 		SKSE::Logger::OpenRelative(FOLDERID_Documents, kLogPath);
@@ -40,7 +41,7 @@ extern "C"
 	void readINI()
 	{
 		//Read ini
-		const std::string& iniPath = GetRuntimeDirectory() + "\\Data\\SKSE\\plugins\\MoreInformativeConsole.ini";
+		const std::string& iniPath = GetRuntimeDirectory() + "Data\\SKSE\\plugins\\MoreInformativeConsole.ini";
 
 		CSimpleIniA ini;
 		SI_Error iniError = ini.LoadFile(iniPath.c_str());

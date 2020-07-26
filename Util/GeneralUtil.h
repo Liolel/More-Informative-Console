@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RE/Skyrim.h"
+#include "SKSE/Logger.h"
 
 //void DebugMessage(std::string message);
 
@@ -36,3 +37,5 @@ std::string GetFileName(std::string filePath);
 */
 
 bool HasFlag(int Flags, int flag);
+std::string GetRuntimePath();
+const std::string& GetRuntimeDirectory();
