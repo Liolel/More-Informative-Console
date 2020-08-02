@@ -5,3 +5,4 @@
 
 std::string GetName(RE::TESForm* pBaseForm);
 std::string GetFormTypeName(int formType);
+std::string GetTextureType(int textureType);

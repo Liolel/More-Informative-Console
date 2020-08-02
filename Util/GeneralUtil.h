@@ -11,7 +11,6 @@ std::string GetEffectTypeName(int id);
 std::string GetSpellTypeName(int spellType);
 std::string GetCastingTypeName(int castingType);
 std::string GetDeliveryTypeName(int deliveryType);
-std::string GetTextureType(int textureType);
 
 int NumberOfItemInContainer(RE::TESForm * item, RE::TESContainer * container);
 bool HasItem(RE::EntryDataList * inventory, RE::TESForm * item);
@@ -33,10 +32,7 @@ std::string FormIDToString(int formID);
 std::string BooleanToYesNoString(bool boolean);
 
 /*
-int GetSmallestBitFlag(int flags);
-std::string GetFileName(std::string filePath);
-*/
+int GetSmallestBitFlag(int flags);*/
 
 bool HasFlag(int Flags, int flag);
-std::string GetRuntimePath();
-const std::string& GetRuntimeDirectory();
+

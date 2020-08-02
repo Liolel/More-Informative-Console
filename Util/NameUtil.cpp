@@ -1,4 +1,5 @@
 #include "NameUtil.h"
+#include "SKSE/Logger.h"
 
 //Vector of all form types used to convert form types into readable strings
 std::vector<std::string> FormTypes =
@@ -154,19 +155,19 @@ std::string GetFormTypeName(int formType)
 }
 
 
-std::string GetName(RE::TESForm* pBaseForm)
+std::string GetName(RE::TESForm* baseForm)
 {
 	_DMESSAGE("GetExtraData: GetName Start");
 
 	std::string name = "";
 
-	switch (pBaseForm->GetFormType())
+	switch (baseForm->GetFormType())
 	{
 		case RE::FormType::NPC:
 		{
 			_DMESSAGE("GetExtraData: GetName NPC");
 
-			RE::TESNPC* pNPC = static_cast<RE::TESNPC*>(pBaseForm);
+			RE::TESNPC* pNPC = static_cast<RE::TESNPC*>(baseForm);
 			if (pNPC)
 			{
 				name = pNPC->fullName.c_str();
@@ -402,35 +403,32 @@ std::string GetName(RE::TESForm* pBaseForm)
 		}
 
 		break;
-	}
+	}*/
 
-	case kFormType_Race:
-	{
-		DebugMessage("GetExtraData: GetName Race");
-		TESRace* pRace = DYNAMIC_CAST(pBaseForm, TESForm, TESRace);
-		if (pRace)
+		case RE::FormType::Race:
 		{
-			if (pRace->editorId)
+			_DMESSAGE("GetExtraData: GetName Race");
+			RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
+			if (race)
 			{
-				name = pRace->editorId;
+				name = race->GetFormEditorID();
 			}
+
+			break;
 		}
-
-		break;
-	}
-
-	case kFormType_ARMA:
-	{
-		DebugMessage("GetExtraData: GetName Arma");
-		TESObjectARMA* pArma = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMA);
-		if (pArma && pArma->race.race)
+	
+		case RE::FormType::Armature:
 		{
-			name = GetName(pArma->race.race);
+			_DMESSAGE("GetExtraData: GetName Arma");
+			RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
+			if (arma && arma->race)
+			{
+				name = GetName(arma->race);
+			}
+
+			break;
 		}
-
-		break;
-	}
-
+	/*
 	case kFormType_WorldSpace:
 	{
 		DebugMessage("GetExtraData: GetName Worldspace");
@@ -467,4 +465,34 @@ std::string GetName(RE::TESForm* pBaseForm)
 	_DMESSAGE(("GetExtraData: GetName End: " + name).c_str());
 	
 	return name;
+}
+
+//Get the name of a texture type in a BGSTextureSet object
+std::string GetTextureType(int textureType)
+{
+	std::string textureTypeName = "";
+
+	switch (textureType)
+	{
+	case RE::BGSTextureSet::Texture::kDiffuse: textureTypeName = "Diffuse";
+		break;
+	case RE::BGSTextureSet::Texture::kNormal: textureTypeName = "Normal/Gloss";
+		break;
+	case RE::BGSTextureSet::Texture::kEnvironmentMask: textureTypeName = "Enviroment Mask/Subsurface Tint";
+		break;
+	case RE::BGSTextureSet::Texture::kGlowMap: textureTypeName = "Glow/Detail Map";
+		break;
+	case RE::BGSTextureSet::Texture::kHeight: textureTypeName = "Height";
+		break;
+	case RE::BGSTextureSet::Texture::kEnvironment: textureTypeName = "Enviroment";
+		break;
+	case RE::BGSTextureSet::Texture::kMultilayer: textureTypeName = "Multilayer";
+		break;
+	case RE::BGSTextureSet::Texture::kBacklightMask: textureTypeName = "Backlight Mask/Specular";
+		break;
+	default: textureTypeName = "Unknown type";
+		break;
+	}
+
+	return textureTypeName;
 }

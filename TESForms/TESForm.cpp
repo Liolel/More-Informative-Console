@@ -1,6 +1,8 @@
 #include "TESForm.h"
 #include "TESObjectREFR.h"
 #include "TESRace.h"
+#include "TESModelTextureSwap.h"
+#include "BGSTextureSet.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
@@ -117,13 +119,13 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		_DMESSAGE("GetExtraData: Get Form Data Race found");
 		GetRaceEntry(resultArray, baseForm);
 	}
-	/*
-	else if (pBaseForm->GetFormType() == kFormType_TextureSet)
+	
+	else if (baseForm->GetFormType() == RE::FormType::TextureSet)
 	{
-		DebugMessage("GetExtraData: Get Form Data Texture Set found");
-		GetTextureSet(resultArray, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data Texture Set found");
+		GetTextureSet(resultArray, baseForm);
 	}
-
+	/*
 	else if (pBaseForm->GetFormType() == kFormType_ARMA)
 	{
 		DebugMessage("GetExtraData: Get Form Data ARMA found");
@@ -188,8 +190,6 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 
 	}
 
-	GetModelTextures(resultArray, pBaseForm);
-
 	//Handle BSExtra data
 	if (pRefForm != nullptr)
 	{
@@ -220,10 +220,10 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	//but we want to display the real name when we are getting data for the form
 	if (baseForm->formType == RE::FormType::Race )
 	{
-		RE::TESRace* pRace = static_cast<RE::TESRace*>(baseForm);
-		if (pRace)
+		RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
+		if (race)
 		{
-			name = pRace->fullName.c_str();
+			name = race->fullName.c_str();
 		}
 	}
 
@@ -276,6 +276,9 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	GetFormLocationData(resultArray, baseForm, refForm);
 
 	_DMESSAGE("GetCommonFormData: GetCommonFormData End");
+
+	//Model information
+	GetModelTextures(resultArray, baseForm);
 }
 
 //get information related to where mods the form is found in

@@ -54,7 +54,7 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 
 			std::string raceName = GetName(pRace);
 
-			CreateExtraInfoEntry(raceEntry, "Race", raceName);
+			CreateExtraInfoEntry(raceEntry, "Race", raceName, priority_Actor_Race);
 
 			GetFormData(raceEntry, pRace, nullptr);
 

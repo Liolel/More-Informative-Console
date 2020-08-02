@@ -1,4 +1,5 @@
 #include "TESRace.h"
+#include "TESModel.h"
 
 void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -8,24 +9,24 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	if (race)
 	{
 		_DMESSAGE("Getting Editor ID");
-		/*
+		
 		//editor ID
-		std::string editorID = pRace->editorId.Get();
+		std::string editorID = race->GetFormEditorID();
 
 		ExtraInfoEntry* editorIDEntry;
 
 		CreateExtraInfoEntry(editorIDEntry, "EditorID", editorID);
 		resultArray->PushBack(editorIDEntry);
 
-
-		DebugMessage("Getting Models");
+		
+		_DMESSAGE("Getting Models");
 		//models
-		TESModel* maleModel = &(pRace->models[0]);
-		TESModel* femaleModel = &(pRace->models[1]);
+		RE::TESModel* maleModel = &(race->skeletonModels[RE::SEXES::kMale]);
+		RE::TESModel * femaleModel = &(race->skeletonModels[RE::SEXES::kFemale]);
 
 		AddModelEntry(resultArray, "Male Skeleton", maleModel);
 		AddModelEntry(resultArray, "Female Skeleton", femaleModel);
-
+		/*
 		//Skins
 		if (MICGlobals::readRaceSkins
 			&& pRace->skin.skin != nullptr)

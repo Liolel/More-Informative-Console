@@ -8,8 +8,6 @@
 #include "SKSE/API.h"
 #include <Windows.h>
 
-const char deliminator = '\\';
-
 MICScaleform_GetReferenceInfo* getReferenceInfo = nullptr;
 MICScaleform_GetIniOptions* getIniOptions = nullptr;
 MICScaleform_RetrieveExtraData* retrieveExtraData = nullptr;
@@ -1820,168 +1818,6 @@ MICScaleform_Log* MICScaleformlog = nullptr;
 		DebugMessage("Ending GetModelTextures");
 	}
 
-	void AddModelEntry(ExtraInfoEntry * resultArray,  std::string modelType, TESModelTextureSwap * modelTextureSwap)
-	{
-		DebugMessage("Starting AddModelEntry for modelTextureSwap");
-
-		if (modelTextureSwap)
-		{
-			DebugMessage("Past modelTextureSwap");
-			TESModel * model = modelTextureSwap;
-
-			DebugMessage("Past conversion");
-
-			BGSTextureSet * textureSet = nullptr;
-
-			if (modelTextureSwap->swaps)
-			{
-				DebugMessage("Inside swaps check");
-				textureSet = modelTextureSwap->swaps->textureSet;
-			}
-
-			DebugMessage("Past swaps check");
-
-			if (textureSet)
-			{
-				DebugMessage("Starting Texture Set Branch");
-
-				ExtraInfoEntry * modelTextureEntry;
-
-				std::string modelPath = model->GetModelName();
-				std::string modelName = GetFileName(modelPath);
-
-				CreateExtraInfoEntry(modelTextureEntry, modelType, modelName);
-
-				AddModelEntry(modelTextureEntry, "Model", model);
-
-				DebugMessage("Starting Texture Set Info");
-				ExtraInfoEntry * textureSetEntry;
-
-				CreateExtraInfoEntry(textureSetEntry, "Texture Set", "");
-
-				GetFormData(textureSetEntry, textureSet, nullptr);
-
-				modelTextureEntry->PushBack(textureSetEntry);
-
-				resultArray->PushBack(modelTextureEntry);
-			}
-
-			else
-			{
-				DebugMessage("Starting No texture set branch");
-				AddModelEntry(resultArray, modelType, model);
-			}
-		}
-
-		DebugMessage("Ending AddModelEntry for modelTextureSwap");
-	}
-
-	void AddModelEntry(ExtraInfoEntry * resultArray,  std::string modelType, TESModel * model)
-	{
-		DebugMessage("Starting AddModelEntry for model");
-
-		if (model)
-		{
-			std::string modelPath;
-			modelPath.assign(model->GetModelName());
-
-			if (modelPath != "")
-			{
-				DebugMessage("Get Model path");
-
-				std::string modelName = GetFileName(modelPath);
-
-				DebugMessage("Get Model name");
-
-				ExtraInfoEntry * modelEntry;
-				CreateExtraInfoEntry(modelEntry, modelType, modelName);
-
-				DebugMessage("Splitting Model Path");
-
-
-				CreateFilePathSubarray(modelEntry, modelPath);
-
-				DebugMessage("Done Splitting Model Path");
-
-				resultArray->PushBack(modelEntry);
-			}
-		}
-
-		DebugMessage("Ending AddModelEntry for model");
-	}
-
-	void GetTextureSet(ExtraInfoEntry * resultArray,  TESForm * pBaseForm)
-	{
-		DebugMessage("Starting AddTextureSetEntry");
-
-		BGSTextureSet * pTextureSet = DYNAMIC_CAST(pBaseForm, TESForm, BGSTextureSet);
-
-		if (pTextureSet)
-		{
-
-			ExtraInfoEntry * textureSetEntry;
-			CreateExtraInfoEntry(textureSetEntry, "Texture Set", "");
-
-			for (int i = 0; i < BGSTextureSet::kNumTextures; i++)
-			{
-				TESTexture * texture = &pTextureSet->texturePaths[i];
-				std::string texturePath = texture->str;
-
-				std::string textureName = "";
-
-				if (texturePath != "")
-				{
-					textureName = GetFileName(texturePath);
-				}
-
-				std::string textureType = GetTextureType(i);
-
-				ExtraInfoEntry * textureEntry;
-
-				CreateExtraInfoEntry(textureEntry, textureType, textureName);
-
-				if (texturePath != "")
-				{
-					CreateFilePathSubarray(textureEntry, texturePath);
-				}
-
-				textureSetEntry->PushBack(textureEntry);
-			}
-
-			resultArray->PushBack(textureSetEntry);
-		}
-
-		DebugMessage("Ending AddTextureSetEntry");
-	}
-
-	void CreateFilePathSubarray(ExtraInfoEntry * mainEntry,  std::string filePath)
-	{
-		DebugMessage("Starting CreateFilePathSubarray " + filePath);
-
-		//loop through the string until the last slash is going
-		int firstSlash = filePath.find_first_of(deliminator);
-		while (firstSlash != std::string::npos)
-		{
-			//DebugMessage("Splitting with index: " + IntToString(firstSlash) + " with remaining path " + modelPath);
-
-			ExtraInfoEntry * pathEntry;
-			std::string path = filePath.substr(0, firstSlash + 1);
-
-			CreateExtraInfoEntry(pathEntry, path, "");
-			mainEntry->PushBack(pathEntry);
-
-			filePath = filePath.substr(firstSlash + 1); //get everything after the first slash
-			firstSlash = filePath.find_first_of(deliminator); //refind the first slash
-		}
-
-		ExtraInfoEntry * pathEntry;
-		//add everything after the last slash
-		CreateExtraInfoEntry(pathEntry, filePath, "");
-
-		mainEntry->PushBack(pathEntry);
-
-		DebugMessage("Ending CreateFilePathSubarray");
-	}
 
 	void GetRaceEntry(ExtraInfoEntry * resultArray,  TESForm * pBaseForm)
 	{
@@ -2106,16 +1942,6 @@ MICScaleform_Log* MICScaleformlog = nullptr;
 			
 		}
 	}
-};
-
-
-class MICScaleform_RetrieveExtraData : public GFxFunctionHandler
-{
-public:
-	virtual void	Invoke(Args * args)
-	{
-
-		
 };*/
 
 //// core hook

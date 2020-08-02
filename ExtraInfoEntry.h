@@ -30,14 +30,22 @@ private:
 
 enum priority
 {
+	//General items at the type of any list
 	priority_Name,
 	priority_EditorID,
 	priority_FormID,
 	priority_FormType,
 	priority_FormLocation, //Mods form is found in
+	priority_Model,
+	priority_Texture,
+	priority_TextureSet,
+	//Actor Items
+	priority_Actor_Race,
+	//Reference Specific Items
 	priority_Reference_Location, //XYZ position of reference
 	priority_Reference_Enabled, //Is the reference enabled or disabled
 	priority_ExtraData_EnableParent, //Enable Parent Information
+	//Bottom of the list objects
 	priority_Default
 };
 
