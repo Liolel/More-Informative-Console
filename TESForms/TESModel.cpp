@@ -1,7 +1,7 @@
 #include "TESModel.h"
 #include "MoreInformativeConsole/Util/FilePathUtil.h"
 
-void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESModel* model)
+void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESModel* model, priority priority)
 {
 	_DMESSAGE("Starting AddModelEntry for model");
 
@@ -18,14 +18,19 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 			_DMESSAGE("Get Model name");
 
 			ExtraInfoEntry* modelEntry;
-			CreateExtraInfoEntry(modelEntry, modelType, modelName, priority_Model);
+			CreateExtraInfoEntry(modelEntry, modelType, modelName, priority);
 
 			//Create an entry for the model path
 			_DMESSAGE("Splitting Model Path");
 
+
+			CreateFilePathSubarray(modelEntry, modelPath);
+
+			/*
 			ExtraInfoEntry* modelPathEntry;
 			CreateExtraInfoEntry(modelPathEntry, "Model Path", "", priority_Model);
 
+			
 			CreateFilePathSubarray(modelPathEntry, modelPath);
 			modelEntry->PushBack(modelPathEntry);
 
@@ -44,7 +49,7 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 				}
 			}
-
+			*/
 			resultArray->PushBack(modelEntry);
 
 			RE::TESDataHandler* handler = RE::TESDataHandler::GetSingleton();

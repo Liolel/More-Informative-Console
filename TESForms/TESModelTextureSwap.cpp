@@ -182,40 +182,39 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			}
 		}
 	}
-
-	else if (pBaseForm->formType == kFormType_ARMA)
+	*/
+	else if ( baseForm->formType == RE::FormType::Armature )
 	{
-		TESObjectARMA* pArma = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMA);
-		if (pArma)
+		RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
+		if (arma)
 		{
-			//Texture entries are theortical
-			TESModelTextureSwap* maleModel = &(pArma->models[0][0]);
+			RE::TESModelTextureSwap* maleModel = &(arma->bipedModels[RE::SEXES::kMale]);
 
 			if (maleModel)
 			{
 				AddModelEntry(resultArray, "Model Male", maleModel);
 			}
 
-			TESModelTextureSwap* femaleModel = &(pArma->models[0][1]);
+			RE::TESModelTextureSwap* femaleModel = &(arma->bipedModels[RE::SEXES::kFemale]);
 			if (femaleModel)
 			{
 				AddModelEntry(resultArray, "Model Female", femaleModel);
 			}
 
-			TESModelTextureSwap* maleFirstPerson = &(pArma->models[1][0]);
+			RE::TESModelTextureSwap* maleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kMale]);
 			if (maleFirstPerson)
 			{
 				AddModelEntry(resultArray, "Model Male 1st Person", maleFirstPerson);
 			}
 
-			TESModelTextureSwap* femaleFirstPerson = &(pArma->models[1][1]);
+			RE::TESModelTextureSwap* femaleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kFemale]);
 			if (femaleFirstPerson)
 			{
 				AddModelEntry(resultArray, "Model Female 1st Person", femaleFirstPerson);
 			}
 		}
 	}
-
+	/*
 	//_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
 
 	/*
@@ -260,6 +259,7 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 		_DMESSAGE("Past swaps check");
 
+		//If there is a texture set we need to retrieve the textures in the set
 		if (textureSet)
 		{
 			_DMESSAGE("Starting Texture Set Branch");

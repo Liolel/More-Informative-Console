@@ -1,5 +1,8 @@
 #include "TESRace.h"
 #include "TESModel.h"
+#include "TESForm.h"
+#include "MoreInformativeConsole/globals.h"
+#include "MoreInformativeConsole/Util/NameUtil.h"
 
 void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -7,46 +10,45 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 	RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
 	if (race)
-	{
-		_DMESSAGE("Getting Editor ID");
-		
+	{		
+		/* Currently this is covered by the GetCommonData method
 		//editor ID
 		std::string editorID = race->GetFormEditorID();
 
 		ExtraInfoEntry* editorIDEntry;
 
-		CreateExtraInfoEntry(editorIDEntry, "EditorID", editorID);
+		CreateExtraInfoEntry(editorIDEntry, "EditorID", editorID, priority_EditorID );
 		resultArray->PushBack(editorIDEntry);
-
+		*/
 		
 		_DMESSAGE("Getting Models");
 		//models
-		RE::TESModel* maleModel = &(race->skeletonModels[RE::SEXES::kMale]);
-		RE::TESModel * femaleModel = &(race->skeletonModels[RE::SEXES::kFemale]);
+		RE::TESModel* maleModelSkeleton = &(race->skeletonModels[RE::SEXES::kMale]);
+		RE::TESModel *femaleModelSkelelton = &(race->skeletonModels[RE::SEXES::kFemale]);
 
-		AddModelEntry(resultArray, "Male Skeleton", maleModel);
-		AddModelEntry(resultArray, "Female Skeleton", femaleModel);
-		/*
-		//Skins
+		AddModelEntry(resultArray, "Male Skeleton", maleModelSkeleton, priority_Race_SkeletonMale);
+		AddModelEntry(resultArray, "Female Skeleton", femaleModelSkelelton, priority_Race_SkeletonFemale);
+		
+
+		//Get the skin for this race
+		//We need to check that MICGlobals::readRaceSkins is true, because the armor object will look at the Armature objects which will look at the races that the Armature applies too.
 		if (MICGlobals::readRaceSkins
-			&& pRace->skin.skin != nullptr)
+			&& race->skin != nullptr)
 		{
-			DebugMessage("Getting Skin");
-			TESObjectARMO* skin = pRace->skin.skin;
-
+			_DMESSAGE("Getting Skin");
+			RE::TESObjectARMO* skin = race->skin;
 			std::string skinName = GetName(skin);
 
 			ExtraInfoEntry* skinEntry;
-
 			CreateExtraInfoEntry(skinEntry, "Skin", skinName);
-
 			GetFormData(skinEntry, skin, nullptr);
 
 			resultArray->PushBack(skinEntry);
 
-			DebugMessage("Done Getting Skin");
+			_DMESSAGE("Done Getting Skin");
 		}
 
+		/*
 		//Handle Flags
 		int playableFlag = 0x00000001;
 		int childFlag = 0x00000004;

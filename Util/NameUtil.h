@@ -6,3 +6,6 @@
 std::string GetName(RE::TESForm* pBaseForm);
 std::string GetFormTypeName(int formType);
 std::string GetTextureType(int textureType);
+
+std::string GetArmorTypeName(RE::TESObjectARMO::ArmorType armorType);
+std::string GetEquipSlotName(int slot);

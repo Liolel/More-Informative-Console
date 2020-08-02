@@ -39,8 +39,24 @@ enum priority
 	priority_Model,
 	priority_Texture,
 	priority_TextureSet,
-	//Actor Items
+	//Actors
 	priority_Actor_Race,
+	//Armature
+	priority_Arma_SkinMale,
+	priority_Arma_SkinFemale,
+	priority_Arma_PrimaryRace,
+	priority_Arma_AddtionalRaces,
+	//Armor
+	priority_Armor_ArmorType,
+	priority_Armor_ArmorRating,
+	priority_Armor_Value,
+	priority_Armor_Weight,
+	priority_Armor_EquipSlots,
+	priority_Armor_ArmorAddons,
+	//Race
+	priority_Race_Skin,
+	priority_Race_SkeletonMale,
+	priority_Race_SkeletonFemale,
 	//Reference Specific Items
 	priority_Reference_Location, //XYZ position of reference
 	priority_Reference_Enabled, //Is the reference enabled or disabled

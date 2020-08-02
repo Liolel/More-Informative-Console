@@ -15,8 +15,6 @@ std::string GetDeliveryTypeName(int deliveryType);
 int NumberOfItemInContainer(RE::TESForm * item, RE::TESContainer * container);
 bool HasItem(RE::EntryDataList * inventory, RE::TESForm * item);
 std::string GetExtraDataTypeName(int extraDataType);
-std::string GetArmorWeightClassName(int weightClass);
-std::string GetEquipSlotName(int slot);
 std::string GetWeaponAnimationTypeName(int weaponType);
 std::string GetEquipTypeName(int formID);
 std::string GetLockLevel(int lockLevel);

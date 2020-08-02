@@ -1,8 +1,11 @@
+#include "BGSTextureSet.h"
 #include "TESForm.h"
+#include "TESModelTextureSwap.h"
+#include "TESObjectARMA.h"
+#include "TESObjectARMO.h"
 #include "TESObjectREFR.h"
 #include "TESRace.h"
-#include "TESModelTextureSwap.h"
-#include "BGSTextureSet.h"
+
 #include "MoreInformativeConsole/Util/NameUtil.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
@@ -84,13 +87,13 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		DebugMessage("GetExtraData: Get Form Data spell found");
 		GetSpellData(resultArray, pBaseForm);
 	}
-
-	else if (pBaseForm->GetFormType() == kFormType_Armor)
+	*/
+	else if (baseForm->GetFormType() == RE::FormType::Armor)
 	{
-		DebugMessage("GetExtraData: Get Form Data armor found");
-		GetArmorData(resultArray, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data armor found");
+		GetArmorData(resultArray, baseForm);
 	}
-
+	/*
 	else if (pBaseForm->GetFormType() == kFormType_Weapon)
 	{
 		DebugMessage("GetExtraData: Get Form Data Weapon found");
@@ -125,13 +128,13 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		_DMESSAGE("GetExtraData: Get Form Data Texture Set found");
 		GetTextureSet(resultArray, baseForm);
 	}
-	/*
-	else if (pBaseForm->GetFormType() == kFormType_ARMA)
+	
+	else if (baseForm->GetFormType() == RE::FormType::Armature)
 	{
-		DebugMessage("GetExtraData: Get Form Data ARMA found");
-		GetArmaData(resultArray, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data ARMA found");
+		GetArmaData(resultArray, baseForm);
 	}
-
+	/*
 	else if (pBaseForm->GetFormType() == kFormType_Cell)
 	{
 		DebugMessage("GetExtraData: Get Form Data CELL found");

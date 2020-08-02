@@ -213,22 +213,19 @@ std::string GetName(RE::TESForm* baseForm)
 
 		break;
 	}
-	case kFormType_Armor:
-	{
-		DebugMessage("GetExtraData: GetName Armor");
-		TESObjectARMO* pArmor = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectARMO);
-
-		if (pArmor)
+	*/
+		case RE::FormType::Armor:
 		{
-			if (pArmor->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Armor");
+			RE::TESObjectARMO* armor = static_cast<RE::TESObjectARMO*>(baseForm);
+
+			if (armor)
 			{
-				name = pArmor->fullName.name.data;
+				name = armor->fullName.c_str();
 			}
+			break;
 		}
-
-		break;
-	}
-
+	/*
 	case kFormType_Ammo:
 	{
 		DebugMessage("GetExtraData: GetName Ammo");
@@ -495,4 +492,197 @@ std::string GetTextureType(int textureType)
 	}
 
 	return textureTypeName;
+}
+
+
+std::string GetArmorTypeName(RE::TESObjectARMO::ArmorType armorType )
+{
+	std::string armorTypeName = "";
+
+	switch (armorType)
+	{
+	case RE::TESObjectARMO::ArmorType::kClothing: armorTypeName = "Clothing";
+		break;
+	case RE::TESObjectARMO::ArmorType::kLightArmor: armorTypeName = "Light";
+		break;
+	case RE::TESObjectARMO::ArmorType::kHeavyArmor: armorTypeName = "Heavy";
+		break;
+	default: armorTypeName = "Unkown";
+		break;
+	}
+
+	return armorTypeName;
+}
+
+
+//Get the name of a equip slot. slot is based on the bit flag for the slot
+std::string GetEquipSlotName(int slot)
+{
+	std::string equipSlotName = "";
+
+	switch (slot)
+	{
+	case 0:
+	{
+		equipSlotName = "Head";
+		break;
+	}
+	case 1:
+	{
+		equipSlotName = "Hair";
+		break;
+	}
+	case 2:
+	{
+		equipSlotName = "Body";
+		break;
+	}
+	case 3:
+	{
+		equipSlotName = "Hands";
+		break;
+	}
+	case 4:
+	{
+		equipSlotName = "Forearms";
+		break;
+	}
+	case 5:
+	{
+		equipSlotName = "Amulet";
+		break;
+	}
+	case 6:
+	{
+		equipSlotName = "Ring";
+		break;
+	}
+	case 7:
+	{
+		equipSlotName = "Feet";
+		break;
+	}
+	case 8:
+	{
+		equipSlotName = "Calves";
+		break;
+	}
+	case 9:
+	{
+		equipSlotName = "Shield";
+		break;
+	}
+	case 10:
+	{
+		equipSlotName = "Tail";
+		break;
+	}
+	case 11:
+	{
+		equipSlotName = "Long hair";
+		break;
+	}
+	case 12:
+	{
+		equipSlotName = "Circlet";
+		break;
+	}
+	case 13:
+	{
+		equipSlotName = "Ears";
+		break;
+	}
+	case 14:
+	{
+		equipSlotName = "Slot 44";
+		break;
+	}
+	case 15:
+	{
+		equipSlotName = "Slot 45";
+		break;
+	}
+	case 16:
+	{
+		equipSlotName = "Slot 46";
+		break;
+	}
+	case 17:
+	{
+		equipSlotName = "Slot 47";
+		break;
+	}
+	case 18:
+	{
+		equipSlotName = "Slot 48";
+		break;
+	}
+	case 19:
+	{
+		equipSlotName = "Slot 49";
+		break;
+	}
+	case 20:
+	{
+		equipSlotName = "Decapitated head";
+		break;
+	}
+	case 21:
+	{
+		equipSlotName = "Decapitate";
+		break;
+	}
+	case 22:
+	{
+		equipSlotName = "Slot 52";
+		break;
+	}
+	case 23:
+	{
+		equipSlotName = "Slot 53";
+		break;
+	}
+	case 24:
+	{
+		equipSlotName = "Slot 54";
+		break;
+	}
+	case 25:
+	{
+		equipSlotName = "Slot 55";
+		break;
+	}
+	case 26:
+	{
+		equipSlotName = "Slot 56";
+		break;
+	}
+	case 27:
+	{
+		equipSlotName = "Slot 57";
+		break;
+	}
+	case 28:
+	{
+		equipSlotName = "Slot 58";
+		break;
+	}
+	case 29:
+	{
+		equipSlotName = "Slot 59";
+		break;
+	}
+	case 30:
+	{
+		equipSlotName = "Slot 60";
+		break;
+	}
+	case 31:
+	{
+		equipSlotName = "FX01";
+		break;
+	}
+	}
+
+	return equipSlotName;
 }
