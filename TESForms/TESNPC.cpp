@@ -441,40 +441,26 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 	resultArray->PushBack(activeEffectsEntry);
 
-	_DMESSAGE("GetExtraData: Active Effects Done");
-	/*
-	ExtraInfoEntry * actorValueHealth;
-
-	GetActorValue(actorValueHealth, pActor, actorValueHealthIndex);
-	resultArray->PushBack(actorValueHealth);
-
-	ExtraInfoEntry * actorValueMagicka;
-
-	GetActorValue(actorValueMagicka, pActor, actorValueMagickaIndex);
-	resultArray->PushBack(actorValueMagicka);
-
-	ExtraInfoEntry * actorValueStamina;
-
-	GetActorValue(actorValueStamina, pActor, actorValueStaminahIndex);
-	resultArray->PushBack(actorValueStamina);
+	_DMESSAGE("GetActorData: Active Effects Done");
+	
+	//Add Health/Magicka/Stamina to the main subarray
+	GetActorValue(resultArray, actor, actorValueHealthIndex, priority_Actor_Health);
+	GetActorValue(resultArray, actor, actorValueMagickaIndex, priority_Actor_Magicka);
+	GetActorValue(resultArray, actor, actorValueStaminaIndex, priority_Actor_Stamina);
 
 	//Get all actor values in a subarray
 	ExtraInfoEntry * actorValueArray;
-	CreateExtraInfoEntry(actorValueArray, "Actor Values", "");
+	CreateExtraInfoEntry(actorValueArray, "Actor Values", "", priority_Actor_ActorValues);
 
-
-	for (int i = 0; i < ActorValueList::kNumActorValues; i++)
+	for (int i = 0; i < totalNumberOfActorValues; i++)
 	{
-
-		ExtraInfoEntry * actorValue;
-		GetActorValue(actorValue, pActor, i);
-		actorValueArray->PushBack(actorValue);
+		GetActorValue(actorValueArray, actor, i, priority_Actor_ActorValues_ActorValue);
 	}
 
 	resultArray->PushBack(actorValueArray);
 
-	DebugMessage("GetExtraData: GetCharacter actor values gotten");
-
+	_DMESSAGE("GetActorData: actor values gotten");
+	/*
 	DebugMessage("Before package");
 
 	ActorProcessManager * pProcess = pActor->processManager;
@@ -508,4 +494,38 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 	DebugMessage("After package");
 	*/
+}
+
+void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, priority actorValuePriority)
+{
+	_DMESSAGE("GetExtraData: GetActover Value Start");
+
+	RE::ActorValue actorValue = (RE::ActorValue)id;
+	ExtraInfoEntry* actorValueEntry;
+
+	if (id < totalNumberOfActorValues)
+	{
+		std::string valueName = GetActorValueName(id);
+		float baseValue = actor->GetBaseActorValue(actorValue);
+		float currentValue = actor->GetActorValue(actorValue);
+		float maxValue = actor->GetPermanentActorValue(actorValue);
+
+		CreateExtraInfoEntry(actorValueEntry, valueName, FloatToString(currentValue), actorValuePriority);
+
+		//create a subarray for the base  current and maximum
+
+		ExtraInfoEntry* baseValueEntry, * currentValueEntry, * maxValueEntry;
+
+		CreateExtraInfoEntry(baseValueEntry, "Base", FloatToString(baseValue), priority_ActorValue_Base);
+		CreateExtraInfoEntry(currentValueEntry, "Current", FloatToString(currentValue), priority_ActorValue_Current);
+		CreateExtraInfoEntry(maxValueEntry, "Max", FloatToString(maxValue), priority_ActorValue_Max);
+
+		actorValueEntry->PushBack(baseValueEntry);
+		actorValueEntry->PushBack(currentValueEntry);
+		actorValueEntry->PushBack(maxValueEntry);
+
+		resultArray->PushBack(actorValueEntry);
+	}
+
+	_DMESSAGE("GetExtraData: GetActover Value End");
 }

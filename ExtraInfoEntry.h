@@ -45,6 +45,15 @@ enum priority
 	priority_Actor_Spells_AddedSpell,
 	priority_Actor_Spells_BaseSpell,
 	priority_Actor_Effects,
+	priority_Actor_Health,
+	priority_Actor_Magicka,
+	priority_Actor_Stamina,
+	priority_Actor_ActorValues,
+	priority_Actor_ActorValues_ActorValue,
+	//ActorValue
+	priority_ActorValue_Base,
+	priority_ActorValue_Current,
+	priority_ActorValue_Max,
 	//Armature
 	priority_Arma_SkinMale,
 	priority_Arma_SkinFemale,

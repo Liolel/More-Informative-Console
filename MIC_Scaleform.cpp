@@ -506,41 +506,6 @@ MICScaleform_Log* MICScaleformlog = nullptr;
 		DebugMessage("GetExtraData: GetCharacter End");
 	}
 
-	void GetActorValue(ExtraInfoEntry * & resultArray,  Actor * pActor, int id)
-	{
-		DebugMessage("GetExtraData: GetActover Value Start");
-
-		if (id < ActorValueList::kNumActorValues)
-		{
-			std::string valueName = GetActorValueName(id);
-			float baseValue = pActor->actorValueOwner.GetBase(id);
-			float currentValue = pActor->actorValueOwner.GetCurrent(id);
-			float maxValue = pActor->actorValueOwner.GetCurrent(id);
-
-			CreateExtraInfoEntry(resultArray, valueName, FloatToString(currentValue));
-
-			//create a subarray for the base  current and maximum
-
-			ExtraInfoEntry * baseValueEntry, * currentValueEntry, * maxValueEntry;
-
-			CreateExtraInfoEntry(baseValueEntry, "Base", FloatToString(baseValue));
-			CreateExtraInfoEntry(currentValueEntry, "Current", FloatToString(currentValue));
-			CreateExtraInfoEntry(maxValueEntry, "Max", FloatToString(maxValue));
-
-			resultArray->PushBack(baseValueEntry);
-			resultArray->PushBack(currentValueEntry);
-			resultArray->PushBack(maxValueEntry);
-		}
-
-		else
-		{
-			//the Program will probally crash if we don't create an entry, so add an entry reporting the error in this case
-			CreateExtraInfoEntry(resultArray, "Unknown AV id", IntToString(id));
-		}
-
-		DebugMessage("GetExtraData: GetActover Value End");
-	}
-
 	void GetEquipment(ExtraInfoEntry * resultArray,  ExtraContainerChanges* pContainerChanges, Actor * pActor)
 	{
 		DebugMessage("GetEquipment: GetEquipment Start");
