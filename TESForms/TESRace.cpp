@@ -40,7 +40,7 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			std::string skinName = GetName(skin);
 
 			ExtraInfoEntry* skinEntry;
-			CreateExtraInfoEntry(skinEntry, "Skin", skinName);
+			CreateExtraInfoEntry(skinEntry, "Skin", skinName, priority_Race_Skin);
 			GetFormData(skinEntry, skin, nullptr);
 
 			resultArray->PushBack(skinEntry);
@@ -48,38 +48,19 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			_DMESSAGE("Done Getting Skin");
 		}
 
-		/*
+		
 		//Handle Flags
-		int playableFlag = 0x00000001;
-		int childFlag = 0x00000004;
+		UInt32 flags = (UInt32)race->data.flags;
 
 		ExtraInfoEntry* playableEntry;
-
-		if ((pRace->data.raceFlags & playableFlag) == playableFlag)
-		{
-			CreateExtraInfoEntry(playableEntry, "Playable", "Yes");
-		}
-
-		else
-		{
-			CreateExtraInfoEntry(playableEntry, "Playable", "No");
-		}
-
+		std::string isPlayable = BooleanToYesNoString(HasFlag(flags, (int)RE::RACE_DATA::Flag::kPlayable));
+		CreateExtraInfoEntry(playableEntry, "Playable", isPlayable, priority_Race_Playable);
 		resultArray->PushBack(playableEntry);
 
 		ExtraInfoEntry* childEntry;
-
-		if ((pRace->data.raceFlags & childFlag) == childFlag)
-		{
-			CreateExtraInfoEntry(childEntry, "Child", "Yes");
-		}
-
-		else
-		{
-			CreateExtraInfoEntry(childEntry, "Child", "No");
-		}
-
-		resultArray->PushBack(childEntry);*/
+		std::string isChild = BooleanToYesNoString(HasFlag(flags, (int)RE::RACE_DATA::Flag::kChild));
+		CreateExtraInfoEntry(childEntry, "Child", isChild, priority_Race_Child);
+		resultArray->PushBack(childEntry);
 	}
 
 	_DMESSAGE("Ending GetRaceEntry");

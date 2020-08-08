@@ -11,7 +11,7 @@ void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	if (textureSet)
 	{
 		ExtraInfoEntry* textureSetEntry;
-		CreateExtraInfoEntry(textureSetEntry, "Texture Set", "");
+		CreateExtraInfoEntry(textureSetEntry, "Texture Set", "", priority_TextureSet);
 
 		int totalTextures = RE::BGSTextureSet::Textures::kTotal;
 
@@ -31,7 +31,7 @@ void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 			ExtraInfoEntry* textureEntry;
 
-			CreateExtraInfoEntry(textureEntry, textureType, textureName);
+			CreateExtraInfoEntry(textureEntry, textureType, textureName, priority_TextureSet_TextureName);
 
 			if (texturePath != "")
 			{

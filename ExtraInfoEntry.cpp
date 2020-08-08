@@ -88,12 +88,6 @@ void ExtraInfoEntry::Finalize()
 	}
 }
 
-
-void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents)
-{
-	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents, priority_Default);
-}
-
 void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, priority priority)
 {
 	extraInfoEntry = new ExtraInfoEntry(extraInfoName, extraInfoContents, priority);

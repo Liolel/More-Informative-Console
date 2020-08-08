@@ -35,7 +35,7 @@ void CreateFilePathSubarray(ExtraInfoEntry* mainEntry, std::string filePath)
 		ExtraInfoEntry* pathEntry;
 		std::string path = filePath.substr(0, (long)firstSlash + 1);
 
-		CreateExtraInfoEntry(pathEntry, path, "");
+		CreateExtraInfoEntry(pathEntry, path, "", priority_Default);
 		mainEntry->PushBack(pathEntry);
 
 		filePath = filePath.substr((long)firstSlash + 1); //get everything after the first slash
@@ -44,7 +44,7 @@ void CreateFilePathSubarray(ExtraInfoEntry* mainEntry, std::string filePath)
 
 	ExtraInfoEntry* pathEntry;
 	//add everything after the last slash
-	CreateExtraInfoEntry(pathEntry, filePath, "");
+	CreateExtraInfoEntry(pathEntry, filePath, "", priority_Default);
 
 	mainEntry->PushBack(pathEntry);
 

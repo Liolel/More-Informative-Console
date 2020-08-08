@@ -148,6 +148,8 @@
     <ClCompile Include="Scaleform\MICScaleform_Log.cpp" />
     <ClCompile Include="Scaleform\MICScaleform_RetrieveExtraData.cpp" />
     <ClCompile Include="TESForms\BGSTextureSet.cpp" />
+    <ClCompile Include="TESForms\MagicItem.cpp" />
+    <ClCompile Include="TESForms\SpellItem.cpp" />
     <ClCompile Include="TESForms\TESForm.cpp" />
     <ClCompile Include="TESForms\TESModel.cpp" />
     <ClCompile Include="TESForms\TESModelTextureSwap.cpp" />
@@ -197,6 +199,8 @@
     <ClInclude Include="Scaleform\MICScaleform_RetrieveExtraData.h" />
     <ClInclude Include="Simpleini.h" />
     <ClInclude Include="TESForms\BGSTextureSet.h" />
+    <ClInclude Include="TESForms\MagicItem.h" />
+    <ClInclude Include="TESForms\SpellItem.h" />
     <ClInclude Include="TESForms\TESForm.h" />
     <ClInclude Include="TESForms\TESModel.h" />
     <ClInclude Include="TESForms\TESModelTextureSwap.h" />

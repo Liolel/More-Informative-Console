@@ -61,47 +61,60 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 			resultArray->PushBack(raceEntry);
 
 			_DMESSAGE("GetCharacterData: Ending Race");
-			/*
+			
 			//Spells
 			ExtraInfoEntry* allSpellsEntry;
 
-			CreateExtraInfoEntry(allSpellsEntry, "Spells", "");
+			CreateExtraInfoEntry(allSpellsEntry, "Spells", "", priority_Actor_Spells);
 
-			DebugMessage("GetCharacterData: Starting Added Spells");
+			_DMESSAGE("GetCharacterData: Starting Added Spells");
 
-			if (pActor)
+			if (actor)
 			{
+				int numberOfAddedSpells = actor->addedSpells.size();
+
 				//Added Spells
-				for (int i = 0; i < pActor->addedSpells.Length(); i++)
+				for (int i = 0; i < numberOfAddedSpells; i++)
 				{
 					ExtraInfoEntry* spellEntry;
 
-					SpellItem* spell = pActor->addedSpells.Get(i);
-					GetSpellDataWrapper(spellEntry, spell, "Added Spell");
+					RE::SpellItem* spell = actor->addedSpells[i];
+					std::string spellName = GetName(spell);
+
+					CreateExtraInfoEntry(spellEntry, spellName, "Added Spell", priority_Actor_Spells_AddedSpell );
+
+					GetFormData(spellEntry, spell, nullptr);
 
 					allSpellsEntry->PushBack(spellEntry);
 				}
 			}
 
-			DebugMessage("GetCharacterData: Starting Base Spells");
+			_DMESSAGE("GetCharacterData: Starting Base Spells");
 
-			//Actor Base Spells
-			int numberOfBaseSpells = pActorBase->spellList.GetSpellCount();
-
-			for (int i = 0; i < numberOfBaseSpells; i++)
+			if (actorBase->actorEffects)
 			{
-				ExtraInfoEntry* spellEntry;
+				//Actor Base Spells
+				int numberOfBaseSpells = actorBase->actorEffects->numSpells;
 
-				SpellItem* spell = pActorBase->spellList.GetNthSpell(i);
-				GetSpellDataWrapper(spellEntry, spell, "Base Spell");
+				for (int i = 0; i < numberOfBaseSpells; i++)
+				{
+					ExtraInfoEntry* spellEntry;
 
-				allSpellsEntry->PushBack(spellEntry);
+					RE::SpellItem* spell = actorBase->actorEffects->spells[i];
+					std::string spellName = GetName(spell);
+
+					CreateExtraInfoEntry(spellEntry, spellName, "Base Spell", priority_Actor_Spells_BaseSpell);
+
+					GetFormData(spellEntry, spell, nullptr);
+
+					allSpellsEntry->PushBack(spellEntry);
+				}
 			}
-
+			
 			resultArray->PushBack(allSpellsEntry);
-
-			DebugMessage("GetCharacterData: GetCharacter Done with spells");
-
+			
+			_DMESSAGE("GetCharacterData: GetCharacter Done with spells");
+			/*
 			if (pActor)
 			{
 				// ActiveEffects as Array

@@ -8,7 +8,7 @@ void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::ExtraEnable
 	_DMESSAGE("Starting ProcessEnableParentInformation");
 	ExtraInfoEntry* enableParentEntry;
 
-	CreateExtraInfoEntry(enableParentEntry, "Enable Parent", "", priority_ExtraData_EnableParent);
+	CreateExtraInfoEntry(enableParentEntry, "Enable Parent", "", priority_Reference_ExtraData_EnableParent);
 
 	if (enableParentInformation->parent.get())
 	{
@@ -18,7 +18,7 @@ void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::ExtraEnable
 
 		ExtraInfoEntry* enableParentFormEntry;
 		
-		CreateExtraInfoEntry(enableParentFormEntry, "Parent Reference", parentFormName);
+		CreateExtraInfoEntry(enableParentFormEntry, "Parent Reference", parentFormName, priority_ExtraData_EnableParent_ParentForm);
 		GetFormData(enableParentFormEntry, parentBaseForm, parentRefForm);
 
 		enableParentEntry->PushBack(enableParentFormEntry);
@@ -27,13 +27,13 @@ void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::ExtraEnable
 	bool hasPopin = HasFlag(enableParentInformation->flags, flag_PopIn);
 	ExtraInfoEntry* popinEntry;
 	std::string popinString = BooleanToYesNoString(hasPopin);
-	CreateExtraInfoEntry(popinEntry, "Popin", popinString);
+	CreateExtraInfoEntry(popinEntry, "Popin", popinString, priority_ExtraData_EnableParent_Popin);
 	enableParentEntry->PushBack(popinEntry);
 
 	bool enableStateOppositeParent = HasFlag(enableParentInformation->flags, flag_EnableStateOppositeParent);
 	ExtraInfoEntry* enableStateOppositeParentEntry;
 	std::string enableStateOppositeParentString = BooleanToYesNoString(enableStateOppositeParent);
-	CreateExtraInfoEntry(enableStateOppositeParentEntry, "State Opposite Parent", enableStateOppositeParentString);
+	CreateExtraInfoEntry(enableStateOppositeParentEntry, "State Opposite Parent", enableStateOppositeParentString, priority_ExtraData_EnableParent_StateOppositeParent);
 	enableParentEntry->PushBack(enableStateOppositeParentEntry);
 
 	resultArray->PushBack(enableParentEntry);

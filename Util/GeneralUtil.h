@@ -6,11 +6,6 @@
 //void DebugMessage(std::string message);
 
 /*
-std::string GetActorValueName(int id);
-std::string GetEffectTypeName(int id);
-std::string GetSpellTypeName(int spellType);
-std::string GetCastingTypeName(int castingType);
-std::string GetDeliveryTypeName(int deliveryType);
 
 int NumberOfItemInContainer(RE::TESForm * item, RE::TESContainer * container);
 bool HasItem(RE::EntryDataList * inventory, RE::TESForm * item);

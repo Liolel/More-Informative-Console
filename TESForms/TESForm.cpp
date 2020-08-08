@@ -5,6 +5,7 @@
 #include "TESObjectARMO.h"
 #include "TESObjectREFR.h"
 #include "TESRace.h"
+#include "SpellItem.h"
 
 #include "MoreInformativeConsole/Util/NameUtil.h"
 
@@ -81,13 +82,13 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		DebugMessage("GetExtraData: Get Form Data magic effect found");
 		GetMagicEffectData(resultArray, pBaseForm);
 	}
-
-	else if (pBaseForm->GetFormType() == kFormType_Spell)
-	{
-		DebugMessage("GetExtraData: Get Form Data spell found");
-		GetSpellData(resultArray, pBaseForm);
-	}
 	*/
+	else if (baseForm->GetFormType() == RE::FormType::Spell)
+	{
+		_DMESSAGE("GetExtraData: Get Form Data spell found");
+		GetSpellData(resultArray, baseForm);
+	}
+	
 	else if (baseForm->GetFormType() == RE::FormType::Armor)
 	{
 		_DMESSAGE("GetExtraData: Get Form Data armor found");
@@ -313,19 +314,19 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		}
 
 		ExtraInfoEntry* referenceDefinedIn;
-		CreateExtraInfoEntry(referenceDefinedIn, "Reference defined in", refFirstDefinedIn);
+		CreateExtraInfoEntry(referenceDefinedIn, "Reference defined in", refFirstDefinedIn, priority_FormLocation_ReferenceDefined);
 
 		formLocationHolder->PushBack(referenceDefinedIn);
 
 		std::string refLastDefinedIn = GetLastFormLocationName(refForm);
 
 		ExtraInfoEntry* referenceLastChangedBy;
-		CreateExtraInfoEntry(referenceLastChangedBy, "Reference last modified by", refLastDefinedIn);
+		CreateExtraInfoEntry(referenceLastChangedBy, "Reference last modified by", refLastDefinedIn, priority_FormLocation_ReferenceLastChanged);
 
 		formLocationHolder->PushBack(referenceLastChangedBy);
 
 		ExtraInfoEntry* allModsTouchingReferenceHolder;
-		CreateExtraInfoEntry(allModsTouchingReferenceHolder, "Reference found in", "");
+		CreateExtraInfoEntry(allModsTouchingReferenceHolder, "Reference found in", "", priority_FormLocation_ReferenceInMods);
 
 		GetModInfoData(allModsTouchingReferenceHolder, refForm, SkyrimESMNotDetectedBug);
 
@@ -344,19 +345,19 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		std::string baseFirstDefinedIn = GetFirstFormLocationName(baseForm);
 
 		ExtraInfoEntry* baseDefinedIn;
-		CreateExtraInfoEntry(baseDefinedIn, "Base defined in", baseFirstDefinedIn);
+		CreateExtraInfoEntry(baseDefinedIn, "Base defined in", baseFirstDefinedIn, priority_FormLocation_BaseDefined);
 
 		formLocationHolder->PushBack(baseDefinedIn);
 
 		std::string baseLastDefinedIn = GetLastFormLocationName(baseForm);
 
 		ExtraInfoEntry* baseLastChangedBy;
-		CreateExtraInfoEntry(baseLastChangedBy, "Base last modified by", baseLastDefinedIn);
+		CreateExtraInfoEntry(baseLastChangedBy, "Base last modified by", baseLastDefinedIn, priority_FormLocation_BaseLastChanged);
 
 		formLocationHolder->PushBack(baseLastChangedBy);
 
 		ExtraInfoEntry* allModsTouchingBaseHolder;
-		CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "");
+		CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "", priority_FormLocation_BaseInMods);
 
 		GetModInfoData(allModsTouchingBaseHolder, baseForm, false);
 
@@ -378,7 +379,7 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm * form, boolean Sk
 	{
 		ExtraInfoEntry* modEntry;
 
-		CreateExtraInfoEntry(modEntry, "Mod", "Skyrim.esm");
+		CreateExtraInfoEntry(modEntry, "Mod", "Skyrim.esm", priority_Default);
 		resultArray->PushBack(modEntry);
 	}
 
@@ -388,7 +389,7 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm * form, boolean Sk
 
 		std::string modName = GetNthFormLocationName(form, i);
 
-		CreateExtraInfoEntry(modEntry, "Mod", modName);
+		CreateExtraInfoEntry(modEntry, "Mod", modName, priority_Default);
 		resultArray->PushBack(modEntry);
 	}
 

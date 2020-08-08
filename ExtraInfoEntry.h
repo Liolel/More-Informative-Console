@@ -41,6 +41,9 @@ enum priority
 	priority_TextureSet,
 	//Actors
 	priority_Actor_Race,
+	priority_Actor_Spells,
+	priority_Actor_Spells_AddedSpell,
+	priority_Actor_Spells_BaseSpell,
 	//Armature
 	priority_Arma_SkinMale,
 	priority_Arma_SkinFemale,
@@ -57,15 +60,49 @@ enum priority
 	priority_Race_Skin,
 	priority_Race_SkeletonMale,
 	priority_Race_SkeletonFemale,
+	priority_Race_Child,
+	priority_Race_Playable,
 	//Reference Specific Items
 	priority_Reference_Location, //XYZ position of reference
 	priority_Reference_Enabled, //Is the reference enabled or disabled
-	priority_ExtraData_EnableParent, //Enable Parent Information
+	priority_Reference_ExtraData_EnableParent, //Enable Parent Information
+	//Spell
+	priority_Spell_SpellType,
+	priority_Spell_BaseCost,
+	priority_Spell_CastTime,
+	priority_Spell_DeliveryType,
+	//Magic Item (This is used in Spells and ... )
+	priority_MagicItem_MagicEffects,
+	priority_MagicItem_Effect,
+	//Effects - This is one half of magic effect data. This is the magnitude/duration/area part
+	priority_Effect_Magnitude,
+	priority_Effect_Duration,
+	priority_Effect_Area,
+	//Texture Set
+	priority_TextureSet_TextureSet,
+	priority_TextureSet_TextureName,
+	//Enable Parent Extra Data
+	priority_ExtraData_EnableParent_ParentForm,
+	priority_ExtraData_EnableParent_StateOppositeParent,
+	priority_ExtraData_EnableParent_Popin,
+	//Form Location Information
+	priority_FormLocation_BaseDefined,
+	priority_FormLocation_BaseLastChanged,
+	priority_FormLocation_BaseInMods,
+	priority_FormLocation_ReferenceDefined,
+	priority_FormLocation_ReferenceLastChanged,
+	priority_FormLocation_ReferenceInMods,
+	//Position
+	priority_Position_XCoordinate,
+	priority_Position_YCoordinate,
+	priority_Position_ZCoordinate,
+	priority_Position_XRotation,
+	priority_Position_YRotation,
+	priority_Position_ZRotation,
 	//Bottom of the list objects
 	priority_Default
 };
 
-void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents);
 void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, priority priority);
 
 //Enum for priority order Highest up takes precedence in sorting

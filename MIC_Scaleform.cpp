@@ -800,36 +800,6 @@ MICScaleform_Log* MICScaleformlog = nullptr;
 		}	*//*
 	}
 
-	//wrapper for getting both the common form data and the spell data for a spell
-	void GetSpellDataWrapper(ExtraInfoEntry * & spellEntry,  SpellItem* spell, std::string source)
-	{
-		DebugMessage("GetSpellDataWrapper: Starting spell");
-
-		TESForm *spellBaseForm = DYNAMIC_CAST(spell, SpellItem, TESForm);
-
-		if (spellBaseForm)
-		{
-			std::string spellName = "Unknown";
-
-			if (spell->fullName.name.data)
-			{
-				spellName = spell->fullName.name.data;
-			}
-
-			CreateExtraInfoEntry(spellEntry, spellName, source);
-
-			GetCommonFormData(spellEntry, spellBaseForm, nullptr);
-			GetSpellData(spellEntry, spellBaseForm);
-		}
-
-		else
-		{
-			CreateExtraInfoEntry(spellEntry, "Unknown Spell", source);
-		}
-
-		DebugMessage("GetSpellDataWrapper: Finished spell");
-	}
-
 	void GetEquipment(ExtraInfoEntry * resultArray,  ExtraContainerChanges* pContainerChanges, Actor * pActor)
 	{
 		DebugMessage("GetEquipment: GetEquipment Start");
@@ -1621,89 +1591,6 @@ MICScaleform_Log* MICScaleformlog = nullptr;
 		/*
 
 		DebugMessage("Ending GetModelTextures");
-	}
-
-
-	void GetRaceEntry(ExtraInfoEntry * resultArray,  TESForm * pBaseForm)
-	{
-		DebugMessage("Starting GetRaceEntry");
-
-		TESRace * pRace = DYNAMIC_CAST(pBaseForm, TESForm, TESRace);
-		if (pRace)
-		{
-			DebugMessage("Getting Editor ID");
-
-			//editor ID
-			std::string editorID = pRace->editorId.Get();
-
-			ExtraInfoEntry * editorIDEntry;
-
-			CreateExtraInfoEntry(editorIDEntry, "EditorID", editorID);
-			resultArray->PushBack(editorIDEntry);
-
-
-			DebugMessage("Getting Models");
-			//models
-			TESModel * maleModel = &(pRace->models[0]);
-			TESModel * femaleModel = &(pRace->models[1]);
-
-			AddModelEntry(resultArray, "Male Skeleton", maleModel);
-			AddModelEntry(resultArray, "Female Skeleton", femaleModel);
-
-			//Skins
-			if (MICGlobals::readRaceSkins
-				&& pRace->skin.skin != nullptr)
-			{
-				DebugMessage("Getting Skin");
-				TESObjectARMO *skin = pRace->skin.skin;
-
-				std::string skinName = GetName(skin);
-
-				ExtraInfoEntry * skinEntry;
-
-				CreateExtraInfoEntry(skinEntry, "Skin", skinName);
-
-				GetFormData(skinEntry, skin, nullptr);
-
-				resultArray->PushBack(skinEntry);
-
-				DebugMessage("Done Getting Skin");
-			}
-
-			//Handle Flags
-			int playableFlag = 0x00000001;
-			int childFlag = 0x00000004;
-
-			ExtraInfoEntry * playableEntry;
-
-			if ((pRace->data.raceFlags & playableFlag) == playableFlag)
-			{
-				CreateExtraInfoEntry(playableEntry, "Playable", "Yes");
-			}
-
-			else
-			{
-				CreateExtraInfoEntry(playableEntry, "Playable", "No");
-			}
-
-			resultArray->PushBack(playableEntry);
-
-			ExtraInfoEntry * childEntry;
-
-			if ((pRace->data.raceFlags & childFlag) == childFlag)
-			{
-				CreateExtraInfoEntry(childEntry, "Child", "Yes");
-			}
-
-			else
-			{
-				CreateExtraInfoEntry(childEntry, "Child", "No");
-			}
-
-			resultArray->PushBack(childEntry);
-		}
-
-		DebugMessage("Ending GetRaceEntry");
 	}
 
 	void GetCellEntry(ExtraInfoEntry* resultArray, TESForm* pBaseForm)

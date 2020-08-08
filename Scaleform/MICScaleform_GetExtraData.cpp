@@ -44,7 +44,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 		//GetWorldData(&MICGlobals::rootEntry);
 
 		ExtraInfoEntry* test;
-		CreateExtraInfoEntry(test, "World", "");
+		CreateExtraInfoEntry(test, "World", "", priority_Default);
 		MICGlobals::rootEntry.PushBack(test);
 	}
 
@@ -52,7 +52,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	{
 		MICGlobals::rootEntry.Clear();
 		ExtraInfoEntry* test;
-		CreateExtraInfoEntry(test, "MFG", "");
+		CreateExtraInfoEntry(test, "MFG", "", priority_Default);
 		MICGlobals::rootEntry.PushBack(test);
 	}
 

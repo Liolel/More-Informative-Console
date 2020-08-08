@@ -31,33 +31,33 @@ void GetPositionData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 	//position
 	float xPos = refForm->data.location.x;
 	ExtraInfoEntry* xPositionEntry;
-	CreateExtraInfoEntry(xPositionEntry, "X Position", FloatToString(xPos));
+	CreateExtraInfoEntry(xPositionEntry, "X Position", FloatToString(xPos), priority_Position_XCoordinate);
 	positionEntry->PushBack(xPositionEntry);
 
 	float yPos = refForm->data.location.y;
 	ExtraInfoEntry* yPositionEntry;
-	CreateExtraInfoEntry(yPositionEntry, "Y Position", FloatToString(yPos));
+	CreateExtraInfoEntry(yPositionEntry, "Y Position", FloatToString(yPos), priority_Position_YCoordinate);
 	positionEntry->PushBack(yPositionEntry);
 
 	float zPos = refForm->data.location.z;
 	ExtraInfoEntry* zPositionEntry;
-	CreateExtraInfoEntry(zPositionEntry, "Z Position", FloatToString(zPos));
+	CreateExtraInfoEntry(zPositionEntry, "Z Position", FloatToString(zPos), priority_Position_ZCoordinate);
 	positionEntry->PushBack(zPositionEntry);
 
 	//rotation
 	float xRot = refForm->data.angle.x;
 	ExtraInfoEntry* xRotationEntry;
-	CreateExtraInfoEntry(xRotationEntry, "X Rotation", FloatToString(xRot));
+	CreateExtraInfoEntry(xRotationEntry, "X Rotation", FloatToString(xRot), priority_Position_XRotation);
 	positionEntry->PushBack(xRotationEntry);
 
 	float yRot = refForm->data.angle.y;
 	ExtraInfoEntry* yRotationEntry;
-	CreateExtraInfoEntry(yRotationEntry, "Y Rotation", FloatToString(yRot));
+	CreateExtraInfoEntry(yRotationEntry, "Y Rotation", FloatToString(yRot), priority_Position_YRotation);
 	positionEntry->PushBack(yRotationEntry);
 
 	float zRot = refForm->data.angle.z;
 	ExtraInfoEntry* zRotationEntry;
-	CreateExtraInfoEntry(zRotationEntry, "Z Rotation", FloatToString(zRot));
+	CreateExtraInfoEntry(zRotationEntry, "Z Rotation", FloatToString(zRot), priority_Position_ZRotation);
 	positionEntry->PushBack(zRotationEntry);
 
 	resultArray->PushBack(positionEntry);

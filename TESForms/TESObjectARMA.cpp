@@ -76,7 +76,7 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 					ExtraInfoEntry* additionalRaceEntry;
 
-					CreateExtraInfoEntry(additionalRaceEntry, additionalRaceName, "");
+					CreateExtraInfoEntry(additionalRaceEntry, additionalRaceName, "", priority_Default);
 
 					GetFormData(additionalRaceEntry, additionalRace, nullptr);
 

@@ -41,7 +41,7 @@ void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		
 		//Equip slots
-		int parts = (int)armor->GetSlotMask();
+		UInt32 parts = (UInt32)armor->GetSlotMask();
 
 		ExtraInfoEntry* equipSlotsEntry;
 		CreateExtraInfoEntry(equipSlotsEntry, "Equip Slots", "", priority_Armor_EquipSlots);
@@ -57,7 +57,7 @@ void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 				ExtraInfoEntry* equipSlotEntry;
 
-				CreateExtraInfoEntry(equipSlotEntry, slotName, "");
+				CreateExtraInfoEntry(equipSlotEntry, slotName, "", priority_Default);
 				equipSlotsEntry->PushBack(equipSlotEntry);
 			}
 		}
@@ -86,7 +86,7 @@ void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 				ExtraInfoEntry* armorAddonEntry;
 				std::string armorAddonName = GetName( arma );
 
-				CreateExtraInfoEntry(armorAddonEntry, armorAddonName, "");
+				CreateExtraInfoEntry(armorAddonEntry, armorAddonName, "", priority_Default);
 				GetFormData(armorAddonEntry, arma, nullptr);
 				armorAddonsEntry->PushBack(armorAddonEntry);
 			}
