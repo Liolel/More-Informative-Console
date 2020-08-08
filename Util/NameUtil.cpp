@@ -176,22 +176,19 @@ std::string GetName(RE::TESForm* baseForm)
 			break;
 		}
 
-	/*
-	case kFormType_EffectSetting:
-	{
-		DebugMessage("GetExtraData: GetName Magic Effect");
-
-		EffectSetting* pEffectSetting = DYNAMIC_CAST(pBaseForm, TESForm, EffectSetting);
-		if (pEffectSetting)
+	
+		case RE::FormType::MagicEffect:
 		{
-			if (pEffectSetting->fullName.name.data)
-			{
-				name = pEffectSetting->fullName.name.data;
-			}
-		}
+			_DMESSAGE("GetExtraData: GetName Magic Effect");
 
-		break;
-	}*/
+			RE::EffectSetting* effectSetting = static_cast<RE::EffectSetting*>(baseForm);
+			if (effectSetting)
+			{			
+				name = effectSetting->fullName.c_str();
+			}
+
+			break;
+		}
 
 		case RE::FormType::Spell:
 		case RE::FormType::Scroll:

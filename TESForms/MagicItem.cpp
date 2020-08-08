@@ -67,16 +67,16 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 	//Duration
 	ExtraInfoEntry* durationEntry;
 
-	float duration = effect->effectItem.duration;
-	CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration), priority_Effect_Duration);
+	int duration = effect->effectItem.duration;
+	CreateExtraInfoEntry(durationEntry, "Duration", IntToString(duration), priority_Effect_Duration);
 	effectEntry->PushBack(durationEntry);
 
 
 	//Magnitude
 	ExtraInfoEntry* areaEntry;
 
-	float area = effect->effectItem.area;
-	CreateExtraInfoEntry(areaEntry, "Area", FloatToString(area), priority_Effect_Area);
+	int area = effect->effectItem.area;
+	CreateExtraInfoEntry(areaEntry, "Area", IntToString(area), priority_Effect_Area);
 	effectEntry->PushBack(areaEntry);
 
 	resultArray->PushBack(effectEntry);

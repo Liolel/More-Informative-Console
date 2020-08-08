@@ -2,6 +2,7 @@
 #include "MoreInformativeConsole/globals.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
 #include "TESForm.h"
+#include "MagicItem.h"
 
 //Adapted from SKSE source code
 
@@ -62,239 +63,15 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 
 			_DMESSAGE("GetCharacterData: Ending Race");
 			
-			//Spells
-			ExtraInfoEntry* allSpellsEntry;
+			//Handle Spells
+			GetSpellsForNPC(resultArray, actor, actorBase);
 
-			CreateExtraInfoEntry(allSpellsEntry, "Spells", "", priority_Actor_Spells);
-
-			_DMESSAGE("GetCharacterData: Starting Added Spells");
-
+			//If we are looking at an actor there is additional data we can get specific to that fact
 			if (actor)
 			{
-				int numberOfAddedSpells = actor->addedSpells.size();
-
-				//Added Spells
-				for (int i = 0; i < numberOfAddedSpells; i++)
-				{
-					ExtraInfoEntry* spellEntry;
-
-					RE::SpellItem* spell = actor->addedSpells[i];
-					std::string spellName = GetName(spell);
-
-					CreateExtraInfoEntry(spellEntry, spellName, "Added Spell", priority_Actor_Spells_AddedSpell );
-
-					GetFormData(spellEntry, spell, nullptr);
-
-					allSpellsEntry->PushBack(spellEntry);
-				}
+				GetActorData(resultArray, actor);
 			}
-
-			_DMESSAGE("GetCharacterData: Starting Base Spells");
-
-			if (actorBase->actorEffects)
-			{
-				//Actor Base Spells
-				int numberOfBaseSpells = actorBase->actorEffects->numSpells;
-
-				for (int i = 0; i < numberOfBaseSpells; i++)
-				{
-					ExtraInfoEntry* spellEntry;
-
-					RE::SpellItem* spell = actorBase->actorEffects->spells[i];
-					std::string spellName = GetName(spell);
-
-					CreateExtraInfoEntry(spellEntry, spellName, "Base Spell", priority_Actor_Spells_BaseSpell);
-
-					GetFormData(spellEntry, spell, nullptr);
-
-					allSpellsEntry->PushBack(spellEntry);
-				}
-			}
-			
-			resultArray->PushBack(allSpellsEntry);
-			
-			_DMESSAGE("GetCharacterData: GetCharacter Done with spells");
-			/*
-			if (pActor)
-			{
-				// ActiveEffects as Array
-				ExtraInfoEntry* activeEffectsEntry;
-
-				CreateExtraInfoEntry(activeEffectsEntry, "Effects", "");
-
-				tList<ActiveEffect>* effects = pActor->magicTarget.GetActiveEffects();
-
-				DebugMessage("GetCharacterData: Active Effects Gotten");
-
-				if (effects)
-				{
-					for (int i = 0; i < effects->Count(); i++)
-					{
-						DebugMessage("GetCharacterData: Starting Active Effect");
-
-						ActiveEffect* pEffect = effects->GetNthItem(i);
-
-						ExtraInfoEntry* effectEntry;
-
-						if (pEffect->effect && pEffect->effect->mgef)
-						{
-							DebugMessage("GetCharacterData: Active Effect MGEF found");
-
-							std::string effectName, effectActive;
-
-							EffectSetting* mgef = pEffect->effect->mgef;
-
-							if (mgef->fullName.name.data)
-							{
-								effectName = mgef->fullName.name.data;
-							}
-
-							else
-							{
-								effectName = "Unknown Effect";
-							}
-
-							if ((pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive)
-							{
-								effectActive = "Inactive";
-							}
-
-							else
-							{
-								effectActive = "Active";
-							}
-
-							CreateExtraInfoEntry(effectEntry, effectName, effectActive);
-
-							TESForm* effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
-
-							if (effectBaseForm)
-							{
-								DebugMessage("GetCharacterData: Active Effect MGEF base form found");
-
-								GetCommonFormData(effectEntry, effectBaseForm, nullptr);
-
-								//Magnitude
-								ExtraInfoEntry* magnitudeEntry;
-
-								float magnitude = pEffect->magnitude;
-								CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude));
-								effectEntry->PushBack(magnitudeEntry);
-
-								//Duration
-								ExtraInfoEntry* durationEntry;
-
-								float duration = pEffect->duration;
-								CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration));
-								effectEntry->PushBack(durationEntry);
-
-
-								//Magnitude
-								ExtraInfoEntry* elapsedEntry;
-
-								float elapsed = pEffect->elapsed;
-								CreateExtraInfoEntry(elapsedEntry, "Elapsed", FloatToString(elapsed));
-								effectEntry->PushBack(elapsedEntry);
-
-								GetMagicEffectData(effectEntry, effectBaseForm);
-							}
-						}
-
-						else
-						{
-							CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "");
-						}
-
-						activeEffectsEntry->PushBack(effectEntry);
-
-
-						DebugMessage("GetCharacterData: Ending Active Effect");
-
-						/*if (pEffect->item)
-						scaleformExtend::MagicItemData(effectView, pEffect->item, bRecursive ? bExtra : false, bRecursive); ??? */
-
-						//RegisterBool(effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
-
-						// ActiveEffect
-						//if (pEffect->effect && pEffect->effect->mgef)
-						//	scaleformExtend::MagicItemData(effectView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
-
-						//activeEffects->PushBack(effect);
-						/*
-					}
-				}
-
-				resultArray->PushBack(activeEffectsEntry);
-
-				DebugMessage("GetExtraData: Active Effects Done");
-
-				ExtraInfoEntry * actorValueHealth;
-
-				GetActorValue(actorValueHealth, pActor, actorValueHealthIndex);
-				resultArray->PushBack(actorValueHealth);
-
-				ExtraInfoEntry * actorValueMagicka;
-
-				GetActorValue(actorValueMagicka, pActor, actorValueMagickaIndex);
-				resultArray->PushBack(actorValueMagicka);
-
-				ExtraInfoEntry * actorValueStamina;
-
-				GetActorValue(actorValueStamina, pActor, actorValueStaminahIndex);
-				resultArray->PushBack(actorValueStamina);
-
-				//Get all actor values in a subarray
-				ExtraInfoEntry * actorValueArray;
-				CreateExtraInfoEntry(actorValueArray, "Actor Values", "");
-
-
-				for (int i = 0; i < ActorValueList::kNumActorValues; i++)
-				{
-
-					ExtraInfoEntry * actorValue;
-					GetActorValue(actorValue, pActor, i);
-					actorValueArray->PushBack(actorValue);
-				}
-
-				resultArray->PushBack(actorValueArray);
-
-				DebugMessage("GetExtraData: GetCharacter actor values gotten");
-
-				DebugMessage("Before package");
-
-				ActorProcessManager * pProcess = pActor->processManager;
-
-				if (pProcess)
-				{
-					TESForm * currentPackage = pProcess->unk18.package;
-
-					if (currentPackage)
-					{
-						DebugMessage("Before getting package name");
-
-
-						//TESForm * currentPackage = packageData->currentPackage;
-						std::string packageName = GetName(currentPackage);
-
-						//Placeholder for seeing what has editor IDs
-						ExtraInfoEntry * packageEntry;
-
-						CreateExtraInfoEntry(packageEntry, "Current Package", packageName);
-
-
-						DebugMessage("Before getting package form data");
-
-						GetFormData(packageEntry, currentPackage, nullptr);
-
-						resultArray->PushBack(packageEntry);
-
-					}
-				}
-
-				DebugMessage("After package");
-
-			} //end of a pActor Section
-
+		/*
 			  //Handle Flags
 			int essentialFlag = 0x02;
 			int protectedFlag = 0x800;
@@ -516,4 +293,219 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 	}*/
 	
 	_DMESSAGE("GetExtraData: GetCharacter End");
+}
+
+void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActorBase* actorBase )
+{
+	//Spells
+	ExtraInfoEntry* allSpellsEntry;
+
+	CreateExtraInfoEntry(allSpellsEntry, "Spells", "", priority_Actor_Spells);
+
+	_DMESSAGE("GetSpellsForNPC: Starting Added Spells");
+
+	if (actor)
+	{
+		int numberOfAddedSpells = actor->addedSpells.size();
+
+		//Added Spells
+		for (int i = 0; i < numberOfAddedSpells; i++)
+		{
+			ExtraInfoEntry* spellEntry;
+
+			RE::SpellItem* spell = actor->addedSpells[i];
+			std::string spellName = GetName(spell);
+
+			CreateExtraInfoEntry(spellEntry, spellName, "Added Spell", priority_Actor_Spells_AddedSpell);
+
+			GetFormData(spellEntry, spell, nullptr);
+
+			allSpellsEntry->PushBack(spellEntry);
+		}
+	}
+
+	_DMESSAGE("GetSpellsForNPC: Starting Base Spells");
+
+	if (actorBase->actorEffects)
+	{
+		//Actor Base Spells
+		int numberOfBaseSpells = actorBase->actorEffects->numSpells;
+
+		for (int i = 0; i < numberOfBaseSpells; i++)
+		{
+			ExtraInfoEntry* spellEntry;
+
+			RE::SpellItem* spell = actorBase->actorEffects->spells[i];
+			std::string spellName = GetName(spell);
+
+			CreateExtraInfoEntry(spellEntry, spellName, "Base Spell", priority_Actor_Spells_BaseSpell);
+
+			GetFormData(spellEntry, spell, nullptr);
+
+			allSpellsEntry->PushBack(spellEntry);
+		}
+	}
+
+	resultArray->PushBack(allSpellsEntry);
+
+	_DMESSAGE("GetCharacterData:  Done with spells");
+}
+
+void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
+{
+	//Create a subarray to hold all the active effects for an actor
+	ExtraInfoEntry* activeEffectsEntry;
+
+	CreateExtraInfoEntry(activeEffectsEntry, "Effects", "", priority_Actor_Effects);
+
+	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
+
+	_DMESSAGE("GetCharacterData: Active Effects Gotten");
+
+	if (activeEffects)
+	{
+		for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != activeEffects->end(); (void)itr++)
+		{
+			_DMESSAGE("GetCharacterData: Starting Active Effect");
+
+			RE::ActiveEffect* activeEffect = *(itr);
+
+			ExtraInfoEntry* effectEntry;
+
+			if (activeEffect && activeEffect->effect)
+			{
+				_DMESSAGE("GetCharacterData: Active Effect MGEF found");
+
+				std::string effectActive;
+
+				RE::Effect* effect = activeEffect->effect;
+
+				if (HasFlag((UInt32)activeEffect->flags, (UInt32)RE::ActiveEffect::Flag::kInactive))
+				{
+					effectActive = "Inactive";
+				}
+				else
+				{
+					effectActive = "Active";
+				}
+
+				GetEffectData(activeEffectsEntry, effect, effectActive);
+				/*
+				CreateExtraInfoEntry(effectEntry, effectName, effectActive);
+
+				TESForm* effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
+
+				if (effectBaseForm)
+				{
+					DebugMessage("GetCharacterData: Active Effect MGEF base form found");
+
+					GetCommonFormData(effectEntry, effectBaseForm, nullptr);
+
+					//Magnitude
+					ExtraInfoEntry* magnitudeEntry;
+
+					float magnitude = pEffect->magnitude;
+					CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude));
+					effectEntry->PushBack(magnitudeEntry);
+
+					//Duration
+					ExtraInfoEntry* durationEntry;
+
+					float duration = pEffect->duration;
+					CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration));
+					effectEntry->PushBack(durationEntry);
+
+
+					//Magnitude
+					ExtraInfoEntry* elapsedEntry;
+
+					float elapsed = pEffect->elapsed;
+					CreateExtraInfoEntry(elapsedEntry, "Elapsed", FloatToString(elapsed));
+					effectEntry->PushBack(elapsedEntry);
+
+					etMagicEffectData(effectEntry, effectBaseForm);
+				} */
+			}
+
+			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
+			else
+			{
+				CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
+				activeEffectsEntry->PushBack(effectEntry);
+			}
+
+			_DMESSAGE("GetCharacterData: Ending Active Effect");
+
+		}
+	}
+
+	resultArray->PushBack(activeEffectsEntry);
+
+	_DMESSAGE("GetExtraData: Active Effects Done");
+	/*
+	ExtraInfoEntry * actorValueHealth;
+
+	GetActorValue(actorValueHealth, pActor, actorValueHealthIndex);
+	resultArray->PushBack(actorValueHealth);
+
+	ExtraInfoEntry * actorValueMagicka;
+
+	GetActorValue(actorValueMagicka, pActor, actorValueMagickaIndex);
+	resultArray->PushBack(actorValueMagicka);
+
+	ExtraInfoEntry * actorValueStamina;
+
+	GetActorValue(actorValueStamina, pActor, actorValueStaminahIndex);
+	resultArray->PushBack(actorValueStamina);
+
+	//Get all actor values in a subarray
+	ExtraInfoEntry * actorValueArray;
+	CreateExtraInfoEntry(actorValueArray, "Actor Values", "");
+
+
+	for (int i = 0; i < ActorValueList::kNumActorValues; i++)
+	{
+
+		ExtraInfoEntry * actorValue;
+		GetActorValue(actorValue, pActor, i);
+		actorValueArray->PushBack(actorValue);
+	}
+
+	resultArray->PushBack(actorValueArray);
+
+	DebugMessage("GetExtraData: GetCharacter actor values gotten");
+
+	DebugMessage("Before package");
+
+	ActorProcessManager * pProcess = pActor->processManager;
+
+	if (pProcess)
+	{
+		TESForm * currentPackage = pProcess->unk18.package;
+
+		if (currentPackage)
+		{
+			DebugMessage("Before getting package name");
+
+
+			//TESForm * currentPackage = packageData->currentPackage;
+			std::string packageName = GetName(currentPackage);
+
+			//Placeholder for seeing what has editor IDs
+			ExtraInfoEntry * packageEntry;
+
+			CreateExtraInfoEntry(packageEntry, "Current Package", packageName);
+
+
+			DebugMessage("Before getting package form data");
+
+			GetFormData(packageEntry, currentPackage, nullptr);
+
+			resultArray->PushBack(packageEntry);
+
+		}
+	}
+
+	DebugMessage("After package");
+	*/
 }

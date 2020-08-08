@@ -44,6 +44,7 @@ enum priority
 	priority_Actor_Spells,
 	priority_Actor_Spells_AddedSpell,
 	priority_Actor_Spells_BaseSpell,
+	priority_Actor_Effects,
 	//Armature
 	priority_Arma_SkinMale,
 	priority_Arma_SkinFemale,
@@ -78,6 +79,15 @@ enum priority
 	priority_Effect_Magnitude,
 	priority_Effect_Duration,
 	priority_Effect_Area,
+	//EffectSetting
+	priority_EffectSetting_EffectType,
+	priority_EffectSetting_Skill,
+	priority_EffectSetting_PrimaryAV,
+	priority_EffectSetting_SecondaryAV,
+	priority_EffectSetting_Resistance,
+	priority_EffectSetting_Hostile,
+	priority_EffectSetting_MinimumSkill,
+	priority_EffectSetting_DeliveryType,
 	//Texture Set
 	priority_TextureSet_TextureSet,
 	priority_TextureSet_TextureName,
