@@ -7,231 +7,259 @@
 void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
 	_DMESSAGE( ("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType) ).c_str() );
-	if (baseForm->formType == RE::FormType::Static)
+	switch (baseForm->GetFormType())
 	{
-		RE::TESObjectSTAT* staticForm = static_cast<RE::TESObjectSTAT*>(baseForm);
-
-		if (staticForm)
+		case RE::FormType::Static:
 		{
-			RE::TESModelTextureSwap* textSwap = staticForm->GetAsModelTextureSwap();
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
+			RE::TESObjectSTAT* staticForm = static_cast<RE::TESObjectSTAT*>(baseForm);
 
-	else if (baseForm->formType == RE::FormType::MovableStatic)
-	{
-		RE::BGSMovableStatic* movableStatic = static_cast<RE::BGSMovableStatic*>(baseForm);
-
-		if (movableStatic)
-		{
-			RE::TESModelTextureSwap* textSwap = movableStatic->GetAsModelTextureSwap();
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (baseForm->formType == RE::FormType::Activator)
-	{
-		RE::TESObjectACTI* activator = static_cast<RE::TESObjectACTI*>(baseForm);
-
-		if (activator)
-		{
-			RE::TESModelTextureSwap* textSwap = activator->GetAsModelTextureSwap();
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	/*
-
-
-	else if (pBaseForm->formType == kFormType_Tree)
-	{
-		TESObjectTREE* pTree = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectTREE);
-
-		if (pTree)
-		{
-			TESModel* model = &(pTree->model);
-			AddModelEntry(resultArray, "Model", model);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Flora)
-	{
-		TESFlora* pFlora = DYNAMIC_CAST(pBaseForm, TESForm, TESFlora);
-
-		if (pFlora)
-		{
-			TESModelTextureSwap* textSwap = &(pFlora->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Furniture)
-	{
-		TESFurniture* pFurniture = DYNAMIC_CAST(pBaseForm, TESForm, TESFurniture);
-
-		if (pFurniture)
-		{
-			TESModelTextureSwap* textSwap = &(pFurniture->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Door)
-	{
-		TESObjectDOOR* pDoor = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectDOOR);
-		if (pDoor)
-		{
-			TESModelTextureSwap* textSwap = &(pDoor->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Container)
-	{
-		TESObjectCONT* pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
-		if (pContainer)
-		{
-			TESModelTextureSwap* textSwap = &(pContainer->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Misc)
-	{
-		TESObjectMISC* pMisc = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectMISC);
-		if (pMisc)
-		{
-			TESModelTextureSwap* textSwap = &(pMisc->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Book)
-	{
-		TESObjectBOOK* pBook = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectBOOK);
-		if (pBook)
-		{
-			TESModelTextureSwap* textSwap = &(pBook->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Key)
-	{
-		TESKey* pKey = DYNAMIC_CAST(pBaseForm, TESForm, TESKey);
-		if (pKey)
-		{
-			TESModelTextureSwap* textSwap = &(pKey->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_SoulGem)
-	{
-		TESSoulGem* pSoulGem = DYNAMIC_CAST(pBaseForm, TESForm, TESSoulGem);
-		if (pSoulGem)
-		{
-			TESModelTextureSwap* textSwap = &(pSoulGem->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Ingredient)
-	{
-		IngredientItem* pIngredient = DYNAMIC_CAST(pBaseForm, TESForm, IngredientItem);
-		if (pIngredient)
-		{
-			TESModelTextureSwap* textSwap = &(pIngredient->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-	else if (pBaseForm->formType == kFormType_Potion)
-	{
-		AlchemyItem* pAlchemy = DYNAMIC_CAST(pBaseForm, TESForm, AlchemyItem);
-		if (pAlchemy)
-		{
-			TESModelTextureSwap* textSwap = &(pAlchemy->texSwap);
-			AddModelEntry(resultArray, "Model", textSwap);
-		}
-	}
-
-
-	else if (pBaseForm->formType == kFormType_Weapon)
-	{
-		TESObjectWEAP* pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
-		if (pWeapon)
-		{
-			TESModelTextureSwap* textSwap = &(pWeapon->texSwap);
-
-			if (textSwap)
+			if (staticForm)
 			{
+				RE::TESModelTextureSwap* textSwap = staticForm->GetAsModelTextureSwap();
 				AddModelEntry(resultArray, "Model", textSwap);
 			}
 
-			TESObjectSTAT* firstPersonModel = pWeapon->model;
+			break;
+		}
 
-			if (firstPersonModel)
+		case RE::FormType::MovableStatic:
+		{
+			RE::BGSMovableStatic* movableStatic = static_cast<RE::BGSMovableStatic*>(baseForm);
+
+			if (movableStatic)
 			{
-				TESModelTextureSwap* textSwapFirstPerson = &(firstPersonModel->texSwap);
+				RE::TESModelTextureSwap* textSwap = movableStatic->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
 
-				if (textSwapFirstPerson)
+			break;
+		}
+
+		case RE::FormType::Activator:
+		{
+			RE::TESObjectACTI* activator = static_cast<RE::TESObjectACTI*>(baseForm);
+
+			if (activator)
+			{
+				RE::TESModelTextureSwap* textSwap = activator->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+		
+			break;
+		}
+
+		case RE::FormType::Tree:
+		{
+			RE::TESObjectTREE* tree = static_cast<RE::TESObjectTREE*>(baseForm);
+
+			if (tree)
+			{
+				RE::TESModelTextureSwap* textSwap = tree->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Flora:
+		{
+			RE::TESFlora* flora = static_cast<RE::TESFlora*>(baseForm);
+
+			if (flora)
+			{
+				RE::TESModelTextureSwap* textSwap = flora->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Furniture:
+		{
+			RE::TESFurniture* funiture = static_cast<RE::TESFurniture*>(baseForm);
+
+			if (funiture)
+			{
+				RE::TESModelTextureSwap* textSwap = funiture->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Door:
+		{
+			RE::TESObjectDOOR* door = static_cast<RE::TESObjectDOOR*>(baseForm);
+
+			if (door)
+			{
+				RE::TESModelTextureSwap* textSwap = door->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Container:
+		{
+			RE::TESObjectCONT* container = static_cast<RE::TESObjectCONT*>(baseForm);
+
+			if (container)
+			{
+				RE::TESModelTextureSwap* textSwap = container->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Misc:
+		{
+			RE::TESObjectMISC* misc = static_cast<RE::TESObjectMISC*>(baseForm);
+
+			if (misc)
+			{
+				RE::TESModelTextureSwap* textSwap = misc->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Book:
+		{
+			RE::TESObjectBOOK* book = static_cast<RE::TESObjectBOOK*>(baseForm);
+
+			if (book)
+			{
+				RE::TESModelTextureSwap* textSwap = book->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::KeyMaster:
+		{
+			RE::TESKey* key = static_cast<RE::TESKey*>(baseForm);
+
+			if (key)
+			{
+				RE::TESModelTextureSwap* textSwap = key->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::SoulGem:
+		{
+			RE::TESSoulGem* soulgem = static_cast<RE::TESSoulGem*>(baseForm);
+
+			if (soulgem)
+			{
+				RE::TESModelTextureSwap* textSwap = soulgem->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Ingredient:
+		{
+			RE::IngredientItem* ingredient = static_cast<RE::IngredientItem*>(baseForm);
+
+			if (ingredient)
+			{
+				RE::TESModelTextureSwap* textSwap = ingredient->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::AlchemyItem:
+		{
+			RE::AlchemyItem* alchemyItem = static_cast<RE::AlchemyItem*>(baseForm);
+
+			if (alchemyItem)
+			{
+				RE::TESModelTextureSwap* textSwap = alchemyItem->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Light:
+		{
+			RE::TESObjectLIGH* light = static_cast<RE::TESObjectLIGH*>(baseForm);
+
+			if (light)
+			{
+				RE::TESModelTextureSwap* textSwap = light->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwap);
+			}
+
+			break;
+		}
+
+		case RE::FormType::Weapon:
+		{
+			RE::TESObjectWEAP* weapon = static_cast<RE::TESObjectWEAP*>(baseForm);
+
+			if (weapon)
+			{
+				RE::TESModelTextureSwap* textSwapModel = weapon->GetAsModelTextureSwap();
+				AddModelEntry(resultArray, "Model", textSwapModel);
+
+				//Get first person model
+				RE::TESObjectSTAT* firstPersonModel = weapon->firstPersonModelObject;
+				if (firstPersonModel)
 				{
-					AddModelEntry(resultArray, "First Person Model", textSwapFirstPerson);
+					RE::TESModelTextureSwap* textSwapFirstPersonModel = firstPersonModel->GetAsModelTextureSwap();
+					AddModelEntry(resultArray, "First Person Model", textSwapFirstPersonModel);
+				}
+
+			}
+
+			break;
+		}
+
+		case RE::FormType::Armature:
+		{
+			RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
+			if (arma)
+			{
+				RE::TESModelTextureSwap* maleModel = &(arma->bipedModels[RE::SEXES::kMale]);
+
+				if (maleModel)
+				{
+					AddModelEntry(resultArray, "Model Male", maleModel);
+				}
+
+				RE::TESModelTextureSwap* femaleModel = &(arma->bipedModels[RE::SEXES::kFemale]);
+				if (femaleModel)
+				{
+					AddModelEntry(resultArray, "Model Female", femaleModel);
+				}
+
+				RE::TESModelTextureSwap* maleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kMale]);
+				if (maleFirstPerson)
+				{
+					AddModelEntry(resultArray, "Model Male 1st Person", maleFirstPerson);
+				}
+
+				RE::TESModelTextureSwap* femaleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kFemale]);
+				if (femaleFirstPerson)
+				{
+					AddModelEntry(resultArray, "Model Female 1st Person", femaleFirstPerson);
 				}
 			}
+
+			break;
 		}
 	}
-	*/
-	else if ( baseForm->formType == RE::FormType::Armature )
-	{
-		RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
-		if (arma)
-		{
-			RE::TESModelTextureSwap* maleModel = &(arma->bipedModels[RE::SEXES::kMale]);
-
-			if (maleModel)
-			{
-				AddModelEntry(resultArray, "Model Male", maleModel);
-			}
-
-			RE::TESModelTextureSwap* femaleModel = &(arma->bipedModels[RE::SEXES::kFemale]);
-			if (femaleModel)
-			{
-				AddModelEntry(resultArray, "Model Female", femaleModel);
-			}
-
-			RE::TESModelTextureSwap* maleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kMale]);
-			if (maleFirstPerson)
-			{
-				AddModelEntry(resultArray, "Model Male 1st Person", maleFirstPerson);
-			}
-
-			RE::TESModelTextureSwap* femaleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kFemale]);
-			if (femaleFirstPerson)
-			{
-				AddModelEntry(resultArray, "Model Female 1st Person", femaleFirstPerson);
-			}
-		}
-	}
-	/*
-	//_MESSAGE( textSwap->GetModelName() ); //example output Architecture\Winterhold\WinterholdExtTowerRing01.nif
-
-	/*
-	int count = textSwap->count;
-
-	_MESSAGE(IntToString(count).c_str());
-
-	for (int i = 0; i < count; i++)
-	{
-	BGSTextureSet * textureSet = textSwap->swaps[i].textureSet;
-
-	for (int i = 0; i < textureSet->kNumTextures; i++)
-	{
-	_MESSAGE(textureSet->texturePaths[i].str);
-	}
-	}*/
-	
 
 	_DMESSAGE("Ending GetModelTextures");
 }

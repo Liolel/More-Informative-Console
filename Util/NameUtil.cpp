@@ -220,182 +220,150 @@ std::string GetName(RE::TESForm* baseForm)
 			}
 			break;
 		}
-	/*
-	case kFormType_Ammo:
-	{
-		DebugMessage("GetExtraData: GetName Ammo");
-		TESAmmo* pAmmo = DYNAMIC_CAST(pBaseForm, TESForm, TESAmmo);
-		if (pAmmo)
+
+		case RE::FormType::Ammo:
 		{
-			if (pAmmo->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Ammo");
+			RE::TESAmmo* ammo = static_cast<RE::TESAmmo*>(baseForm);
+
+			if (ammo)
 			{
-				name = pAmmo->fullName.name.data;
+				name = ammo->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Weapon:
-	{
-		DebugMessage("GetExtraData: GetName Weapon");
-		TESObjectWEAP* pWeapon = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectWEAP);
-		if (pWeapon)
+		case RE::FormType::Weapon:
 		{
-			if (pWeapon->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Weapon");
+			RE::TESObjectWEAP* weapon = static_cast<RE::TESObjectWEAP*>(baseForm);
+
+			if (weapon)
 			{
-				name = pWeapon->fullName.name.data;
+				name = weapon->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_SoulGem:
-	{
-		DebugMessage("GetExtraData: GetName Soul Gem");
-		TESSoulGem* pSoul = DYNAMIC_CAST(pBaseForm, TESForm, TESSoulGem);
-		if (pSoul)
+		case RE::FormType::SoulGem:
 		{
-			if (pSoul->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Soul gem");
+			RE::TESSoulGem* soulgem = static_cast<RE::TESSoulGem*>(baseForm);
+
+			if (soulgem)
 			{
-				name = pSoul->fullName.name.data;
+				name = soulgem->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Book:
-	{
-		DebugMessage("GetExtraData: GetName Book");
-		TESObjectBOOK* pBook = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectBOOK);
-		if (pBook)
+		case RE::FormType::Book:
 		{
-			if (pBook->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Book");
+			RE::TESObjectBOOK* book = static_cast<RE::TESObjectBOOK*>(baseForm);
+
+			if (book)
 			{
-				name = pBook->fullName.name.data;
+				name = book->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Misc:
-	{
-		DebugMessage("GetExtraData: GetName Misc Item");
-		TESObjectMISC* pMisc = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectMISC);
-		if (pMisc)
+		case RE::FormType::Misc:
 		{
-			if (pMisc->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Misc");
+			RE::TESObjectMISC* misc = static_cast<RE::TESObjectMISC*>(baseForm);
+
+			if (misc)
 			{
-				name = pMisc->fullName.name.data;
+				name = misc->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Key:
-	{
-		DebugMessage("GetExtraData: GetName Key Item");
-		TESKey* pKey = DYNAMIC_CAST(pBaseForm, TESForm, TESKey);
-		if (pKey)
+		case RE::FormType::KeyMaster:
 		{
-			if (pKey->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Key");
+			RE::TESKey* key = static_cast<RE::TESKey*>(baseForm);
+
+			if (key)
 			{
-				name = pKey->fullName.name.data;
+				name = key->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Container:
-	{
-		DebugMessage("GetExtraData: GetName Container");
-		TESObjectCONT* pContainer = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
-		if (pContainer)
+		case RE::FormType::Container:
 		{
-			if (pContainer->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Container");
+			RE::TESObjectCONT* container = static_cast<RE::TESObjectCONT*>(baseForm);
+
+			if (container)
 			{
-				name = pContainer->fullName.name.data;
+				name = container->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Light:
-	{
-		DebugMessage("GetExtraData: GetName Light");
-		TESObjectLIGH* pLight = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectLIGH);
-		if (pLight)
+		case RE::FormType::Light:
 		{
-			if (pLight->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Light");
+			RE::TESObjectLIGH* light = static_cast<RE::TESObjectLIGH*>(baseForm);
+
+			if (light)
 			{
-				name = pLight->fullName.name.data;
+				name = light->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Shout:
-	{
-		DebugMessage("GetExtraData: GetName Shout");
-		TESShout* pShout = DYNAMIC_CAST(pBaseForm, TESForm, TESShout);
-		if (pShout)
+		case RE::FormType::Shout:
 		{
-			if (pShout->fullName.name.data)
+			_DMESSAGE("GetExtraData: GetName Shout");
+			RE::TESShout* shout = static_cast<RE::TESShout*>(baseForm);
+
+			if (shout)
 			{
-				name = pShout->fullName.name.data;
+				name = shout->fullName.c_str();
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Perk:
-	{
-		DebugMessage("GetExtraData: GetName Perk");
-		BGSPerk* pPerk = DYNAMIC_CAST(pBaseForm, TESForm, BGSPerk);
-		if (pPerk)
+		case RE::FormType::Perk:
 		{
-			if (pPerk->fullName.name.data)
-			{
-				name = pPerk->fullName.name.data;
-			}
+			_DMESSAGE("GetExtraData: GetName Perk");
+			RE::BGSPerk* perk = static_cast<RE::BGSPerk*>(baseForm);
 
-			if (name == "")
+			if (perk)
 			{
-				name = FormIDToString(pBaseForm->formID);
+				name = perk->fullName.c_str();
+
+				//If the name is empty show the formID as a backup
+				if (name == "")
+				{
+					name = FormIDToString(baseForm->formID);
+				}
 			}
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Faction:
-	{
-		DebugMessage("GetExtraData: GetName Faction");
-		TESFaction* pFaction = DYNAMIC_CAST(pBaseForm, TESForm, TESFaction);
-		if (pFaction)
+		case RE::FormType::Faction:
 		{
-			if (pFaction->fullName.name.data)
-			{
-				name = pFaction->fullName.name.data;
-			}
+			_DMESSAGE("GetExtraData: GetName Faction");
+			RE::TESFaction* faction = static_cast<RE::TESFaction*>(baseForm);
 
-			//if no name was found
-			if (name == "")
+			if (faction)
 			{
-				name = FormIDToString(pBaseForm->formID);
+				name = faction->fullName.c_str();
+
+				//If the name is empty show the formID as a backup
+				if (name == "")
+				{
+					name = FormIDToString(baseForm->formID);
+				}
 			}
+			break;
 		}
-
-		break;
-	}*/
 
 		case RE::FormType::Race:
 		{
@@ -420,30 +388,30 @@ std::string GetName(RE::TESForm* baseForm)
 
 			break;
 		}
-	/*
-	case kFormType_WorldSpace:
-	{
-		DebugMessage("GetExtraData: GetName Worldspace");
-		TESWorldSpace* pWorld = DYNAMIC_CAST(pBaseForm, TESForm, TESWorldSpace);
-		if (pWorld && pWorld->fullName.name.data)
+
+		case RE::FormType::WorldSpace:
 		{
-			name = pWorld->fullName.name.data;
+			_DMESSAGE("GetExtraData: GetName Worldspace");
+			RE::TESWorldSpace* worldspace = static_cast<RE::TESWorldSpace*>(baseForm);
+			if (worldspace)
+			{
+				name = worldspace->fullName.c_str();
+			}
+
+			break;
 		}
 
-		break;
-	}
-
-	case kFormType_Cell:
-	{
-		DebugMessage("GetExtraData: GetName Worldspace");
-		TESObjectCELL* pCell = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCELL);
-		if (pCell && pCell->fullName.name.data)
+		case RE::FormType::Cell:
 		{
-			name = pCell->fullName.name.data;
-		}
+			_DMESSAGE("GetExtraData: GetName Cell");
+			RE::TESObjectCELL* cell = static_cast<RE::TESObjectCELL*>(baseForm);
+			if (cell)
+			{
+				name = cell->fullName.c_str();
+			}
 
-		break;
-	}*/
+			break;
+		}
 
 	//for objects with no name data show the formID
 		case RE::FormType::Package:

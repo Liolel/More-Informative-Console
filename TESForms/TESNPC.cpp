@@ -215,13 +215,6 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 			*/
 		}
 	}
-
-
-	/*PlayerCharacter* pPC = DYNAMIC_CAST(pForm, TESForm, PlayerCharacter);
-	if (pPC)
-	{
-	RegisterNumber(pFxVal, "perkPoints", (double)pPC->numPerkPoints);
-	}*/
 	
 	_DMESSAGE("GetExtraData: GetCharacter End");
 }
