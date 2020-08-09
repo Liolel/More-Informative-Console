@@ -399,7 +399,7 @@ std::string FloatToString(float number)
 	ss << number;
 	return ss.str();
 }
-/*
+
 std::string DoubleToString(double number)
 {
 	std::ostringstream ss;
@@ -407,7 +407,6 @@ std::string DoubleToString(double number)
 	return ss.str();
 }
 
-*/
 std::string FormIDToString(int formID)
 {
 	std::ostringstream ss;

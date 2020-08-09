@@ -1,4 +1,5 @@
 #include "NameUtil.h"
+#include "GeneralUtil.h"
 #include "SKSE/Logger.h"
 
 //Vector of all form types used to convert form types into readable strings
@@ -442,15 +443,15 @@ std::string GetName(RE::TESForm* baseForm)
 		}
 
 		break;
-	}
+	}*/
 
 	//for objects with no name data show the formID
-	case kFormType_Package:
-	{
-		name = FormIDToString(pBaseForm->formID);
-		break;
-	}
-	*/
+		case RE::FormType::Package:
+		{
+			name = FormIDToString(baseForm->formID);
+			break;
+		}
+	
 	}
 
 	_DMESSAGE(("GetExtraData: GetName End: " + name).c_str());

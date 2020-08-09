@@ -71,79 +71,10 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 			{
 				GetActorData(resultArray, actor);
 			}
+
+			GetLevelData(resultArray, actor, npc);
 		/*
-			  //Handle Flags
-			int essentialFlag = 0x02;
-			int protectedFlag = 0x800;
-
-			ExtraInfoEntry * protectionEntry;
-
-
-			if ((pNPC->actorData.flags & essentialFlag) == essentialFlag)
-			{
-				CreateExtraInfoEntry(protectionEntry, "Protection", "Essential");
-			}
-
-			else if ((pNPC->actorData.flags & protectedFlag) == protectedFlag)
-			{
-				CreateExtraInfoEntry(protectionEntry, "Protection", "Protected");
-			}
-
-			else
-			{
-				CreateExtraInfoEntry(protectionEntry, "Protection", "None");
-			}
-
-			resultArray->PushBack(protectionEntry);
-
-			//Level stuff
-
-			if (pActor)
-			{
-
-				int level = CALL_MEMBER_FN(pActor, GetLevel)();
-
-				ExtraInfoEntry * levelEntry;
-
-				CreateExtraInfoEntry(levelEntry, "Level", IntToString(level));
-				resultArray->PushBack(levelEntry);
-
-				DebugMessage("GetExtraData: GetCharacter level gotten");
-			}
-
-			ExtraInfoEntry * isPcLeveledEntry;
-
-			bool isLevelMult = (pNPC->actorData.flags & TESActorBaseData::kFlag_PCLevelMult) == TESActorBaseData::kFlag_PCLevelMult;
-			if (isLevelMult)
-			{
-				DebugMessage("GetExtraData: GetCharacter pc level mult set");
-
-
-				CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", "True");
-
-				double levelMult = (double)pNPC->actorData.level / 1000.0;
-				int minLevel = pNPC->actorData.minLevel;
-				int maxLevel = pNPC->actorData.maxLevel;
-
-				ExtraInfoEntry * levelMultEntry, * minLevelEntry, * maxLevelEntry;
-
-				CreateExtraInfoEntry(levelMultEntry, "Level Mult", DoubleToString(levelMult));
-				isPcLeveledEntry->PushBack(levelMultEntry);
-
-				CreateExtraInfoEntry(minLevelEntry, "Min level", IntToString(minLevel));
-				isPcLeveledEntry->PushBack(minLevelEntry);
-
-				CreateExtraInfoEntry(maxLevelEntry, "Max Level", IntToString(maxLevel));
-				isPcLeveledEntry->PushBack(maxLevelEntry);
-			}
-			else
-			{
-				DebugMessage("GetExtraData: GetCharacter pc level mult not set");
-
-				CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", "False");
-			}
-
-			resultArray->PushBack(isPcLeveledEntry);
+			
 
 			//Perks
 			int numPerks = pActorBase->perkRanks.numPerkRanks;
@@ -390,41 +321,6 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 				}
 
 				GetEffectData(activeEffectsEntry, effect, effectActive);
-				/*
-				CreateExtraInfoEntry(effectEntry, effectName, effectActive);
-
-				TESForm* effectBaseForm = DYNAMIC_CAST(mgef, EffectSetting, TESForm);
-
-				if (effectBaseForm)
-				{
-					DebugMessage("GetCharacterData: Active Effect MGEF base form found");
-
-					GetCommonFormData(effectEntry, effectBaseForm, nullptr);
-
-					//Magnitude
-					ExtraInfoEntry* magnitudeEntry;
-
-					float magnitude = pEffect->magnitude;
-					CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude));
-					effectEntry->PushBack(magnitudeEntry);
-
-					//Duration
-					ExtraInfoEntry* durationEntry;
-
-					float duration = pEffect->duration;
-					CreateExtraInfoEntry(durationEntry, "Duration", FloatToString(duration));
-					effectEntry->PushBack(durationEntry);
-
-
-					//Magnitude
-					ExtraInfoEntry* elapsedEntry;
-
-					float elapsed = pEffect->elapsed;
-					CreateExtraInfoEntry(elapsedEntry, "Elapsed", FloatToString(elapsed));
-					effectEntry->PushBack(elapsedEntry);
-
-					etMagicEffectData(effectEntry, effectBaseForm);
-				} */
 			}
 
 			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
@@ -460,30 +356,23 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 	resultArray->PushBack(actorValueArray);
 
 	_DMESSAGE("GetActorData: actor values gotten");
-	/*
-	DebugMessage("Before package");
+	
+	RE::AIProcess* aiProcess = actor->currentProcess;
 
-	ActorProcessManager * pProcess = pActor->processManager;
-
-	if (pProcess)
+	if (aiProcess)
 	{
-		TESForm * currentPackage = pProcess->unk18.package;
+		RE::TESForm* currentPackage = aiProcess->currentPackage.package;
 
 		if (currentPackage)
 		{
-			DebugMessage("Before getting package name");
+			_DMESSAGE("GetActorData: Found current package");
 
-
-			//TESForm * currentPackage = packageData->currentPackage;
 			std::string packageName = GetName(currentPackage);
 
 			//Placeholder for seeing what has editor IDs
 			ExtraInfoEntry * packageEntry;
 
-			CreateExtraInfoEntry(packageEntry, "Current Package", packageName);
-
-
-			DebugMessage("Before getting package form data");
+			CreateExtraInfoEntry(packageEntry, "Current Package", packageName, priority_Actor_CurrentPackage);
 
 			GetFormData(packageEntry, currentPackage, nullptr);
 
@@ -492,8 +381,29 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 		}
 	}
 
-	DebugMessage("After package");
-	*/
+	//Check if a npc is protected/essential
+	ExtraInfoEntry* protectionEntry;
+	std::string  protectionStatus;
+
+	if ( HasFlag((UInt32)actor->boolFlags, (UInt32)RE::Actor::BOOL_FLAGS::kEssential ) )
+	{
+		protectionStatus = "Essential";
+	}
+
+	else if ( HasFlag((UInt32)actor->boolFlags, (UInt32)RE::Actor::BOOL_FLAGS::kProtected ) )
+	{
+		protectionStatus = "Protected";
+	}
+
+	else
+	{
+		protectionStatus = "None";
+	}
+	CreateExtraInfoEntry(protectionEntry, "Protection", protectionStatus, priority_Actor_Protection);
+
+	resultArray->PushBack(protectionEntry);
+
+	_DMESSAGE("GetActorData: End");
 }
 
 void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, priority actorValuePriority)
@@ -528,4 +438,49 @@ void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, prior
 	}
 
 	_DMESSAGE("GetExtraData: GetActover Value End");
+}
+
+void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* npc)
+{
+	//Level stuff	
+	_DMESSAGE("GetLevelData: Start");
+
+	if (actor)
+	{
+		int level = actor->GetLevel();
+
+		ExtraInfoEntry* levelEntry;
+
+		CreateExtraInfoEntry(levelEntry, "Level", IntToString(level), priority_Actor_Level);
+		resultArray->PushBack(levelEntry);
+	}
+
+	ExtraInfoEntry* isPcLeveledEntry;
+
+	bool isLevelMult = HasFlag((UInt32)npc->actorData.actorBaseFlags, (UInt32)RE::ACTOR_BASE_DATA::Flag::kPCLevelMult );
+	CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", BooleanToYesNoString(isLevelMult), priority_Actor_IsPCLeveleMult);
+
+	if (isLevelMult)
+	{
+		_DMESSAGE("GetLevelData: GetCharacter pc level mult");
+
+		float levelMult = (float)npc->actorData.level / 1000.0; //I don't know why the level mult is stored in memory as 1000 times what the value you'd see in TESEdit is, but this division is needed to fix that
+		int minLevel = npc->actorData.calcLevelMin;
+		int maxLevel = npc->actorData.calcLevelMax;
+
+		ExtraInfoEntry* levelMultEntry, * minLevelEntry, * maxLevelEntry;
+
+		CreateExtraInfoEntry(levelMultEntry, "Level Mult", FloatToString(levelMult), priority_Actor_IsPCLeveleMult_LevelMult);
+		isPcLeveledEntry->PushBack(levelMultEntry);
+
+		CreateExtraInfoEntry(minLevelEntry, "Min level", IntToString(minLevel), priority_Actor_IsPCLeveleMult_LevelMin);
+		isPcLeveledEntry->PushBack(minLevelEntry);
+
+		CreateExtraInfoEntry(maxLevelEntry, "Max Level", IntToString(maxLevel), priority_Actor_IsPCLeveleMult_LevelMax);
+		isPcLeveledEntry->PushBack(maxLevelEntry);
+	}
+
+	resultArray->PushBack(isPcLeveledEntry);
+
+	_DMESSAGE("GetLevelData: End");
 }
