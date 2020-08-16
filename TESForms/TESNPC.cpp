@@ -73,146 +73,14 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 			}
 
 			GetLevelData(resultArray, actor, npc);
-		/*
-			
 
 			//Perks
-			int numPerks = pActorBase->perkRanks.numPerkRanks;
+			GetPerksForNPC(resultArray, actorBase, player);
 
-			DebugMessage("GetExtraData: Starting Perks - Total Number" + IntToString(numPerks));
+			//Appearance
+			GetNPCAppearanceData(resultArray, npc); 
 
-			ExtraInfoEntry * perks;
-			CreateExtraInfoEntry(perks, "Perks", "");
-
-			for (int i = 0; i < numPerks; i++)
-			{
-				DebugMessage("GetExtraData: Starting Perk num" + IntToString(i));
-
-				BGSPerk *perk = pActorBase->perkRanks.perkRanks[i].perk;
-
-				if (perk)
-				{
-					//int rank = pActorBase->perkRanks.perkRanks[i].rank;
-
-					std::string name = GetName(perk);
-
-					ExtraInfoEntry * perkEntry;
-
-					CreateExtraInfoEntry(perkEntry, name, "");
-
-					GetFormData(perkEntry, perk, nullptr);
-
-					//ExtraInfoEntry * perkEntryRank;
-
-					//CreateExtraInfoEntry(perkEntryRank, "Rank", IntToString(rank) );
-					//perkEntrySubArray->PushBack(perkEntryRank);
-
-					perks->PushBack(perkEntry);
-				}
-			}
-
-			if (pPlayer != nullptr)
-			{
-				int numPlayerPerks = pPlayer->addedPerks.count;
-
-				DebugMessage("GetExtraData: Starting Player Perks - Total Number" + IntToString(numPlayerPerks));
-
-				for (int i = 0; i < numPlayerPerks; i++)
-				{
-					DebugMessage("GetExtraData: Starting Player Perk num" + IntToString(i));
-
-					BGSPerk *perk = pPlayer->addedPerks[i]->perk;
-
-					if (perk)
-					{
-						//int rank = pPlayer->addedPerks[i]->rank;
-
-						std::string name = GetName(perk);
-
-						ExtraInfoEntry * perkEntry;
-
-						CreateExtraInfoEntry(perkEntry, name, "");
-
-						GetFormData(perkEntry, perk, nullptr);
-
-						//ExtraInfoEntry * perkEntryRank;
-
-						//CreateExtraInfoEntry(perkEntryRank, "Rank", IntToString(rank));
-						//perkEntrySubArray->PushBack(perkEntryRank);
-
-						perks->PushBack(perkEntry);
-					}
-				}
-			}
-
-			resultArray->PushBack(perks);
-
-			DebugMessage("GetExtraData: Done with perks");
-
-
-
-			//apperance - currently height and weight
-			DebugMessage("GetExtraData: appearance Started");
-
-			ExtraInfoEntry * appearance;
-			CreateExtraInfoEntry(appearance, "Appearance", "");
-
-			float weight = pNPC->weight;
-
-			ExtraInfoEntry * weightEntry;
-
-			CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight));
-			appearance->PushBack(weightEntry);
-
-			float height = pNPC->height;
-
-			ExtraInfoEntry * heightEntry;
-
-			CreateExtraInfoEntry(heightEntry, "Height", FloatToString(height));
-			appearance->PushBack(heightEntry);
-
-			resultArray->PushBack(appearance);
-
-			DebugMessage("GetExtraData: appearance Ended");
-
-			DebugMessage("GetExtraData: factions start");
-
-			ExtraInfoEntry * factionsEntry;
-
-			CreateExtraInfoEntry(factionsEntry, "Factions", "");
-
-			//Factions
-			int numFactions = pActorBase->actorData.factions.count;
-
-			if (numFactions > 0)
-			{
-				for (int i = 0; i < numFactions; i++)
-				{
-					TESActorBaseData::FactionInfo factionInfo = pActorBase->actorData.factions[i];
-					TESFaction *faction = factionInfo.faction;
-
-					if (faction)
-					{
-						ExtraInfoEntry * factionEntry;
-
-						std::string factionName = GetName(faction);
-						int rank = factionInfo.rank;
-
-						CreateExtraInfoEntry(factionEntry, factionName, "Rank: " + IntToString(rank));
-
-						GetFormData(factionEntry, faction, nullptr);
-
-						factionsEntry->PushBack(factionEntry);
-					}
-				}
-			}
-
-			resultArray->PushBack(factionsEntry);
-
-			//need to get factions off of reference as well
-
-			DebugMessage("GetExtraData: factions ended");
-			*/
+			GetFactionsForNPC(resultArray, actor, actorBase);
 		}
 	}
 	
@@ -476,4 +344,157 @@ void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* np
 	resultArray->PushBack(isPcLeveledEntry);
 
 	_DMESSAGE("GetLevelData: End");
+}
+
+void GetPerksForNPC( ExtraInfoEntry*& resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player )
+{
+	_DMESSAGE("Starting GetPerks");
+	int numPerks = actorBase->perkCount;
+
+	ExtraInfoEntry* perks;
+	CreateExtraInfoEntry(perks, "Perks", "", priority_Actor_Perks);
+
+	for (int i = 0; i < numPerks; i++)
+	{
+		RE::BGSPerk* perk = actorBase->perks[i].perk;
+
+		if (perk)
+		{
+			std::string name = GetName(perk);
+
+			ExtraInfoEntry* perkEntry;
+
+			CreateExtraInfoEntry(perkEntry, name, "", priority_Actor_Perks_Perk);
+
+			GetFormData(perkEntry, perk, nullptr);
+
+			perks->PushBack(perkEntry);
+		}
+	}
+
+	if (player != nullptr)
+	{
+		_DMESSAGE(" GetPerks: Starting Player Perks ");
+		int numPlayerPerks = player->addedPerks.size();
+
+		for (int i = 0; i < numPlayerPerks; i++)
+		{
+			RE::BGSPerk* perk = player->addedPerks[i]->perk;
+
+			if (perk)
+			{
+				std::string name = GetName(perk);
+
+				ExtraInfoEntry* perkEntry;
+
+				CreateExtraInfoEntry(perkEntry, name, "", priority_Actor_Perks_Perk);
+
+				GetFormData(perkEntry, perk, nullptr);
+
+				perks->PushBack(perkEntry);
+			}
+		}
+	}
+
+	resultArray->PushBack(perks);
+
+	_DMESSAGE("Ending GetPerks");
+}
+
+void GetNPCAppearanceData(ExtraInfoEntry*& resultArray, RE::TESNPC* npc)
+{
+	//apperance - currently height and weight
+	_DMESSAGE("GetNPCAppearanceData Started");
+
+	ExtraInfoEntry* appearance;
+	CreateExtraInfoEntry(appearance, "Appearance", "", priority_Actor_Appearance);
+
+	float weight = npc->weight;
+
+	ExtraInfoEntry* weightEntry;
+
+	CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight), priority_Actor_Appearance_Weight);
+	appearance->PushBack(weightEntry);
+
+	float height = npc->height;
+
+	ExtraInfoEntry* heightEntry;
+
+	CreateExtraInfoEntry(heightEntry, "Height", FloatToString(height), priority_Actor_Appearance_Height);
+	appearance->PushBack(heightEntry);
+
+	resultArray->PushBack(appearance);
+
+	_DMESSAGE("GetNPCAppearanceData Ended");
+
+}
+
+void GetFactionsForNPC(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESActorBase* actorBase)
+{
+	_DMESSAGE("GetFactionsForNPC start");
+
+	ExtraInfoEntry* factionsEntry;
+
+	CreateExtraInfoEntry(factionsEntry, "Factions", "", priority_Actor_Factions_Faction);
+
+	//Check base factions
+	int numFactionsBase = actorBase->factions.size();
+		
+	if (numFactionsBase > 0)
+	{
+		for (int i = 0; i < numFactionsBase; i++)
+		{
+			RE::FACTION_RANK factionInfo = actorBase->factions[i];
+			RE::TESFaction* faction = factionInfo.faction;
+
+			if (faction)
+			{
+				ExtraInfoEntry* factionEntry;
+
+				std::string factionName = GetName(faction);
+				int rank = factionInfo.rank;
+
+				CreateExtraInfoEntry(factionEntry, factionName, "Rank: " + IntToString(rank), priority_Actor_Factions_Faction);
+
+				GetFormData(factionEntry, faction, nullptr);
+
+				factionsEntry->PushBack(factionEntry);
+			}
+		}
+	}
+
+	if (actor)
+	{
+		RE::ExtraFactionChanges* factionChanges = actor->extraList.GetByType<RE::ExtraFactionChanges>();
+
+		if (factionChanges)
+		{
+			int numFactionsChanged = factionChanges->factionChanges.size();
+
+			if (numFactionsChanged > 0)
+			{
+				for (int i = 0; i < numFactionsChanged; i++)
+				{
+					RE::FACTION_RANK factionInfo = factionChanges->factionChanges[i];
+					RE::TESFaction* faction = factionInfo.faction;
+
+					if (faction)
+					{
+						ExtraInfoEntry* factionEntry;
+
+						std::string factionName = GetName(faction);
+						int rank = factionInfo.rank;
+
+						CreateExtraInfoEntry(factionEntry, factionName, "Rank: " + IntToString(rank), priority_Actor_Factions_Faction);
+
+						GetFormData(factionEntry, faction, nullptr);
+
+						factionsEntry->PushBack(factionEntry);
+					}
+				}
+			}
+		}
+	}
+
+	resultArray->PushBack(factionsEntry);
 }

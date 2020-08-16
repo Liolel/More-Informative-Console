@@ -15,3 +15,5 @@ std::string GetEffectTypeName(int id);
 std::string GetSpellTypeName(RE::MagicSystem::SpellType spellType);
 std::string GetCastingTypeName(RE::MagicSystem::CastingType castingType);
 std::string GetDeliveryTypeName(RE::MagicSystem::Delivery deliveryType);
+
+std::string GetExtraDataTypeName(int extraDataType);

@@ -1,6 +1,11 @@
 #include "BSExtraData.h"
+#include "ExtraOwnership.h"
 #include "ExtraEnableStateParent.h"
+#include "ExtraContainerChanges.h"
+#include "MoreInformativeConsole/globals.h"
+#include "MoreInformativeConsole/Util/NameUtil.h"
 
+const int numberOfExtraDataTypes = 0xBF + 1; //The plus 1 is because there are extra data types from 0 up to and including BF
 
 //get data stored in the BSExtraData format
 void GetBSExtraData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
@@ -9,53 +14,34 @@ void GetBSExtraData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 
 	RE::ExtraDataList* extraList = &refForm->extraList;
 
-	ProcessExtraDataList(resultArray, extraList);
+	ProcessExtraDataList(resultArray, extraList, refForm);
 
 	_DMESSAGE("Ending GetBSExtraData");
 }
 
-void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList)
+void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList, RE::TESObjectREFR* refForm)
 {
 	if (extraList)
 	{
-		if (extraList->HasType(RE::ExtraDataType::kEnableStateParent))
+		if (extraList->HasType(RE::ExtraDataType::kEnableStateParent) )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kEnableStateParent);
-			RE::ExtraEnableStateParent* enableParentInformation = static_cast<RE::ExtraEnableStateParent*>(data);
+			ProcessEnableParentInformation(resultArray, data);
+		}
 
-			ProcessEnableParentInformation(resultArray, enableParentInformation);
+		if (extraList->HasType(RE::ExtraDataType::kOwnership) )
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kOwnership);
+			ProcessOwnership(resultArray, data);
+		}
+
+		if (extraList->HasType(RE::ExtraDataType::kContainerChanges))
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kContainerChanges);
+			ProcessContainerChanges(resultArray, data, refForm);
 		}
 		/*
-		if (extraList->HasType(kExtraData_Ownership))
-		{
-			DebugMessage("Starting kExtraData_Ownership");
-
-			BSExtraData* data = extraList->GetByType(kExtraData_Ownership);
-			ExtraOwnership* ownershipData = DYNAMIC_CAST(data, BSExtraData, ExtraOwnership);
-
-			if (ownershipData)
-			{
-				TESForm* owner = ownershipData->owner;
-				std::string ownerName = GetName(owner);
-
-				//Placeholder for seeing what has editor IDs
-				ExtraInfoEntry* ownershipEntry;
-
-				CreateExtraInfoEntry(ownershipEntry, "Owner", ownerName);
-
-
-				DebugMessage("Before getting owner form data");
-
-				GetFormData(ownershipEntry, owner, nullptr);
-
-				resultArray->PushBack(ownershipEntry);
-
-			}
-
-
-			DebugMessage("Ending kExtraData_Ownership");
-		}
-
+	
 		DebugMessage("Starting lock checks");
 		//Handle locks
 		ExtraLock* lockData = nullptr;
@@ -106,58 +92,29 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 		}
 
 		DebugMessage("Ending lock checks");
-
+		*/
 		//Extra Data Test
-		ExtraInfoEntry* extraDataTypes;
-		CreateExtraInfoEntry(extraDataTypes, "Extra Data", "");
 
-		for (int i = 1; i <= 0xB3; i++)
+		if (MICOptions::MICDebugMode)
 		{
+				
+			ExtraInfoEntry* extraDataTypes;
+			CreateExtraInfoEntry(extraDataTypes, "Extra Data", "", priority_ExtraData);
 
-			//Placeholder for seeing what has editor IDs
-			if (extraList->HasType(i))
+			for (int i = 1; i <= numberOfExtraDataTypes; i++)
 			{
-				ExtraInfoEntry* extraDataEntry;
-				CreateExtraInfoEntry(extraDataEntry, GetExtraDataTypeName(i), "");
-				extraDataTypes->PushBack(extraDataEntry);
+
+				//Placeholder for seeing what has editor IDs
+				if (extraList->HasType( (RE::ExtraDataType)i ) )
+				{
+					ExtraInfoEntry* extraDataEntry;
+					CreateExtraInfoEntry(extraDataEntry, GetExtraDataTypeName(i), "", priority_ExtraData);
+					extraDataTypes->PushBack(extraDataEntry);
+				}
+
 			}
 
-		}
-
-		resultArray->PushBack(extraDataTypes);*/
-		/**
-		if (extraList->HasType(kExtraData_Package))
-		{
-		DebugMessage("Starting kExtraData_Package");
-
-		BSExtraData * data = extraList->GetByType(kExtraData_Package);
-		ExtraPackage * packageData = DYNAMIC_CAST(data, BSExtraData, ExtraPackage);
-
-		if (packageData)
-		{
-		TESForm * currentPackage = packageData->currentPackage;
-		std::string packageName = GetName(currentPackage);
-
-		//Placeholder for seeing what has editor IDs
-		ExtraInfoEntry * packageEntry;
-
-		CreateExtraInfoEntry(packageEntry, "Current Package", packageName);
-
-
-		DebugMessage("Before getting packag form data");
-
-		ExtraInfoEntry * packageSubArray;
-		movie->CreateArray(packageSubArray);
-		GetFormData(packageSubArray, currentPackage, nullptr);
-
-		packageEntry->PushBack(packageSubArray);
-		resultArray->PushBack(packageEntry);
-
-		}
-
-
-		DebugMessage("Ending kExtraData_Package");
-		}*/
-		
+			resultArray->PushBack(extraDataTypes);
+		}		
 	}
 }

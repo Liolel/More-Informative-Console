@@ -3,8 +3,10 @@
 #include "MoreInformativeConsole/Util/NameUtil.h"
 #include "MoreInformativeConsole/Util/GeneralUtil.h"
 
-void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::ExtraEnableStateParent* enableParentInformation)
+void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 {
+	RE::ExtraEnableStateParent* enableParentInformation = static_cast<RE::ExtraEnableStateParent*>(data);
+
 	_DMESSAGE("Starting ProcessEnableParentInformation");
 	ExtraInfoEntry* enableParentEntry;
 

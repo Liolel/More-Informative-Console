@@ -15,3 +15,6 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor); //Get data that is specific to actors current state instead of coming from their base form
 void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, priority actorValuePriority); //Get the value for a specific actor value
 void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* npc); //Get data on a npcs level and possible leveled multiple
+void GetPerksForNPC(ExtraInfoEntry*& resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player); //Get all perks the npc has
+void GetNPCAppearanceData(ExtraInfoEntry*& resultArray, RE::TESNPC* npc); //Get data related to the npcs appearance
+void GetFactionsForNPC(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESActorBase* actorBase);

@@ -9,6 +9,7 @@
 #include "TESObjectREFR.h"
 #include "TESRace.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
+#include "MoreInformativeConsole/globals.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
 {
@@ -142,69 +143,11 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	{
 		DebugMessage("GetExtraData: Get Form Data CELL found");
 		GetCellEntry(resultArray, pBaseForm);
-	}
-
-	//get inventory
-	if (pRefForm != nullptr
-		&& pRefForm->extraData.HasType(kExtraData_ContainerChanges))
-	{
-		DebugMessage("GetFormData: Found Inventory Start");
-
-
-		ExtraContainerChanges* inventoryExtraData = static_cast<ExtraContainerChanges*> (pRefForm->extraData.GetByType(kExtraData_ContainerChanges));
-		EntryDataList* inventory = inventoryExtraData->data->objList;
-
-		DebugMessage("GetFormData: Got Inventory");
-
-		TESContainer* pContainer = nullptr;
-
-		if (pbaseFormType == kFormType_NPC)
-		{
-			DebugMessage("GetFormData: Inventory npc");
-
-			Actor* pActor = DYNAMIC_CAST(pRefForm, TESForm, Actor);
-
-			if (pActor)
-			{
-				GetEquipment(resultArray, inventoryExtraData, pActor);
-			}
-
-			TESActorBase* pActorBase = DYNAMIC_CAST(pBaseForm, TESForm, TESActorBase);
-
-			if (pActorBase)
-			{
-				pContainer = &pActorBase->container;
-				DebugMessage("GetFormData: Inventory npc container gotten");
-
-			}
-		}
-
-		if (pbaseFormType == kFormType_Container)
-		{
-			DebugMessage("GetFormData: Inventory container");
-
-			TESObjectCONT* pContainerForm = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCONT);
-
-			if (pContainerForm)
-			{
-				DebugMessage("GetFormData: Inventory cpntainer container gotten");
-				pContainer = &pContainerForm->container;
-			}
-		}
-
-		GetInventory(resultArray, inventory, pContainer);
-
-	}
-
-	//Handle BSExtra data
-	if (pRefForm != nullptr)
-	{
-		GetBSExtraData(resultArray, pRefForm);
-	}
+	}*/
 
 	//reset any filtering
 	MICGlobals::filterARMAByRace = nullptr;
-	*/
+	
 	_DMESSAGE("GetExtraData: Get Form Data End");
 }
 

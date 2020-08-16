@@ -36,10 +36,11 @@ enum priority
 	priority_FormID,
 	priority_FormType,
 	priority_FormLocation, //Mods form is found in
+	priority_ExtraData, //This will only show up in debug mode. Lists all the forms of extra data attached to the reference
 	priority_Model,
 	priority_Texture,
 	priority_TextureSet,
-	//Actors
+	//Actor-Part1
 	priority_Actor_Health,
 	priority_Actor_Magicka,
 	priority_Actor_Stamina,
@@ -49,14 +50,26 @@ enum priority
 	priority_Actor_Spells_AddedSpell,
 	priority_Actor_Spells_BaseSpell,
 	priority_Actor_Effects,
+	//Extra Data
+	priority_ExtraContainerChanges_Equipment,
+	priority_ExtraContainerChanges_Inventory,
+	priority_ExtraContainerChanges_Item,
+	//Actor-Part 2
 	priority_Actor_ActorValues,
 	priority_Actor_ActorValues_ActorValue,
+	priority_Actor_Perks,
+	priority_Actor_Perks_Perk,
+	priority_Actor_Protection,
 	priority_Actor_IsPCLeveleMult,
 	priority_Actor_IsPCLeveleMult_LevelMult,
 	priority_Actor_IsPCLeveleMult_LevelMin,
 	priority_Actor_IsPCLeveleMult_LevelMax,
-	priority_Actor_Protection,
+	priority_Actor_Factions,
+	priority_Actor_Factions_Faction,
 	priority_Actor_CurrentPackage,
+	priority_Actor_Appearance,
+	priority_Actor_Appearance_Weight,
+	priority_Actor_Appearance_Height,
 	//ActorValue
 	priority_ActorValue_Base,
 	priority_ActorValue_Current,
@@ -111,6 +124,8 @@ enum priority
 	priority_ExtraData_EnableParent_ParentForm,
 	priority_ExtraData_EnableParent_StateOppositeParent,
 	priority_ExtraData_EnableParent_Popin,
+	//Enable Parent Ownership
+	priority_ExtraData_Ownership,
 	//Form Location Information
 	priority_FormLocation_BaseDefined,
 	priority_FormLocation_BaseLastChanged,

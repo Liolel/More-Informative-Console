@@ -3,4 +3,4 @@
 #include "MoreInformativeConsole/ExtraInfoEntry.h"
 
 void GetBSExtraData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm);
-void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList*);
+void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList*, RE::TESObjectREFR* refForm);
