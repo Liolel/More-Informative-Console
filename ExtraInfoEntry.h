@@ -86,6 +86,9 @@ enum priority
 	priority_Armor_Weight,
 	priority_Armor_EquipSlots,
 	priority_Armor_ArmorAddons,
+	//Ammo
+	priority_Ammo_Damage,
+	priority_Ammo_Value,
 	//Race
 	priority_Race_Skin,
 	priority_Race_SkeletonMale,
@@ -120,6 +123,22 @@ enum priority
 	//Texture Set
 	priority_TextureSet_TextureSet,
 	priority_TextureSet_TextureName,
+	//Weapon
+	priority_Weapon_AnimationType,
+	priority_Weapon_Damage,
+	priority_Weapon_Speed,
+	priority_Weapon_Value,
+	priority_Weapon_Weight,
+	priority_Weapon_EquipSlotName,
+	priority_Weapon_Reach,
+	priority_Weapon_Stagger,
+	priority_Weapon_CritDamage,
+	//Lock data
+	priority_ExtraLock_Lock,
+	priority_ExtraLock_LockLevel,
+	priority_ExtraLock_Key,
+	//Container
+	priority_Container_IsSafe,
 	//Enable Parent Extra Data
 	priority_ExtraData_EnableParent_ParentForm,
 	priority_ExtraData_EnableParent_StateOppositeParent,

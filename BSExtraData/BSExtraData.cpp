@@ -2,6 +2,7 @@
 #include "ExtraOwnership.h"
 #include "ExtraEnableStateParent.h"
 #include "ExtraContainerChanges.h"
+#include "ExtraLock.h"
 #include "MoreInformativeConsole/globals.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
 
@@ -40,12 +41,14 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kContainerChanges);
 			ProcessContainerChanges(resultArray, data, refForm);
 		}
-		/*
-	
-		DebugMessage("Starting lock checks");
-		//Handle locks
-		ExtraLock* lockData = nullptr;
+		
+		if (extraList->HasType(RE::ExtraDataType::kLock))
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kLock);
+			ProcessLockData(resultArray, data, refForm);
+		}
 
+		/*
 		//Check if the selected reference has a lock
 		if (extraList->HasType(kExtraData_Lock))
 		{

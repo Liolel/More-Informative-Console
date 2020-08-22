@@ -9,9 +9,6 @@
 
 int NumberOfItemInContainer(RE::TESForm * item, RE::TESContainer * container);
 bool HasItem(RE::EntryDataList * inventory, RE::TESForm * item);
-std::string GetWeaponAnimationTypeName(int weaponType);
-std::string GetEquipTypeName(int formID);
-std::string GetLockLevel(int lockLevel);
 */
 //Convert various data types to strings to display in UI
 std::string IntToString(int number);
@@ -27,4 +24,3 @@ std::string BooleanToYesNoString(bool boolean);
 int GetSmallestBitFlag(int flags);*/
 
 bool HasFlag(int Flags, int flag);
-

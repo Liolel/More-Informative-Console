@@ -1380,3 +1380,150 @@ std::string GetExtraDataTypeName(int extraDataType)
 {
 	return ExtraDataTypes[extraDataType];
 }
+
+//Get the name of a equip slot. slot is based on the bit flag for the slot
+std::string GetWeaponAnimationTypeName(RE::WEAPON_TYPE weaponType)
+{
+	std::string weaponTypeName = "";
+
+	switch (weaponType)
+	{
+		case RE::WEAPON_TYPE::kHandToHandMelee:
+		{
+			weaponTypeName = "Hand to Hand";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kOneHandSword:
+		{
+			weaponTypeName = "One handed sword";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kOneHandDagger:
+		{
+			weaponTypeName = "Dagger";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kOneHandAxe:
+		{
+			weaponTypeName = "One handed axe";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kTwoHandSword:
+		{
+			weaponTypeName = "Two handed sword";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kTwoHandAxe:
+		{
+			weaponTypeName = "Two handed axe";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kBow:
+		{
+			weaponTypeName = "Bow";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kStaff:
+		{
+			weaponTypeName = "Staff";
+			break;
+		}
+
+		case RE::WEAPON_TYPE::kCrossbow:
+		{
+			weaponTypeName = "Crossbow";
+			break;
+		}
+	}
+	return weaponTypeName;
+}
+
+//Get the name of a equip type 
+std::string GetEquipTypeName(int formID)
+{
+	std::string equipTypeName = "";
+
+	switch (formID)
+	{
+	case 0x00013F42:
+	{
+		equipTypeName = "Right Hand";
+		break;
+	}
+	case 0x00013F43:
+	{
+		equipTypeName = "Left Hand";
+		break;
+	}
+	case 0x00013F44:
+	{
+		equipTypeName = "Either Hand";
+		break;
+	}
+	case 0x00013F45:
+	{
+		equipTypeName = "Both Hands";
+		break;
+	}
+	case 0x000141E8:
+	{
+		equipTypeName = "Shield";
+		break;
+	}
+	case 0x00025BEE:
+	{
+		equipTypeName = "Voice";
+		break;
+	}
+	case 0x00035698:
+	{
+		equipTypeName = "Potion";
+		break;
+	}
+	}
+	return equipTypeName;
+}
+
+
+
+std::string GetLockLevelName(RE::LOCK_LEVEL lockLevel)
+{
+	std::string lockLevelString = "";
+
+	switch (lockLevel)
+	{
+	case RE::LOCK_LEVEL::kUnlocked:
+		lockLevelString = "Unlocked";
+		break;
+	case RE::LOCK_LEVEL::kVeryEasy:
+		lockLevelString = "Novice";
+		break;
+	case RE::LOCK_LEVEL::kEasy:
+		lockLevelString = "Apprentice";
+		break;
+	case RE::LOCK_LEVEL::kAverage:
+		lockLevelString = "Adept";
+		break;
+	case RE::LOCK_LEVEL::kHard:
+		lockLevelString = "Expert";
+		break;
+	case RE::LOCK_LEVEL::kVeryHard:
+		lockLevelString = "Master";
+		break;
+	case RE::LOCK_LEVEL::kRequiresKey:
+		lockLevelString = "Requires Key";
+		break;
+	default: 
+		lockLevelString = "Unkown";
+		break;
+	}
+
+	return lockLevelString;
+}

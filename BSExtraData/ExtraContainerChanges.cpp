@@ -34,6 +34,7 @@ void ProcessContainerChanges(ExtraInfoEntry* resultArray, RE::BSExtraData* data,
 	}
 
 	//Get inventory here
+	GetInventory(resultArray, containerChanges, container);
 }
 
 
@@ -166,110 +167,131 @@ RE::TESForm* FindEquipedItemInSlot( int slotMask, RE::ExtraContainerChanges* con
 	return equipedSlot;
 }
 
-/*
-void GetInventory(ExtraInfoEntry* resultArray, EntryDataList* inventory, TESContainer* baseContainer)
+
+void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* containerChanges, RE::TESContainer* baseContainer)
 {
-	DebugMessage("GetInventory: GetInventory Start");
+	_DMESSAGE("GetInventory: Start");
 
 	ExtraInfoEntry* inventoryEntry;
+	CreateExtraInfoEntry(inventoryEntry, "Inventory", "", priority_ExtraContainerChanges_Inventory);
 
-	CreateExtraInfoEntry(inventoryEntry, "Inventory", "");
+	RE::InventoryChanges* inventoryChanges = containerChanges->changes;
 
-	/*if (inventory != nullptr)
+	//Get items in containerChanges extra data
+	for (RE::BSSimpleList<RE::InventoryEntryData*>::iterator itr = inventoryChanges->entryList->begin(); itr != inventoryChanges->entryList->end(); itr++)
 	{
-		MICGlobals::reducedMode = true;
-	}*/
+		//_DMESSAGE("FindEquipedItemInSlot Item found");
 
-	//go through the inventory (these are anything changed from the base form)
-	/*
-	if (inventory != nullptr
-		&& inventory->Count() > 0)
-	{
-		for (EntryDataList::Iterator i = inventory->Begin(); !i.End(); ++i)
+		RE::InventoryEntryData* inventoryEntryData = *itr;
+		RE::TESForm* item = inventoryEntryData->object;
+		int itemCount = inventoryEntryData->countDelta;
+
+		if (baseContainer)
 		{
-			DebugMessage("GetInventory: Starting inventory item");
-
-			InventoryEntryData * item = i.Get();
-
-
-			int itemCount = item->countDelta;
-			TESForm *itemForm = item->type;
-
-			if (baseContainer != nullptr)
-			{
-				itemCount = itemCount + NumberOfItemInContainer(itemForm, baseContainer);
-			}
-
-			if (itemCount > 0)
-			{
-				std::string name = GetName(itemForm);
-
-				ExtraInfoEntry * inventoryItemEntry;
-
-				CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount));
-
-				GetFormData(inventoryItemEntry, itemForm, nullptr);
-
-				inventoryEntry->PushBack(inventoryItemEntry);
-			}
-
-			DebugMessage("GetInventory: Ending inventory item");
-
+			itemCount = itemCount + GetNumberOfItemInContainer(baseContainer, item);
 		}
-	}
 
+		if (itemCount > 0)
+		{
+			std::string name = GetName(item);
+
+			ExtraInfoEntry * inventoryItemEntry;
+
+			CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount), priority_ExtraContainerChanges_Item);
+
+			GetFormData(inventoryItemEntry, item, nullptr);
+
+			inventoryEntry->PushBack(inventoryItemEntry);
+		}
+
+			//_DMESSAGE("GetInventory: Ending inventory item");
+	}
+	
 	//go through the items in the base form
 	if (baseContainer != nullptr)
 	{
-		for (int i = 0; i < baseContainer->numEntries; i++)
+		for (int i = 0; i < baseContainer->numContainerObjects; i++)
 		{
+			//DebugMessage("GetInventory: Starting container item");
 
-			DebugMessage("GetInventory: Starting container item");
-
-			RE::TESForm *itemForm = baseContainer->entries[i]->form;
+			RE::ContainerObject* containerObject = baseContainer->containerObjects[i];
+			RE::TESForm* item = containerObject->obj;
 
 			//only display items which have not changed from the base form
-			bool displayItem = true;
-
-			if (inventory != nullptr)
-			{
-				displayItem = !HasItem(inventory, itemForm);
-			}
+			bool displayItem = !InventoryChangesContainsItem(inventoryChanges, item);
 
 			if (displayItem
-				&& itemForm->GetFormType() != kFormType_LeveledItem)
+				&& item->GetFormType() != RE::FormType::LeveledItem ) //Don't display leved items in the inventory for the moment
 			{
+				//DebugMessage("GetInventory: Displaying container item");
+				int itemCount = containerObject->count;
 
-				DebugMessage("GetInventory: Displaying container item");
-				int itemCount = baseContainer->entries[i]->count;
-
-				std::string name = GetName(itemForm);
+				std::string name = GetName(item);
 
 				ExtraInfoEntry * inventoryItemEntry;
 
-				if (name != "")
-				{
-					CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount));
-				}
+				CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount), priority_ExtraContainerChanges_Item);
 
-				else
-				{
-					CreateExtraInfoEntry(inventoryItemEntry, name, FormIDToString(itemForm->formID));
-				}
-
-				GetFormData(inventoryItemEntry, itemForm, nullptr);
+				GetFormData(inventoryItemEntry, item, nullptr);
 
 				inventoryEntry->PushBack(inventoryItemEntry);
 			}
 
-
-			DebugMessage("GetInventory: Ending container item");
+			//DebugMessage("GetInventory: Ending container item");
 		}
 	}
 
 	resultArray->PushBack(inventoryEntry);
 
-	//MICGlobals::reducedMode = false;
+	_DMESSAGE("GetInventory: End");
+}
 
-	DebugMessage("GetInventory: GetInventory End");
-}*/
+int GetNumberOfItemInContainer(RE::TESContainer* container, RE::TESForm* item)
+{
+	_DMESSAGE("GetNumberOfItemInContainer: Start");
+
+	int count = 0;
+
+	for (int i = 0; i < container->numContainerObjects; i++)
+	{
+		RE::ContainerObject* containerObject = container->containerObjects[i];
+
+		if (containerObject->obj == item)
+		{
+			count += containerObject->count;
+		}
+	}
+
+	_DMESSAGE("GetNumberOfItemInContainer: End");
+
+	return count;
+}
+
+
+bool InventoryChangesContainsItem(RE::InventoryChanges* inventoryChanges, RE::TESForm* item)
+{
+	_DMESSAGE("InventoryChangesContainsItem Start");
+
+	bool containsItem = false;
+	RE::BSSimpleList<RE::InventoryEntryData*>::iterator itr = inventoryChanges->entryList->begin();
+
+	while( itr != inventoryChanges->entryList->end()
+		   && !containsItem )
+	{
+		//_DMESSAGE("FindEquipedItemInSlot Item found");
+
+		RE::InventoryEntryData* inventoryEntryData = *itr;
+		RE::TESForm* itemInInventory = inventoryEntryData->object;
+
+		if (itemInInventory == item)
+		{
+			containsItem == true;
+		}
+
+		itr++;
+	}
+
+	_DMESSAGE("InventoryChangesContainsItem End");
+
+	return containsItem;
+}

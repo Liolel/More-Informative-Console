@@ -2,11 +2,14 @@
 #include "EffectSetting.h"
 #include "MagicItem.h"
 #include "SpellItem.h"
+#include "TESAmmo.h"
 #include "TESForm.h"
 #include "TESModelTextureSwap.h"
 #include "TESObjectARMA.h"
 #include "TESObjectARMO.h"
+#include "TESObjectCONT.h"
 #include "TESObjectREFR.h"
+#include "TESObjectWeap.h"
 #include "TESRace.h"
 #include "MoreInformativeConsole/Util/NameUtil.h"
 #include "MoreInformativeConsole/globals.h"
@@ -97,30 +100,23 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		_DMESSAGE("GetExtraData: Get Form Data armor found");
 		GetArmorData(resultArray, baseForm);
 	}
-	/*
-	else if (pbaseFormType == kFormType_Weapon)
+	
+	else if (baseFormType == RE::FormType::Weapon )
 	{
-		DebugMessage("GetExtraData: Get Form Data Weapon found");
-		GetWeaponData(resultArray, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data Weapon found");
+		GetWeaponData(resultArray, baseForm);
 	}
-
-	else if (pbaseFormType == kFormType_Ammo)
+	else if (baseFormType == RE::FormType::Ammo)
 	{
-		DebugMessage("GetExtraData: Get Form Data Ammo found");
-		GetAmmoData(resultArray, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data Ammo found");
+		GetAmmoData(resultArray, baseForm);
 	}
-
-	else if (pbaseFormType == kFormType_Container)
+	
+	else if (baseFormType == RE::FormType::Container)
 	{
-		DebugMessage("GetExtraData: Get Form Data Container found");
-		GetContainerData(resultArray, pBaseForm);
+		_DMESSAGE("GetExtraData: Get Form Data Container found");
+		GetContainerData(resultArray, baseForm);
 	}
-	else if (pbaseFormType == kFormType_Faction)
-	{
-		DebugMessage("GetExtraData: Get Form Data Faction found");
-		//GetContainerData(resultArray, pBaseForm);
-	}*/
-
 	else if (baseFormType == RE::FormType::Race)
 	{
 		_DMESSAGE("GetExtraData: Get Form Data Race found");
