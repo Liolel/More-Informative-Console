@@ -16,3 +16,5 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
 void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm* form, boolean SkyrimESMNotDetectedBug);
+
+void GetScripts(ExtraInfoEntry*& resultArray, RE::TESForm* form);

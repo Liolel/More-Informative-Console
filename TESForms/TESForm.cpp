@@ -224,6 +224,28 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	//Model information
 	GetModelTextures(resultArray, baseForm);
+
+	//Get scripts
+	ExtraInfoEntry* scriptsEntry;
+	CreateExtraInfoEntry(scriptsEntry, "Scripts", "", priority_Scripts_Scripts);
+
+	GetScripts(scriptsEntry, baseForm);
+
+	if (refForm)
+	{
+		GetScripts(scriptsEntry, refForm);
+	}
+
+	//There's no point showing an empty script entry as having no scripts is the standard and some formtypes can't even have scripts. So check if we found anything
+	if (scriptsEntry->HasChildren())
+	{
+		resultArray->PushBack(scriptsEntry);
+	}
+
+	else
+	{
+		delete(scriptsEntry); //Free up the memory
+	}
 }
 
 //get information related to where mods the form is found in
@@ -335,4 +357,53 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm * form, boolean Sk
 	}
 
 	_DMESSAGE("GetExtraData: GetModInfoData end");
+}
+
+void GetScripts( ExtraInfoEntry*& resultArray, RE::TESForm* form)
+{
+	_DMESSAGE("GetScript start");
+
+	//Get the VM handle for the form. Based on the HasVMAD method that is part of CommonLibSSEs implementation of TESFORM
+	auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
+
+	if (vm)
+	{
+		auto policy = vm->GetObjectHandlePolicy();
+		if (policy)
+		{
+			auto handle = policy->GetHandleForObject(form->GetFormType(), form);
+
+			//if (handle != policy->EmptyHandle())
+			while (handle != policy->EmptyHandle())
+			{
+				//If we have a handle for the object the next step is to look if there are any scripts attached
+
+				auto attachedScriptsIterator = vm->attachedScripts.find(handle);				
+				
+				if (attachedScriptsIterator != vm->attachedScripts.end())
+				{
+					auto scripts = attachedScriptsIterator->second;
+					int numberOfScripts = scripts.size();
+
+					for (int i = 0; i < numberOfScripts; i++)
+					{
+						auto script = scripts[i].get();
+
+						std::string scriptName = script->type->name.c_str();
+						//std::string scriptName = script->type->G
+
+						ExtraInfoEntry* scriptEntry;
+
+						CreateExtraInfoEntry(scriptEntry, "Script", scriptName, priority_Scripts_Script);
+						resultArray->PushBack(scriptEntry);
+					}
+				}
+
+				handle = policy->GetHandleScriptsMovedFrom(handle);
+			}
+		}
+
+	}
+
+	_DMESSAGE("GetScript End");
 }

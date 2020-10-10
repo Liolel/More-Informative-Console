@@ -12,6 +12,8 @@ public:
 	void Clear();
 	void PushBack(ExtraInfoEntry * subArrayEntry);
 
+	bool HasChildren();
+
 	ExtraInfoEntry* GetChild(int index );
 	void CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovie * root);
 	void CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray, RE::GFxMovie * root);
@@ -139,6 +141,9 @@ enum priority
 	priority_ExtraLock_Key,
 	//Container
 	priority_Container_IsSafe,
+	//Scripts
+	priority_Scripts_Scripts,
+	priority_Scripts_Script,
 	//Enable Parent Extra Data
 	priority_ExtraData_EnableParent_ParentForm,
 	priority_ExtraData_EnableParent_StateOppositeParent,

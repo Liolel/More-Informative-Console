@@ -28,6 +28,11 @@ void ExtraInfoEntry::PushBack(ExtraInfoEntry * subArrayEntry)
 	subarray.push_back(subArrayEntry);
 }
 
+bool ExtraInfoEntry::HasChildren()
+{
+	return !subarray.empty();
+}
+
 ExtraInfoEntry* ExtraInfoEntry::GetChild(int index)
 {
 	return subarray[index];
