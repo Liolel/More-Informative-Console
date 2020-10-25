@@ -1,15 +1,15 @@
 #include "TESObjectWEAP.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "Util/NameUtil.h"
 
 void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE("GetWeaponData start");
+	logger::debug("GetWeaponData start");
 
 	RE::TESObjectWEAP* weapon = static_cast<RE::TESObjectWEAP*>(baseForm);
 	if (weapon)
 	{
 		//animation type
-		RE::WEAPON_TYPE animationType = weapon->weaponData.animationType;
+		RE::WEAPON_TYPE animationType = weapon->weaponData.animationType.get();
 
 		ExtraInfoEntry* antimationTypeEntry;
 
@@ -78,14 +78,14 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		resultArray->PushBack(valueEntry);
 
 		//weight
-		int weight = weapon->weight;
+		float weight = weapon->weight;
 
 		ExtraInfoEntry * weightEntry;
 
-		CreateExtraInfoEntry(weightEntry, "Weight", IntToString(weight), priority_Weapon_Weight);
+		CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight), priority_Weapon_Weight);
 		resultArray->PushBack(weightEntry);
 
 	}
 
-	_DMESSAGE("GetWeaponData End");
+	logger::debug("GetWeaponData End");
 }

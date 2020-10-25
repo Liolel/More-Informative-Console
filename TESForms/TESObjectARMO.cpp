@@ -1,11 +1,11 @@
 #include "TESObjectARMO.h"
 #include "TESForm.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
-#include "MoreInformativeConsole/globals.h"
+#include "Util/NameUtil.h"
+#include "globals.h"
 
 void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE("Starting GetArmorData");
+	logger::debug("Starting GetArmorData");
 
 	RE::TESObjectARMO* armor = static_cast<RE::TESObjectARMO*>(baseForm);
 
@@ -41,7 +41,7 @@ void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		
 		//Equip slots
-		UInt32 parts = (UInt32)armor->GetSlotMask();
+		int parts = (int)armor->GetSlotMask();
 
 		ExtraInfoEntry* equipSlotsEntry;
 		CreateExtraInfoEntry(equipSlotsEntry, "Equip Slots", "", priority_Armor_EquipSlots);
@@ -95,5 +95,5 @@ void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		resultArray->PushBack(armorAddonsEntry);
 	}
 
-	_DMESSAGE("Ending GetArmorData");
+	logger::debug("Ending GetArmorData");
 }

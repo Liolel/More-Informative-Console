@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RE/Skyrim.h"
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
+#include "ExtraInfoEntry.h"
 
 const int Constant_ModeConsoleHandle = 0;
 const int Constant_ModeWorldInformation = 1;

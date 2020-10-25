@@ -1,10 +1,10 @@
 #include "TESObjectREFR.h"
-#include "MoreInformativeConsole/Util/GeneralUtil.h"
-#include "MoreInformativeConsole/BSExtraData/BSExtraData.h"
+#include "Util/GeneralUtil.h"
+#include "BSExtraData/BSExtraData.h"
 
 void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
-	_DMESSAGE("GetReferenceFormData Start");
+	logger::debug("GetReferenceFormData Start");
 
 	GetPositionData(resultArray, refForm);
 
@@ -23,7 +23,7 @@ void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refFor
 
 void GetPositionData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
-	_DMESSAGE("Starting GetPositionData");
+	logger::debug("Starting GetPositionData");
 
 	ExtraInfoEntry* positionEntry;
 	CreateExtraInfoEntry(positionEntry, "Position", "", priority_Reference_Location);
@@ -62,5 +62,5 @@ void GetPositionData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 
 	resultArray->PushBack(positionEntry);
 
-	_DMESSAGE("Ending GetPositionData");
+	logger::debug("Ending GetPositionData");
 }

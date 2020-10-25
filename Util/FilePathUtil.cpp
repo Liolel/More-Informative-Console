@@ -26,7 +26,7 @@ std::string GetFileName(std::string filePath)
 
 void CreateFilePathSubarray(ExtraInfoEntry* mainEntry, std::string filePath)
 {
-	_DMESSAGE(("Starting CreateFilePathSubarray " + filePath).c_str());
+	logger::debug(("Starting CreateFilePathSubarray " + filePath).c_str());
 
 	//loop through the string until the last slash is found
 	long firstSlash = (long)filePath.find_first_of(deliminator);
@@ -48,7 +48,7 @@ void CreateFilePathSubarray(ExtraInfoEntry* mainEntry, std::string filePath)
 
 	mainEntry->PushBack(pathEntry);
 
-	_DMESSAGE("Ending CreateFilePathSubarray");
+	logger::debug("Ending CreateFilePathSubarray");
 }
 
 //Taken from skse64_common
@@ -81,7 +81,7 @@ const std::string& GetRuntimeDirectory()
 		}
 		else
 		{
-			_MESSAGE("no slash in runtime path? (%s)", runtimePath.c_str());
+			logger::info("no slash in runtime path? (%s)", runtimePath.c_str());
 		}
 	}
 

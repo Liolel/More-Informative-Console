@@ -354,7 +354,7 @@ std::string GetFormTypeName(int formType)
 
 std::string GetName(RE::TESForm* baseForm)
 {
-	_DMESSAGE("GetExtraData: GetName Start");
+	logger::debug("GetExtraData: GetName Start");
 
 	std::string name = "";
 
@@ -362,7 +362,7 @@ std::string GetName(RE::TESForm* baseForm)
 	{
 		case RE::FormType::NPC:
 		{
-			_DMESSAGE("GetExtraData: GetName NPC");
+			logger::debug("GetExtraData: GetName NPC");
 
 			RE::TESNPC* pNPC = static_cast<RE::TESNPC*>(baseForm);
 			if (pNPC)
@@ -376,7 +376,7 @@ std::string GetName(RE::TESForm* baseForm)
 	
 		case RE::FormType::MagicEffect:
 		{
-			_DMESSAGE("GetExtraData: GetName Magic Effect");
+			logger::debug("GetExtraData: GetName Magic Effect");
 
 			RE::EffectSetting* effectSetting = static_cast<RE::EffectSetting*>(baseForm);
 			if (effectSetting)
@@ -393,7 +393,7 @@ std::string GetName(RE::TESForm* baseForm)
 		case RE::FormType::AlchemyItem:
 		case RE::FormType::Enchantment:
 	{
-		_DMESSAGE("GetExtraData: GetName MagicItem");
+		logger::debug("GetExtraData: GetName MagicItem");
 
 		RE::MagicItem* magicItem = static_cast<RE::MagicItem*>(baseForm);
 		if (magicItem)
@@ -407,7 +407,7 @@ std::string GetName(RE::TESForm* baseForm)
 	
 		case RE::FormType::Armor:
 		{
-			_DMESSAGE("GetExtraData: GetName Armor");
+			logger::debug("GetExtraData: GetName Armor");
 			RE::TESObjectARMO* armor = static_cast<RE::TESObjectARMO*>(baseForm);
 
 			if (armor)
@@ -419,7 +419,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Ammo:
 		{
-			_DMESSAGE("GetExtraData: GetName Ammo");
+			logger::debug("GetExtraData: GetName Ammo");
 			RE::TESAmmo* ammo = static_cast<RE::TESAmmo*>(baseForm);
 
 			if (ammo)
@@ -431,7 +431,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Weapon:
 		{
-			_DMESSAGE("GetExtraData: GetName Weapon");
+			logger::debug("GetExtraData: GetName Weapon");
 			RE::TESObjectWEAP* weapon = static_cast<RE::TESObjectWEAP*>(baseForm);
 
 			if (weapon)
@@ -443,7 +443,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::SoulGem:
 		{
-			_DMESSAGE("GetExtraData: GetName Soul gem");
+			logger::debug("GetExtraData: GetName Soul gem");
 			RE::TESSoulGem* soulgem = static_cast<RE::TESSoulGem*>(baseForm);
 
 			if (soulgem)
@@ -455,7 +455,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Book:
 		{
-			_DMESSAGE("GetExtraData: GetName Book");
+			logger::debug("GetExtraData: GetName Book");
 			RE::TESObjectBOOK* book = static_cast<RE::TESObjectBOOK*>(baseForm);
 
 			if (book)
@@ -467,7 +467,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Misc:
 		{
-			_DMESSAGE("GetExtraData: GetName Misc");
+			logger::debug("GetExtraData: GetName Misc");
 			RE::TESObjectMISC* misc = static_cast<RE::TESObjectMISC*>(baseForm);
 
 			if (misc)
@@ -479,7 +479,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::KeyMaster:
 		{
-			_DMESSAGE("GetExtraData: GetName Key");
+			logger::debug("GetExtraData: GetName Key");
 			RE::TESKey* key = static_cast<RE::TESKey*>(baseForm);
 
 			if (key)
@@ -491,7 +491,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Container:
 		{
-			_DMESSAGE("GetExtraData: GetName Container");
+			logger::debug("GetExtraData: GetName Container");
 			RE::TESObjectCONT* container = static_cast<RE::TESObjectCONT*>(baseForm);
 
 			if (container)
@@ -503,7 +503,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Light:
 		{
-			_DMESSAGE("GetExtraData: GetName Light");
+			logger::debug("GetExtraData: GetName Light");
 			RE::TESObjectLIGH* light = static_cast<RE::TESObjectLIGH*>(baseForm);
 
 			if (light)
@@ -515,7 +515,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Shout:
 		{
-			_DMESSAGE("GetExtraData: GetName Shout");
+			logger::debug("GetExtraData: GetName Shout");
 			RE::TESShout* shout = static_cast<RE::TESShout*>(baseForm);
 
 			if (shout)
@@ -527,7 +527,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Perk:
 		{
-			_DMESSAGE("GetExtraData: GetName Perk");
+			logger::debug("GetExtraData: GetName Perk");
 			RE::BGSPerk* perk = static_cast<RE::BGSPerk*>(baseForm);
 
 			if (perk)
@@ -545,7 +545,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Faction:
 		{
-			_DMESSAGE("GetExtraData: GetName Faction");
+			logger::debug("GetExtraData: GetName Faction");
 			RE::TESFaction* faction = static_cast<RE::TESFaction*>(baseForm);
 
 			if (faction)
@@ -563,7 +563,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Race:
 		{
-			_DMESSAGE("GetExtraData: GetName Race");
+			logger::debug("GetExtraData: GetName Race");
 			RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
 			if (race)
 			{
@@ -575,7 +575,7 @@ std::string GetName(RE::TESForm* baseForm)
 	
 		case RE::FormType::Armature:
 		{
-			_DMESSAGE("GetExtraData: GetName Arma");
+			logger::debug("GetExtraData: GetName Arma");
 			RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
 			if (arma && arma->race)
 			{
@@ -587,7 +587,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::WorldSpace:
 		{
-			_DMESSAGE("GetExtraData: GetName Worldspace");
+			logger::debug("GetExtraData: GetName Worldspace");
 			RE::TESWorldSpace* worldspace = static_cast<RE::TESWorldSpace*>(baseForm);
 			if (worldspace)
 			{
@@ -599,7 +599,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 		case RE::FormType::Cell:
 		{
-			_DMESSAGE("GetExtraData: GetName Cell");
+			logger::debug("GetExtraData: GetName Cell");
 			RE::TESObjectCELL* cell = static_cast<RE::TESObjectCELL*>(baseForm);
 			if (cell)
 			{
@@ -618,7 +618,7 @@ std::string GetName(RE::TESForm* baseForm)
 	
 	}
 
-	_DMESSAGE(("GetExtraData: GetName End: " + name).c_str());
+	logger::debug(("GetExtraData: GetName End: " + name).c_str());
 	
 	return name;
 }

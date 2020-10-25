@@ -1,13 +1,13 @@
 #pragma once
 
 #include "MICScaleform_RetrieveExtraData.h"
-#include "MoreInformativeConsole/Util/ScaleformUtil.h"
-#include "MoreInformativeConsole/globals.h"
+#include "Util/ScaleformUtil.h"
+#include "globals.h"
 
 
 void MICScaleform_RetrieveExtraData::Call(Params& a_params)
 {
-	_DMESSAGE( ("RetrieveExtraData: Invoke Start, NumArgs " + IntToString(a_params.argCount) ).c_str() );
+	logger::debug( ("RetrieveExtraData: Invoke Start, NumArgs " + IntToString(a_params.argCount) ).c_str() );
 
 	RE::GFxMovie * movie = a_params.movie;
 	RE::GFxValue * indexArray = &a_params.args[0];
@@ -24,18 +24,18 @@ void MICScaleform_RetrieveExtraData::Call(Params& a_params)
 
 	root.Invoke("AddExtraInfo", 0, &resultArray, 1);
 
-	_DMESSAGE("RetrieveExtraData: End");
+	logger::debug("RetrieveExtraData: End");
 }
 
 //Recursively travel through the extra info structure to find the desired entry 
 ExtraInfoEntry* MICScaleform_RetrieveExtraData::TraverseExtraInfoEntries(ExtraInfoEntry* currentEntry, RE::GFxValue* indexArray, int currentIndex)
 {
-	_DMESSAGE( ("Traverse Current Index " + IntToString(currentIndex) ).c_str() );
+	logger::debug( ("Traverse Current Index " + IntToString(currentIndex) ).c_str() );
 
 	RE::GFxValue indexToSelect;
 	indexArray->GetElement(currentIndex, &indexToSelect);
 
-	_DMESSAGE( ("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntAsDoubleToString(indexToSelect.GetNumber() ) ).c_str() );
+	logger::debug( ("Traverse Current Index " + IntToString(currentIndex) + " indexToSelect " + IntAsDoubleToString(indexToSelect.GetNumber() ) ).c_str() );
 
 	ExtraInfoEntry * nextEntry = currentEntry->GetChild((int)indexToSelect.GetNumber());
 

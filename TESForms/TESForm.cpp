@@ -11,15 +11,15 @@
 #include "TESObjectREFR.h"
 #include "TESObjectWeap.h"
 #include "TESRace.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
-#include "MoreInformativeConsole/globals.h"
+#include "Util/NameUtil.h"
+#include "globals.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
 {
 	return form->sourceFiles.array;	//Check if the source files array exists
 }
 
-std::string GetNthFormLocationName(RE::TESForm* form, UInt32 n)
+std::string GetNthFormLocationName(RE::TESForm* form, uint32_t n)
 {
 	std::string formName = "Unknown";
 
@@ -63,7 +63,7 @@ int GetNumberOfSourceFiles(RE::TESForm* form )
 //general wrapper for all get form methods
 void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm)
 {
-	_DMESSAGE( ( "GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType) + " " + FormIDToString(baseForm->formID) ).c_str() );
+	logger::debug( ( "GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID) ).c_str() );
 
 	GetCommonFormData(resultArray, baseForm, refForm);
 
@@ -79,59 +79,59 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		&& (refForm == nullptr
 			|| refForm->GetFormType() == RE::FormType::ActorCharacter))
 	{
-		_DMESSAGE("GetExtraData: Get Form Data character found");
+		logger::debug("GetExtraData: Get Form Data character found");
 		GetCharacterData(resultArray, refForm, baseForm);
 	}
 
 	else if (baseFormType == RE::FormType::MagicEffect)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data magic effect found");
+		logger::debug("GetExtraData: Get Form Data magic effect found");
 		GetMagicEffectData(resultArray, baseForm);
 	}
 	
 	else if (baseFormType == RE::FormType::Spell)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data spell found");
+		logger::debug("GetExtraData: Get Form Data spell found");
 		GetSpellData(resultArray, baseForm);
 	}
 	
 	else if (baseFormType == RE::FormType::Armor)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data armor found");
+		logger::debug("GetExtraData: Get Form Data armor found");
 		GetArmorData(resultArray, baseForm);
 	}
 	
 	else if (baseFormType == RE::FormType::Weapon )
 	{
-		_DMESSAGE("GetExtraData: Get Form Data Weapon found");
+		logger::debug("GetExtraData: Get Form Data Weapon found");
 		GetWeaponData(resultArray, baseForm);
 	}
 	else if (baseFormType == RE::FormType::Ammo)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data Ammo found");
+		logger::debug("GetExtraData: Get Form Data Ammo found");
 		GetAmmoData(resultArray, baseForm);
 	}
 	
 	else if (baseFormType == RE::FormType::Container)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data Container found");
+		logger::debug("GetExtraData: Get Form Data Container found");
 		GetContainerData(resultArray, baseForm);
 	}
 	else if (baseFormType == RE::FormType::Race)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data Race found");
+		logger::debug("GetExtraData: Get Form Data Race found");
 		GetRaceEntry(resultArray, baseForm);
 	}
 	
 	else if (baseFormType == RE::FormType::TextureSet)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data Texture Set found");
+		logger::debug("GetExtraData: Get Form Data Texture Set found");
 		GetTextureSet(resultArray, baseForm);
 	}
 	
 	else if (baseFormType == RE::FormType::Armature)
 	{
-		_DMESSAGE("GetExtraData: Get Form Data ARMA found");
+		logger::debug("GetExtraData: Get Form Data ARMA found");
 		GetArmaData(resultArray, baseForm);
 	}
 	/*
@@ -144,18 +144,18 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	//reset any filtering
 	MICGlobals::filterARMAByRace = nullptr;
 	
-	_DMESSAGE("GetExtraData: Get Form Data End");
+	logger::debug("GetExtraData: Get Form Data End");
 }
 
 //get data common to all form types
 void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
 {
-	_DMESSAGE("GetCommonFormData Start");
+	logger::debug("GetCommonFormData Start");
 	
 	//If the base form was found in FF, get the template for that form which is going to be more relevant
 	if (baseForm->formType == RE::FormType::NPC && baseForm->formID >= 0xFF000000)
 	{
-		_DMESSAGE("Found actor with FF base form");
+		logger::debug("Found actor with FF base form");
 		baseForm = GetRootTemplate(baseForm);
 	}
 
@@ -200,7 +200,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	resultArray->PushBack(formIDArray);
 
 	//base form type
-	std::string baseFormType = GetFormTypeName((int)baseForm->formType);
+	std::string baseFormType = GetFormTypeName((int)baseForm->formType.underlying());
 
 	ExtraInfoEntry* formTypeEntry;
 	CreateExtraInfoEntry(formTypeEntry, "Base Type", baseFormType, priority_FormType);
@@ -211,16 +211,16 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	{
 		std::string refFormID = FormIDToString(refForm->formID);
 
-		ExtraInfoEntry* formIDArray;
-		CreateExtraInfoEntry(formIDArray, "Ref form ID", refFormID, priority_FormID);
-		resultArray->PushBack(formIDArray);
+		ExtraInfoEntry* formIDArrayReference;
+		CreateExtraInfoEntry(formIDArrayReference, "Ref form ID", refFormID, priority_FormID);
+		resultArray->PushBack(formIDArrayReference);
 	}
 
 	//mod location info
 
 	GetFormLocationData(resultArray, baseForm, refForm);
 
-	_DMESSAGE("GetCommonFormData: GetCommonFormData End");
+	logger::debug("GetCommonFormData: GetCommonFormData End");
 
 	//Model information
 	GetModelTextures(resultArray, baseForm);
@@ -251,7 +251,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 //get information related to where mods the form is found in
 void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
 {
-	_DMESSAGE("GetExtraData: GetFormLocationData Start");
+	logger::debug("GetExtraData: GetFormLocationData Start");
 
 	ExtraInfoEntry* formLocationHolder;
 	CreateExtraInfoEntry(formLocationHolder, "Form location information", "", priority_FormLocation);
@@ -260,7 +260,7 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 	if (refForm != nullptr 
 		&& GetHasSourceFileArray( refForm ) )
 	{
-		_DMESSAGE("GetExtraData: GetFormLocationData ref mod info found");
+		logger::debug("GetExtraData: GetFormLocationData ref mod info found");
 
 		//Reference Form
 		int numModsModifyingRef = GetNumberOfSourceFiles(refForm);
@@ -297,11 +297,11 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 	}
 	//Base Form
 
-	_DMESSAGE("GetExtraData: GetFormLocationData at pBaseSection section");
+	logger::debug("GetExtraData: GetFormLocationData at pBaseSection section");
 	
 	if (GetHasSourceFileArray(baseForm) )
 	{
-		_DMESSAGE("GetExtraData: GetFormLocationData baseFormModInfo found");
+		logger::debug("GetExtraData: GetFormLocationData baseFormModInfo found");
 
 		int numModsModifyingBase = GetNumberOfSourceFiles(baseForm);
 
@@ -329,12 +329,12 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 
 	resultArray->PushBack(formLocationHolder);
 
-	_DMESSAGE("GetExtraData: GetFormLocationData End");
+	logger::debug("GetExtraData: GetFormLocationData End");
 }
 
 void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm * form, boolean SkyrimESMNotDetectedBug)
 {
-	_DMESSAGE("GetExtraData: GetModInfoData start");
+	logger::debug("GetExtraData: GetModInfoData start");
 
 	int numMods = GetNumberOfSourceFiles(form);
 
@@ -356,12 +356,12 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm * form, boolean Sk
 		resultArray->PushBack(modEntry);
 	}
 
-	_DMESSAGE("GetExtraData: GetModInfoData end");
+	logger::debug("GetExtraData: GetModInfoData end");
 }
 
 void GetScripts( ExtraInfoEntry*& resultArray, RE::TESForm* form)
 {
-	_DMESSAGE("GetScript start");
+	logger::debug("GetScript start");
 
 	//Get the VM handle for the form. Based on the HasVMAD method that is part of CommonLibSSEs implementation of TESFORM
 	auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
@@ -382,12 +382,12 @@ void GetScripts( ExtraInfoEntry*& resultArray, RE::TESForm* form)
 				
 				if (attachedScriptsIterator != vm->attachedScripts.end())
 				{
-					auto scripts = attachedScriptsIterator->second;
-					int numberOfScripts = scripts.size();
+					RE::BSTSmallSharedArray<RE::BSScript::Internal::AttachedScript>* scripts = &(*attachedScriptsIterator).second;
+					int numberOfScripts = scripts->size();
 
 					for (int i = 0; i < numberOfScripts; i++)
 					{
-						auto script = scripts[i].get();
+						auto script = (*scripts)[i].get();
 
 						std::string scriptName = script->type->name.c_str();
 						//std::string scriptName = script->type->G
@@ -405,5 +405,5 @@ void GetScripts( ExtraInfoEntry*& resultArray, RE::TESForm* form)
 
 	}
 
-	_DMESSAGE("GetScript End");
+	logger::debug("GetScript End");
 }

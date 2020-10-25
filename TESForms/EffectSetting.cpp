@@ -1,16 +1,16 @@
 #pragma once
 #include "EffectSetting.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "Util/NameUtil.h"
 
 void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE("GetExtraData: GetMagicEffectData Start");
+	logger::debug("GetExtraData: GetMagicEffectData Start");
 
 	RE::EffectSetting* effectSetting = static_cast<RE::EffectSetting*>(baseForm);
 
 	if (effectSetting)
 	{
-		_DMESSAGE("GetExtraData: GetMagicEffectData Cast succeeded");
+		logger::debug("GetExtraData: GetMagicEffectData Cast succeeded");
 
 		//Magic School
 		int skill = (int)effectSetting->data.associatedSkill;
@@ -65,7 +65,7 @@ void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		//Hostile Flag
 		ExtraInfoEntry* hostileEntry;
 
-		std::string hostile = BooleanToYesNoString(HasFlag((UInt32)effectSetting->data.flags, (UInt32)RE::EffectSetting::EffectSettingData::Flag::kHostile));
+		std::string hostile = BooleanToYesNoString(HasFlag(effectSetting->data.flags.underlying(), (int)RE::EffectSetting::EffectSettingData::Flag::kHostile));
 		CreateExtraInfoEntry(hostileEntry, "Hostile", hostile, priority_EffectSetting_Hostile);
 		resultArray->PushBack(hostileEntry);
 		/*
@@ -79,5 +79,5 @@ void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		RegisterNumber(pFxVal, "castType", pEffectSetting->properties.castType);*/
 		
 	}
-	_DMESSAGE("GetExtraData: GetMagicEffectData End");
+	logger::debug("GetExtraData: GetMagicEffectData End");
 }

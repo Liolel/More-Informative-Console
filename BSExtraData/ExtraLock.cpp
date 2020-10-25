@@ -1,10 +1,10 @@
 #include "ExtraLock.h"
-#include "MoreInformativeConsole/Util/NameUtil.h";
-#include "MoreInformativeConsole/TESForms/TESForm.h"
+#include "Util/NameUtil.h"
+#include "TESForms/TESForm.h"
 
 void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TESObjectREFR* refForm)
 {
-	_DMESSAGE("Starting GetLockData");
+	logger::debug("Starting GetLockData");
 
 	RE::ExtraLock* extraLock = static_cast<RE::ExtraLock*>(data);
 
@@ -53,5 +53,5 @@ void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TES
 		resultArray->PushBack(lockEntry);
 	}
 
-	_DMESSAGE("Ending GetLockData");
+	logger::debug("Ending GetLockData");
 }

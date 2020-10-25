@@ -1,10 +1,10 @@
 #include "ExtraOwnership.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
-#include "MoreInformativeConsole/TESForms/TESForm.h"
+#include "Util/NameUtil.h"
+#include "TESForms/TESForm.h"
 
 void ProcessOwnership(ExtraInfoEntry* resultArray, RE::BSExtraData* data )
 {
-	_DMESSAGE("Starting ProcessOwnership");
+	logger::debug("Starting ProcessOwnership");
 
 	RE::ExtraOwnership* ownershipData = static_cast<RE::ExtraOwnership*>(data);
 
@@ -24,5 +24,5 @@ void ProcessOwnership(ExtraInfoEntry* resultArray, RE::BSExtraData* data )
 
 	}
 
-	_DMESSAGE("Ending ProcessOwnership");
+	logger::debug("Ending ProcessOwnership");
 }

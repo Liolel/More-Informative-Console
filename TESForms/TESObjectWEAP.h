@@ -1,5 +1,5 @@
 #pragma once
 #include "RE/Skyrim.h"
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
+#include "ExtraInfoEntry.h"
 
 void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm);

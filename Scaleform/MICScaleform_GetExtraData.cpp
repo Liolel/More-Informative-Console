@@ -1,14 +1,14 @@
 #pragma once
 
 #include "MICScaleform_GetExtraData.h"
-#include "MoreInformativeConsole/Util/ScaleformUtil.h"
-#include "MoreInformativeConsole/globals.h"
-#include "MoreInformativeConsole/TESForms/TESForm.h"
+#include "Util/ScaleformUtil.h"
+#include "globals.h"
+#include "TESForms/TESForm.h"
 
 
 void MICScaleform_GetExtraData::Call(Params& a_params)
 {
-	_DMESSAGE("GetExtraData: Invoke Start");
+	logger::debug("GetExtraData: Invoke Start");
 
 	RE::GFxMovie* movie = a_params.movie;
 
@@ -22,18 +22,18 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 		RE::TESObjectREFR* ref = RE::Console::GetSelectedRef().get();
 		if (ref != nullptr)
 		{
-			_DMESSAGE("GetExtraData: refFound");
+			logger::debug("GetExtraData: refFound");
 
 			RE::TESBoundObject* baseForm = ref->data.objectReference;
 
 			if (baseForm != nullptr)
 			{
-				_DMESSAGE("GetExtraData: BaseFound");
+				logger::debug("GetExtraData: BaseFound");
 
 				MICGlobals::rootEntry.Clear();
 				GetFormData(&MICGlobals::rootEntry, baseForm, ref);
 
-				_DMESSAGE("Get Form Information done");
+				logger::debug("Get Form Information done");
 			}
 		}
 	}
@@ -72,5 +72,5 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	
 	root.Invoke("AddExtraInfo", 0, &resultArray, 1);
 
-	_DMESSAGE("GetExtraData: Invoke End");
+	logger::debug("GetExtraData: Invoke End");
 }

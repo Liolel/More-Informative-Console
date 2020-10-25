@@ -1,6 +1,6 @@
 #include "TESNPC.h"
-#include "MoreInformativeConsole/globals.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "globals.h"
+#include "Util/NameUtil.h"
 #include "TESForm.h"
 #include "MagicItem.h"
 
@@ -17,7 +17,7 @@ RE::TESBoundObject* GetRootTemplate(RE::TESForm* baseForm)
 
 void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TESForm* baseForm)
 {
-	_DMESSAGE("GetCharacterData: GetCharacter info start");
+	logger::debug("GetCharacterData: GetCharacter info start");
 
 	//Get all of the various objects we need
 	RE::Actor* actor = nullptr;
@@ -41,9 +41,9 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 	{
 		if (actorBase)
 		{
-			_DMESSAGE("GetCharacterData: GetCharacter info casts worked");
+			logger::debug("GetCharacterData: GetCharacter info casts worked");
 
-			_DMESSAGE("GetCharacterData: Starting Race");
+			logger::debug("GetCharacterData: Starting Race");
 			
 			//Handle Race
 			ExtraInfoEntry* raceEntry;
@@ -61,7 +61,7 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 
 			resultArray->PushBack(raceEntry);
 
-			_DMESSAGE("GetCharacterData: Ending Race");
+			logger::debug("GetCharacterData: Ending Race");
 			
 			//Handle Spells
 			GetSpellsForNPC(resultArray, actor, actorBase);
@@ -84,7 +84,7 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 		}
 	}
 	
-	_DMESSAGE("GetExtraData: GetCharacter End");
+	logger::debug("GetExtraData: GetCharacter End");
 }
 
 void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActorBase* actorBase )
@@ -94,7 +94,7 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 
 	CreateExtraInfoEntry(allSpellsEntry, "Spells", "", priority_Actor_Spells);
 
-	_DMESSAGE("GetSpellsForNPC: Starting Added Spells");
+	logger::debug("GetSpellsForNPC: Starting Added Spells");
 
 	if (actor)
 	{
@@ -116,7 +116,7 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 		}
 	}
 
-	_DMESSAGE("GetSpellsForNPC: Starting Base Spells");
+	logger::debug("GetSpellsForNPC: Starting Base Spells");
 
 	if (actorBase->actorEffects)
 	{
@@ -140,7 +140,7 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 
 	resultArray->PushBack(allSpellsEntry);
 
-	_DMESSAGE("GetCharacterData:  Done with spells");
+	logger::debug("GetCharacterData:  Done with spells");
 }
 
 void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
@@ -152,13 +152,13 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
 
-	_DMESSAGE("GetCharacterData: Active Effects Gotten");
+	logger::debug("GetCharacterData: Active Effects Gotten");
 
 	if (activeEffects)
 	{
-		for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != activeEffects->end(); (void)itr++)
+		for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != activeEffects->end(); itr++)
 		{
-			_DMESSAGE("GetCharacterData: Starting Active Effect");
+			logger::debug("GetCharacterData: Starting Active Effect");
 
 			RE::ActiveEffect* activeEffect = *(itr);
 
@@ -166,13 +166,13 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 			if (activeEffect && activeEffect->effect)
 			{
-				_DMESSAGE("GetCharacterData: Active Effect MGEF found");
+				logger::debug("GetCharacterData: Active Effect MGEF found");
 
 				std::string effectActive;
 
 				RE::Effect* effect = activeEffect->effect;
 
-				if (HasFlag((UInt32)activeEffect->flags, (UInt32)RE::ActiveEffect::Flag::kInactive))
+				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive))
 				{
 					effectActive = "Inactive";
 				}
@@ -191,14 +191,14 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 				activeEffectsEntry->PushBack(effectEntry);
 			}
 
-			_DMESSAGE("GetCharacterData: Ending Active Effect");
+			logger::debug("GetCharacterData: Ending Active Effect");
 
 		}
 	}
 
 	resultArray->PushBack(activeEffectsEntry);
 
-	_DMESSAGE("GetActorData: Active Effects Done");
+	logger::debug("GetActorData: Active Effects Done");
 	
 	//Add Health/Magicka/Stamina to the main subarray
 	GetActorValue(resultArray, actor, actorValueHealthIndex, priority_Actor_Health);
@@ -216,7 +216,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 	resultArray->PushBack(actorValueArray);
 
-	_DMESSAGE("GetActorData: actor values gotten");
+	logger::debug("GetActorData: actor values gotten");
 	
 	RE::AIProcess* aiProcess = actor->currentProcess;
 
@@ -226,7 +226,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 		if (currentPackage)
 		{
-			_DMESSAGE("GetActorData: Found current package");
+			logger::debug("GetActorData: Found current package");
 
 			std::string packageName = GetName(currentPackage);
 
@@ -246,12 +246,12 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 	ExtraInfoEntry* protectionEntry;
 	std::string  protectionStatus;
 
-	if ( HasFlag((UInt32)actor->boolFlags, (UInt32)RE::Actor::BOOL_FLAGS::kEssential ) )
+	if ( HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kEssential ) )
 	{
 		protectionStatus = "Essential";
 	}
 
-	else if ( HasFlag((UInt32)actor->boolFlags, (UInt32)RE::Actor::BOOL_FLAGS::kProtected ) )
+	else if ( HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kProtected ) )
 	{
 		protectionStatus = "Protected";
 	}
@@ -264,12 +264,12 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 	resultArray->PushBack(protectionEntry);
 
-	_DMESSAGE("GetActorData: End");
+	logger::debug("GetActorData: End");
 }
 
 void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, priority actorValuePriority)
 {
-	_DMESSAGE("GetExtraData: GetActover Value Start");
+	logger::debug("GetExtraData: GetActover Value Start");
 
 	RE::ActorValue actorValue = (RE::ActorValue)id;
 	ExtraInfoEntry* actorValueEntry;
@@ -298,13 +298,13 @@ void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, prior
 		resultArray->PushBack(actorValueEntry);
 	}
 
-	_DMESSAGE("GetExtraData: GetActover Value End");
+	logger::debug("GetExtraData: GetActover Value End");
 }
 
 void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* npc)
 {
 	//Level stuff	
-	_DMESSAGE("GetLevelData: Start");
+	logger::debug("GetLevelData: Start");
 
 	if (actor)
 	{
@@ -318,20 +318,20 @@ void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* np
 
 	ExtraInfoEntry* isPcLeveledEntry;
 
-	bool isLevelMult = HasFlag((UInt32)npc->actorData.actorBaseFlags, (UInt32)RE::ACTOR_BASE_DATA::Flag::kPCLevelMult );
+	bool isLevelMult = HasFlag(npc->actorData.actorBaseFlags.underlying(), (int)RE::ACTOR_BASE_DATA::Flag::kPCLevelMult );
 	CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", BooleanToYesNoString(isLevelMult), priority_Actor_IsPCLeveleMult);
 
 	if (isLevelMult)
 	{
-		_DMESSAGE("GetLevelData: GetCharacter pc level mult");
+		logger::debug("GetLevelData: GetCharacter pc level mult");
 
-		float levelMult = (float)npc->actorData.level / 1000.0; //I don't know why the level mult is stored in memory as 1000 times what the value you'd see in TESEdit is, but this division is needed to fix that
+		double levelMult = (double)npc->actorData.level / 1000.0; //I don't know why the level mult is stored in memory as 1000 times what the value you'd see in TESEdit is, but this division is needed to fix that
 		int minLevel = npc->actorData.calcLevelMin;
 		int maxLevel = npc->actorData.calcLevelMax;
 
 		ExtraInfoEntry* levelMultEntry, * minLevelEntry, * maxLevelEntry;
 
-		CreateExtraInfoEntry(levelMultEntry, "Level Mult", FloatToString(levelMult), priority_Actor_IsPCLeveleMult_LevelMult);
+		CreateExtraInfoEntry(levelMultEntry, "Level Mult", DoubleToString(levelMult), priority_Actor_IsPCLeveleMult_LevelMult);
 		isPcLeveledEntry->PushBack(levelMultEntry);
 
 		CreateExtraInfoEntry(minLevelEntry, "Min level", IntToString(minLevel), priority_Actor_IsPCLeveleMult_LevelMin);
@@ -343,12 +343,12 @@ void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* np
 
 	resultArray->PushBack(isPcLeveledEntry);
 
-	_DMESSAGE("GetLevelData: End");
+	logger::debug("GetLevelData: End");
 }
 
 void GetPerksForNPC( ExtraInfoEntry*& resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player )
 {
-	_DMESSAGE("Starting GetPerks");
+	logger::debug("Starting GetPerks");
 	int numPerks = actorBase->perkCount;
 
 	ExtraInfoEntry* perks;
@@ -374,7 +374,7 @@ void GetPerksForNPC( ExtraInfoEntry*& resultArray, RE::TESActorBase* actorBase, 
 
 	if (player != nullptr)
 	{
-		_DMESSAGE(" GetPerks: Starting Player Perks ");
+		logger::debug(" GetPerks: Starting Player Perks ");
 		int numPlayerPerks = player->addedPerks.size();
 
 		for (int i = 0; i < numPlayerPerks; i++)
@@ -398,13 +398,13 @@ void GetPerksForNPC( ExtraInfoEntry*& resultArray, RE::TESActorBase* actorBase, 
 
 	resultArray->PushBack(perks);
 
-	_DMESSAGE("Ending GetPerks");
+	logger::debug("Ending GetPerks");
 }
 
 void GetNPCAppearanceData(ExtraInfoEntry*& resultArray, RE::TESNPC* npc)
 {
 	//apperance - currently height and weight
-	_DMESSAGE("GetNPCAppearanceData Started");
+	logger::debug("GetNPCAppearanceData Started");
 
 	ExtraInfoEntry* appearance;
 	CreateExtraInfoEntry(appearance, "Appearance", "", priority_Actor_Appearance);
@@ -425,13 +425,13 @@ void GetNPCAppearanceData(ExtraInfoEntry*& resultArray, RE::TESNPC* npc)
 
 	resultArray->PushBack(appearance);
 
-	_DMESSAGE("GetNPCAppearanceData Ended");
+	logger::debug("GetNPCAppearanceData Ended");
 
 }
 
 void GetFactionsForNPC(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESActorBase* actorBase)
 {
-	_DMESSAGE("GetFactionsForNPC start");
+	logger::debug("GetFactionsForNPC start");
 
 	ExtraInfoEntry* factionsEntry;
 

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "MICScaleform_GetIniOptions.h"
-#include "MoreInformativeConsole/Util/ScaleformUtil.h"
-#include "MoreInformativeConsole/globals.h"
+#include "Util/ScaleformUtil.h"
+#include "globals.h"
 
 
 void MICScaleform_GetIniOptions::Call(Params& a_params)
 {
-	_DMESSAGE("GetIniOptions:: Called");
+	logger::debug("GetIniOptions:: Called");
 
 	//Retrieve the various scaleform objects needed from the parameters
 	RE::GFxValue* results = a_params.retVal;

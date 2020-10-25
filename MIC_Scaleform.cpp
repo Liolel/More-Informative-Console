@@ -201,7 +201,7 @@ MICScaleform_Log* MICScaleformlog = nullptr;
 //// core hook
 bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE::GFxValue* a_root )
 {
-	_DMESSAGE("Install Hooks Called");
+	logger::debug("Install Hooks Called");
 
 	if (getReferenceInfo == nullptr)
 	{
@@ -231,7 +231,7 @@ bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE
 
 	RE::GFxValue globals;
 
-	_DMESSAGE( a_view->GetMovieDef()->GetFileURL() );
+	logger::debug( a_view->GetMovieDef()->GetFileURL() );
 
 	bool result = a_view->GetVariable(&globals, "_global");
 	if (result)

@@ -1,12 +1,12 @@
 #pragma once
 #include "TESModelTextureSwap.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
-#include "MoreInformativeConsole/Util/FilePathUtil.h"
+#include "Util/NameUtil.h"
+#include "Util/FilePathUtil.h"
 #include "TESForm.h"
 
 void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE( ("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType) ).c_str() );
+	logger::debug( ("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType.underlying()) ).c_str() );
 	switch (baseForm->GetFormType())
 	{
 		case RE::FormType::Static:
@@ -261,36 +261,36 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		}
 	}
 
-	_DMESSAGE("Ending GetModelTextures");
+	logger::debug("Ending GetModelTextures");
 }
 
 
 void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESModelTextureSwap* modelTextureSwap)
 {
-	_DMESSAGE("Starting AddModelEntry for modelTextureSwap");
+	logger::debug("Starting AddModelEntry for modelTextureSwap");
 
 	if (modelTextureSwap)
 	{
 		//Get the model and any TextureSet if a texture set exists
-		_DMESSAGE("Past modelTextureSwap");
+		logger::debug("Past modelTextureSwap");
 		RE::TESModel* model = modelTextureSwap;
 
-		_DMESSAGE("Past conversion");
+		logger::debug("Past conversion");
 
 		RE::BGSTextureSet* textureSet = nullptr;
 
 		if (modelTextureSwap->alternateTextures)
 		{
-			_DMESSAGE("Inside swaps check");
+			logger::debug("Inside swaps check");
 			textureSet = modelTextureSwap->alternateTextures->textureSet;
 		}
 
-		_DMESSAGE("Past swaps check");
+		logger::debug("Past swaps check");
 
 		//If there is a texture set we need to retrieve the textures in the set
 		if (textureSet)
 		{
-			_DMESSAGE("Starting Texture Set Branch");
+			logger::debug("Starting Texture Set Branch");
 
 			ExtraInfoEntry* modelTextureEntry;
 
@@ -301,7 +301,7 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 			AddModelEntry(modelTextureEntry, "Model", model);
 
-			_DMESSAGE("Starting Texture Set Info");
+			logger::debug("Starting Texture Set Info");
 			ExtraInfoEntry* textureSetEntry;
 
 			CreateExtraInfoEntry(textureSetEntry, "Texture Set", "", priority_TextureSet);
@@ -315,10 +315,10 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 		else //If no texture set exists call code for just a model
 		{
-			_DMESSAGE("Starting No texture set branch");
+			logger::debug("Starting No texture set branch");
 			AddModelEntry(resultArray, modelType, model);
 		}
 	}
 
-	_DMESSAGE("Ending AddModelEntry for modelTextureSwap");
+	logger::debug("Ending AddModelEntry for modelTextureSwap");
 }

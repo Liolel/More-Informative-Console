@@ -1,6 +1,6 @@
 #pragma once
 
 #include "RE/Skyrim.h"
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
+#include "ExtraInfoEntry.h"
 
 void ProcessOwnership(ExtraInfoEntry* resultArray, RE::BSExtraData* data);

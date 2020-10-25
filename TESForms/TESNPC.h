@@ -1,13 +1,13 @@
 #pragma once
 #include "RE/Skyrim.h"
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
+#include "ExtraInfoEntry.h"
 
 
 const int actorValueHealthIndex = 24;
 const int actorValueMagickaIndex = 25;
 const int actorValueStaminaIndex = 26;
 const int playerBaseFormID = 0x7;
-const int totalNumberOfActorValues = (UInt32)RE::ActorValue::kTotal;
+const int totalNumberOfActorValues = (int)RE::ActorValue::kTotal;
 
 RE::TESBoundObject* GetRootTemplate(RE::TESForm* baseForm); //Give a npc form return the root form used as a template by that form. Mostly used to get from FF indexed forms to the form in a mod they are taking their data from
 void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TESForm* baseForm); //Get the general data 

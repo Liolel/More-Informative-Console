@@ -1,6 +1,6 @@
 #pragma once
 #include "RE/Skyrim.h"
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
+#include "ExtraInfoEntry.h"
 
 void ProcessContainerChanges(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TESObjectREFR* refForm);
 void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* containerChanges, RE::Actor* actor);

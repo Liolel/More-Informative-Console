@@ -1,6 +1,6 @@
 #include "SpellItem.h"
 #include "MagicItem.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "Util/NameUtil.h"
 
 void GetSpellData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -16,7 +16,7 @@ void GetSpellData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	RE::SpellItem* spellItem = static_cast<RE::SpellItem*>(baseForm);
 	if (spellItem)
 	{
-		_DMESSAGE("GetSpellData: Starting spell item code");
+		logger::debug("GetSpellData: Starting spell item code");
 
 		//spell type
 		ExtraInfoEntry * spellTypeEntry;
@@ -50,7 +50,7 @@ void GetSpellData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		if (equipSlot)
 		RegisterNumber(pFxVal, "equipSlot", equipSlot->formID); */
 		
-		_DMESSAGE("GetSpellData: Ending spell item code");
+		logger::debug("GetSpellData: Ending spell item code");
 	}
 	/*
 	AlchemyItem * pAlchemyItem = DYNAMIC_CAST(pMagicItem, MagicItem, AlchemyItem);

@@ -34,14 +34,14 @@ struct LockState
 	UInt8	lockLevel;	// 00
 	UInt8	unk01;		// 01
 	UInt16	unk02;		// 02
-	UInt32	unk04;		// 04
+	int	unk04;		// 04
 	TESKey* key;		// 08
 	UInt8	flags;		// 10
 	UInt8	unk11;		// 11
 	UInt16	unk12;		// 12
-	UInt32	unk14;		// 14
-	UInt32	unk18;		// 18
-	UInt32	unk1C;		// 1C
+	int	unk14;		// 14
+	int	unk18;		// 18
+	int	unk1C;		// 1C
 };
 STATIC_ASSERT(sizeof(LockState) == 0x20);
 
@@ -64,7 +64,7 @@ public:
 
 	struct Data
 	{
-		UInt32   	dest;	// 00
+		int   	dest;	// 00
 		float		unk04;	// 04
 		float		unk08;	// 08
 		float		unk0C;	// 0C
@@ -107,13 +107,13 @@ STATIC_ASSERT(sizeof(Coordinates) == 0x28);
 
 union LightingCoordinates
 {
-	UInt32* lighting;		// XCLL
+	int* lighting;		// XCLL
 	Coordinates* coordinates;	// XCLC
 };
 STATIC_ASSERT(sizeof(LightingCoordinates) == 0x8);
 
 //https://github.com/Ryan-rsm-McKenzie/CommonLibSSE/blob/master/include/RE/BSIMusicTrack.h
-enum class MUSIC_STATUS : UInt32
+enum class MUSIC_STATUS : int
 {
 	kInactive = 0,
 	kPlaying = 1,

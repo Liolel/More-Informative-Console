@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RE/Skyrim.h"
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
+#include "ExtraInfoEntry.h"
 #include "TESModel.h"
 
 void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm);

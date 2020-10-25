@@ -1,0 +1,12 @@
+{
+  "name": "moreinformativeconsole",
+  "version-string": "1.0.0",
+  "description": "Adds more information to the console",
+  "homepage": "https://github.com/Ryan-rsm-McKenzie/CommonLibSSE",
+  "license": "MIT",
+  "supports": "windows & x64",
+  "dependencies": [
+    "span-lite",
+    "spdlog"
+  ]
+}

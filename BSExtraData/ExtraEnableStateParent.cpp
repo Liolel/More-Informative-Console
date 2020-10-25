@@ -1,13 +1,13 @@
 #include "ExtraEnableStateParent.h"
-#include "MoreInformativeConsole/TESForms/TESForm.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
-#include "MoreInformativeConsole/Util/GeneralUtil.h"
+#include "TESForms/TESForm.h"
+#include "Util/NameUtil.h"
+#include "Util/GeneralUtil.h"
 
 void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 {
 	RE::ExtraEnableStateParent* enableParentInformation = static_cast<RE::ExtraEnableStateParent*>(data);
 
-	_DMESSAGE("Starting ProcessEnableParentInformation");
+	logger::debug("Starting ProcessEnableParentInformation");
 	ExtraInfoEntry* enableParentEntry;
 
 	CreateExtraInfoEntry(enableParentEntry, "Enable Parent", "", priority_Reference_ExtraData_EnableParent);
@@ -40,5 +40,5 @@ void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::BSExtraData
 
 	resultArray->PushBack(enableParentEntry);
 
-	_DMESSAGE("Ending ProcessEnableParentInformation");
+	logger::debug("Ending ProcessEnableParentInformation");
 }

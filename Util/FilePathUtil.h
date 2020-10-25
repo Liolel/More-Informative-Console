@@ -1,7 +1,6 @@
 #pragma once
 
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
-
+#include "ExtraInfoEntry.h"
 #include "RE/Skyrim.h"
 #include "SKSE/Logger.h"
 

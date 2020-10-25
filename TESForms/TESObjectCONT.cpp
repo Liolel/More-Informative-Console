@@ -8,7 +8,7 @@ void GetContainerData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		int respawnsFlag = 0x02;
 
 		ExtraInfoEntry* safeContainerEntry;
-		std::string isSafe = BooleanToYesNoString(!HasFlag( (int)container->data.flags
+		std::string isSafe = BooleanToYesNoString(!HasFlag( container->data.flags.underlying()
 														  , (int)RE::CONT_DATA::Flag::kRespawn) );
 
 		CreateExtraInfoEntry(safeContainerEntry, "Safe Container", isSafe, priority_Container_IsSafe);

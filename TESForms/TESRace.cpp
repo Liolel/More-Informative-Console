@@ -1,12 +1,12 @@
 #include "TESRace.h"
 #include "TESModel.h"
 #include "TESForm.h"
-#include "MoreInformativeConsole/globals.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "globals.h"
+#include "Util/NameUtil.h"
 
 void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE("Starting GetRaceEntry");
+	logger::debug("Starting GetRaceEntry");
 
 	RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
 	if (race)
@@ -21,7 +21,7 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		resultArray->PushBack(editorIDEntry);
 		*/
 		
-		_DMESSAGE("Getting Models");
+		logger::debug("Getting Models");
 		//models
 		RE::TESModel* maleModelSkeleton = &(race->skeletonModels[RE::SEXES::kMale]);
 		RE::TESModel *femaleModelSkelelton = &(race->skeletonModels[RE::SEXES::kFemale]);
@@ -35,7 +35,7 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		if (MICGlobals::readRaceSkins
 			&& race->skin != nullptr)
 		{
-			_DMESSAGE("Getting Skin");
+			logger::debug("Getting Skin");
 			RE::TESObjectARMO* skin = race->skin;
 			std::string skinName = GetName(skin);
 
@@ -45,12 +45,12 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 			resultArray->PushBack(skinEntry);
 
-			_DMESSAGE("Done Getting Skin");
+			logger::debug("Done Getting Skin");
 		}
 
 		
 		//Handle Flags
-		UInt32 flags = (UInt32)race->data.flags;
+		int flags = race->data.flags.underlying();
 
 		ExtraInfoEntry* playableEntry;
 		std::string isPlayable = BooleanToYesNoString(HasFlag(flags, (int)RE::RACE_DATA::Flag::kPlayable));
@@ -63,5 +63,5 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		resultArray->PushBack(childEntry);
 	}
 
-	_DMESSAGE("Ending GetRaceEntry");
+	logger::debug("Ending GetRaceEntry");
 }

@@ -3,21 +3,21 @@
 #include "ExtraEnableStateParent.h"
 #include "ExtraContainerChanges.h"
 #include "ExtraLock.h"
-#include "MoreInformativeConsole/globals.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "globals.h"
+#include "Util/NameUtil.h"
 
 const int numberOfExtraDataTypes = 0xBF + 1; //The plus 1 is because there are extra data types from 0 up to and including BF
 
 //get data stored in the BSExtraData format
 void GetBSExtraData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
-	_DMESSAGE("Starting GetBSExtraData");
+	logger::debug("Starting GetBSExtraData");
 
 	RE::ExtraDataList* extraList = &refForm->extraList;
 
 	ProcessExtraDataList(resultArray, extraList, refForm);
 
-	_DMESSAGE("Ending GetBSExtraData");
+	logger::debug("Ending GetBSExtraData");
 }
 
 void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList, RE::TESObjectREFR* refForm)
@@ -64,7 +64,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			BSExtraData* data = extraList->GetByType(kExtraData_Teleport);
 			ExtraTeleport* teleportData = DYNAMIC_CAST(data, BSExtraData, ExtraTeleport);
 
-			UInt32 linkedReferenceHandle = teleportData->data->dest;
+			int linkedReferenceHandle = teleportData->data->dest;
 
 
 

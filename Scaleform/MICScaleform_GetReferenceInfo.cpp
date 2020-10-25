@@ -1,13 +1,13 @@
 #include "MICScaleform_GetReferenceInfo.h"
-#include "MoreInformativeConsole/Util/GeneralUtil.h"
-#include "MoreInformativeConsole/Util/ScaleformUtil.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
-#include "MoreInformativeConsole/TESForms/TESForm.h"
-#include "MoreInformativeConsole/TESForms/TESNPC.h"
+#include "Util/GeneralUtil.h"
+#include "Util/ScaleformUtil.h"
+#include "Util/NameUtil.h"
+#include "TESForms/TESForm.h"
+#include "TESForms/TESNPC.h"
 
 void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 {
-	_DMESSAGE("GetReferenceInfo: Called");
+	logger::debug("GetReferenceInfo: Called");
 
 	//Retrieve the various scaleform objects needed from the parameters
 	RE::GFxValue* results = a_params.retVal;
@@ -19,14 +19,14 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 	RE::TESObjectREFR* ref = RE::Console::GetSelectedRef().get();
 	if (ref != nullptr)
 	{
-		_DMESSAGE("GetReferenceInfo: ref found");
+		logger::debug("GetReferenceInfo: ref found");
 
 		//Get the associated base form
 		RE::TESBoundObject * baseForm = ref->data.objectReference;
 
 		if (baseForm != nullptr)
 		{
-			_DMESSAGE("GetReferenceInfo: baseForm found");
+			logger::debug("GetReferenceInfo: baseForm found");
 
 			//If we found both the base form and the reference form we can start retrieving the necessary information.
 
@@ -46,7 +46,7 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 			RegisterString(results, movie, "referenceName", referenceName);
 			
 			//Get the location info  the reference was defined in
-			_DMESSAGE("GetReferenceInfo: Getting refernce form location");
+			logger::debug("GetReferenceInfo: Getting refernce form location");
 			std::string refDefinedIn = GetFirstFormLocationName(ref);
 			std::string refFormLastChangedBy = GetLastFormLocationName(ref);
 
@@ -69,10 +69,10 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 			RegisterString(results, movie, "baseFormLastChangedBy", baseFormLastChangedBy);
 
 			//Get the form type
-			std::string baseFormTypeName = GetFormTypeName((int)baseForm->formType);
+			std::string baseFormTypeName = GetFormTypeName(baseForm->formType.underlying());
 			RegisterString(results, movie, "baseFormType", baseFormTypeName);
 		}
 	}
 
-	_DMESSAGE("GetReferenceInfo: Finished");
+	logger::debug("GetReferenceInfo: Finished");
 }

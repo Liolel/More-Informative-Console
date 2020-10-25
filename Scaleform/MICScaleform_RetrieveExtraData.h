@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RE/Skyrim.h"
-#include "MoreInformativeConsole/ExtraInfoEntry.h"
+#include "ExtraInfoEntry.h"
 
 class MICScaleform_RetrieveExtraData : public RE::GFxFunctionHandler
 {

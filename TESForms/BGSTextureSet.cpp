@@ -1,10 +1,10 @@
 #include "BGSTextureSet.h"
-#include "MoreInformativeConsole/Util/FilePathUtil.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "Util/FilePathUtil.h"
+#include "Util/NameUtil.h"
 
 void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE("Starting AddTextureSetEntry");
+	logger::debug("Starting AddTextureSetEntry");
 
 	RE::BGSTextureSet* textureSet = static_cast<RE::BGSTextureSet*>(baseForm);
 
@@ -44,5 +44,5 @@ void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		resultArray->PushBack(textureSetEntry);
 	}
 
-	_DMESSAGE("Ending AddTextureSetEntry");
+	logger::debug("Ending AddTextureSetEntry");
 }

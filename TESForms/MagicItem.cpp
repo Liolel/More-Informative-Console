@@ -4,7 +4,7 @@
 //
 void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE("GetMagicItemData: Start");
+	logger::debug("GetMagicItemData: Start");
 
 	RE::MagicItem* magicItem = static_cast<RE::MagicItem*>(baseForm);
 
@@ -32,20 +32,20 @@ void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 				magicEffectsEntry->PushBack(effectEntry);
 			}
 
-			_DMESSAGE("GetSpellData: Ending Active Effect");
+			logger::debug("GetSpellData: Ending Active Effect");
 
 
 		}
 
 		resultArray->PushBack(magicEffectsEntry);
 
-		_DMESSAGE("GetMagicItemData: End");
+		logger::debug("GetMagicItemData: End");
 	}
 }
 
 void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string effectActiveString)
 {
-	_DMESSAGE("GetEffectData Start");
+	logger::debug("GetEffectData Start");
 
 	ExtraInfoEntry* effectEntry;
 

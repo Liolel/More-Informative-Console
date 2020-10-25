@@ -1,9 +1,8 @@
 #pragma once
 #include "SKSE/API.h"
-#include "SKSE/Logger.h"
 #include "MIC_Scaleform.h"
 #include "globals.h"
-#include "Simpleini.h"
+//#include "Simpleini.h"
 #include "Util/FilePathUtil.h"
 #include <shlobj.h>
 
@@ -12,102 +11,116 @@ const char*					kLogPath = "\\My Games\\Skyrim Special Edition\\SKSE\\More Infor
 //PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
 //SKSEScaleformInterface*		g_SKSEScaleformInterface = NULL;
 
-extern "C"
+/*
+void readINI()
 {
+	//Read ini
+	const std::string& iniPath = GetRuntimeDirectory() + "Data\\SKSE\\plugins\\MoreInformativeConsole.ini";
 
-	bool SKSEPlugin_Query(const SKSE::QueryInterface* skse, SKSE::PluginInfo* info)
+	CSimpleIniA ini;
+	SI_Error iniError = ini.LoadFile(iniPath.c_str());
+
+	if (iniError < 0)
 	{
-		SKSE::Logger::OpenRelative(FOLDERID_Documents, kLogPath);
-
-		_MESSAGE("More Informative Console");
-		_MESSAGE("Initalizing");
-
-		//Populate the info strucutre
-		info->infoVersion	= SKSE::PluginInfo::kVersion;
-		info->name			= "More Informative Console";
-		info->version		= 4;
-
-		//Store plugin handle so we can identify ourselves later
-		//g_pluginHandle = skse->GetPluginHandle();
-
-		//Runtime error checks
-		if(skse->IsEditor())
-			{ _MESSAGE("Plugin loaded in editor"); return false; }
-
-		// all is well
-		return true;
+		logger::info("Unable to read the ini file at path %s. Default values will be used", iniPath.c_str());
 	}
 
-	void readINI()
+	else
 	{
-		//Read ini
-		const std::string& iniPath = GetRuntimeDirectory() + "Data\\SKSE\\plugins\\MoreInformativeConsole.ini";
+		logger::info("Reading in ini file");
+		MICOptions::MICDebugMode = ini.GetBoolValue("Debug", "EnableDebugLogging", false);
+		MICOptions::Transparency = (double)ini.GetLongValue("UI", "Transparency", false) / 100.0;
+		MICOptions::FieldsToDisplay = ini.GetLongValue("UI", "FieldsToDisplay", false);
+		MICOptions::Scale = (double)ini.GetLongValue("UI", "Scale", false) / 100.0;
+		MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
 
-		CSimpleIniA ini;
-		SI_Error iniError = ini.LoadFile(iniPath.c_str());
 
-		if (iniError < 0)
-		{
-			_MESSAGE("Unable to read the ini file at path %s. Default values will be used", iniPath.c_str());
-		}
-
-		else
-		{
-			_MESSAGE("Reading in ini file");
-			MICOptions::MICDebugMode = ini.GetBoolValue("Debug", "EnableDebugLogging", false);
-			MICOptions::Transparency = (double)ini.GetLongValue("UI", "Transparency", false) / 100.0;
-			MICOptions::FieldsToDisplay = ini.GetLongValue("UI", "FieldsToDisplay", false);
-			MICOptions::Scale = (double)ini.GetLongValue("UI", "Scale", false) / 100.0;
-			MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
-
-			//Set the logger print level based on if debug mode is enabled
-			if (MICOptions::MICDebugMode)
-			{
-				SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
-				SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
-			}
-
-			else
-			{
-				SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kMessage);
-				SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kMessage);
-			}
-		}
+	}
+}
+*/
+extern "C" DLLEXPORT bool SKSEAPI  SKSEPlugin_Query(const SKSE::QueryInterface* skse, SKSE::PluginInfo* info)
+{
+	
+	auto path = logger::log_directory();
+	if (!path) {
+		return false;
 	}
 
-	bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
+	*path /= "MoreInformationConsole.log"sv;
+	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+
+	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+	
+	//readINI(); //Get the INI now because I need values from that to finish setting up the logging
+
+	MICOptions::MICDebugMode = true;
+
+	//Set the logger print level based on if debug mode is enabled
+	if (MICOptions::MICDebugMode)
 	{
-		_MESSAGE("Establishing interfaces...");
+		log->set_level(spdlog::level::debug);
+		log->flush_on(spdlog::level::debug);
+	}
 
-		if (!SKSE::Init(a_skse)) {
-			return false;
-		}
+	else
+	{
+		log->set_level(spdlog::level::info);
+		log->flush_on(spdlog::level::info);
+	}
 
+	spdlog::set_default_logger(std::move(log));
+	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
+
+	logger::info("More Informative Console");
+	logger::info("Initalizing");
+	
+	//Populate the info strucutre
+	
+	info->infoVersion	= SKSE::PluginInfo::kVersion;
+	info->name			= "More Informative Console";
+	info->version		= 4;
+
+	//Store plugin handle so we can identify ourselves later
+	//g_pluginHandle = skse->GetPluginHandle();
+
+	//Runtime error checks
+	if(skse->IsEditor())
+		{ logger::info("Plugin loaded in editor"); return false; }
+
+	// all is well
+	return true;
+}
+
+extern "C" DLLEXPORT bool SKSEAPI  SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
+{
+	logger::info("Establishing interfaces...");
+
+	SKSE::Init(a_skse);
 		
-		const auto scaleform = SKSE::GetScaleformInterface();
+	const auto scaleform = SKSE::GetScaleformInterface();
 
-		scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
+	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
 		
-		/*
-		RE::UI::GetSingleton()->Register
+					/*
+					RE::UI::GetSingleton()->Register
 
-		scaleform->Register("MIC", moreInformativeConsoleScaleForm::InstallHooks)
+					scaleform->Register("MIC", moreInformativeConsoleScaleForm::InstallHooks)
 
-		//SKSEScaleformInterface::RegisterCallback callback = moreInformativeConsoleScaleForm::InstallHooks;
+					//SKSEScaleformInterface::RegisterCallback callback = moreInformativeConsoleScaleForm::InstallHooks;
 
-		/*
-		_MESSAGE("Establishing interfaces 2..." );
+					/*
+					logger::info("Establishing interfaces 2..." );
 
-		g_SKSEScaleformInterface = (SKSEScaleformInterface *)skse->QueryInterface(kInterface_Scaleform);
+					g_SKSEScaleformInterface = (SKSEScaleformInterface *)skse->QueryInterface(kInterface_Scaleform);
 
 
-		_MESSAGE("Establishing interfaces 3...");
-		g_SKSEScaleformInterface->Register("MIC", callback);*/
-		readINI();
+					logger::info("Establishing interfaces 3...");
+					g_SKSEScaleformInterface->Register("MIC", callback);*/
+					//readINI();
 
-		//Console::Register();
+					//Console::Register();
 
-		_MESSAGE("Plugin Initialization complete.");
-		return true;
-	}
-};
+	logger::info("Plugin Initialization complete.");
+
+	return true;
+}

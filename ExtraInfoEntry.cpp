@@ -40,7 +40,7 @@ ExtraInfoEntry* ExtraInfoEntry::GetChild(int index)
 
 void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue * mainScaleFormArray, RE::GFxMovie * root)
 {
-	_DMESSAGE("Creating scaleform array");
+	logger::debug("Creating scaleform array");
 
 	root->CreateArray(mainScaleFormArray);
 
@@ -71,7 +71,7 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue * scaleFormArray
 	scaleFormArray->PushBack(GFxExtraInfoContents);
 	scaleFormArray->PushBack(GFxExtraInfoCount);
 
-	//_DMESSAGE( (entry1 + " " + entry2 + " " + arraySize ).c_str()); //This causes crashes somehow?
+	//logger::debug( (entry1 + " " + entry2 + " " + arraySize ).c_str()); //This causes crashes somehow?
 }
 
 bool comparePrioritys(ExtraInfoEntry * extraInfoEntryA, ExtraInfoEntry * extraInforEntryB)

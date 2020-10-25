@@ -1,11 +1,11 @@
 #include "TESObjectARMA.h"
 #include "TESForm.h"
-#include "MoreInformativeConsole/globals.h"
-#include "MoreInformativeConsole/Util/NameUtil.h"
+#include "globals.h"
+#include "Util/NameUtil.h"
 
 void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
-	_DMESSAGE("GetArmaData: GetArmaData Start");
+	logger::debug("GetArmaData: GetArmaData Start");
 
 	RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
 
@@ -91,5 +91,5 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		MICGlobals::readRaceSkins = true;
 	}
 
-	_DMESSAGE("GetArmaData: GetArmaData End");
+	logger::debug("GetArmaData: GetArmaData End");
 }
