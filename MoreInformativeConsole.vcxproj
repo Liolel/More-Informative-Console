@@ -136,8 +136,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>;_WINDOWS;_USRDLL</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -193,8 +193,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>;_WINDOWS;_USRDLL</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -277,7 +277,6 @@
     <ClInclude Include="Scaleform\MICScaleform_GetReferenceInfo.h" />
     <ClInclude Include="Scaleform\MICScaleform_Log.h" />
     <ClInclude Include="Scaleform\MICScaleform_RetrieveExtraData.h" />
-    <ClInclude Include="Simpleini.h" />
     <ClInclude Include="TESForms\BGSTextureSet.h" />
     <ClInclude Include="TESForms\EffectSetting.h" />
     <ClInclude Include="TESForms\MagicItem.h" />

@@ -2,11 +2,12 @@
   "name": "moreinformativeconsole",
   "version-string": "1.0.0",
   "description": "Adds more information to the console",
-  "homepage": "https://github.com/Ryan-rsm-McKenzie/CommonLibSSE",
+  "homepage": "https://www.nexusmods.com/skyrimspecialedition/mods/19250/",
   "license": "MIT",
   "supports": "windows & x64",
   "dependencies": [
     "span-lite",
-    "spdlog"
+    "spdlog",
+    "simpleini"
   ]
 }

@@ -2,7 +2,7 @@
 #include "SKSE/API.h"
 #include "MIC_Scaleform.h"
 #include "globals.h"
-//#include "Simpleini.h"
+#include "Simpleini.h"
 #include "Util/FilePathUtil.h"
 #include <shlobj.h>
 
@@ -11,7 +11,7 @@ const char*					kLogPath = "\\My Games\\Skyrim Special Edition\\SKSE\\More Infor
 //PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
 //SKSEScaleformInterface*		g_SKSEScaleformInterface = NULL;
 
-/*
+
 void readINI()
 {
 	//Read ini
@@ -37,7 +37,7 @@ void readINI()
 
 	}
 }
-*/
+
 extern "C" DLLEXPORT bool SKSEAPI  SKSEPlugin_Query(const SKSE::QueryInterface* skse, SKSE::PluginInfo* info)
 {
 	
@@ -51,9 +51,7 @@ extern "C" DLLEXPORT bool SKSEAPI  SKSEPlugin_Query(const SKSE::QueryInterface* 
 
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 	
-	//readINI(); //Get the INI now because I need values from that to finish setting up the logging
-
-	MICOptions::MICDebugMode = true;
+	readINI(); //Get the INI now because I need values from that to finish setting up the logging
 
 	//Set the logger print level based on if debug mode is enabled
 	if (MICOptions::MICDebugMode)
