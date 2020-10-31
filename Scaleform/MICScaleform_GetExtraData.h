@@ -12,3 +12,5 @@ class MICScaleform_GetExtraData : public RE::GFxFunctionHandler
 public:
 	virtual void Call(Params& a_params) override;
 };
+
+void GetWorldData(ExtraInfoEntry* resultArray);

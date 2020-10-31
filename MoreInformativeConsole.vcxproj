@@ -247,6 +247,7 @@
     <ClCompile Include="TESForms\MagicItem.cpp" />
     <ClCompile Include="TESForms\SpellItem.cpp" />
     <ClCompile Include="TESForms\TESAmmo.cpp" />
+    <ClCompile Include="TESForms\TESObjectCELL.cpp" />
     <ClCompile Include="TESForms\TESForm.cpp" />
     <ClCompile Include="TESForms\TESModel.cpp" />
     <ClCompile Include="TESForms\TESModelTextureSwap.cpp" />
@@ -288,6 +289,7 @@
     <ClInclude Include="TESForms\TESNPC.h" />
     <ClInclude Include="TESForms\TESObjectARMA.h" />
     <ClInclude Include="TESForms\TESObjectARMO.h" />
+    <ClInclude Include="TESForms\TESObjectCELL.h" />
     <ClInclude Include="TESForms\TESObjectCONT.h" />
     <ClInclude Include="TESForms\TESObjectREFR.h" />
     <ClInclude Include="TESForms\TESObjectWEAP.h" />

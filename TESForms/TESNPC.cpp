@@ -156,7 +156,9 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 
 	if (activeEffects)
 	{
-		for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != activeEffects->end(); itr++)
+		RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
+
+		for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; itr++)
 		{
 			logger::debug("GetCharacterData: Starting Active Effect");
 

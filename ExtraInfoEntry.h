@@ -91,6 +91,8 @@ enum priority
 	//Ammo
 	priority_Ammo_Damage,
 	priority_Ammo_Value,
+	//Cell
+	priority_Cell_Coordinate,
 	//Race
 	priority_Race_Skin,
 	priority_Race_SkeletonMale,
@@ -164,6 +166,9 @@ enum priority
 	priority_Position_XRotation,
 	priority_Position_YRotation,
 	priority_Position_ZRotation,
+	//WorldData Top Level Items
+	priority_WorldData_WorldSpace,
+	priority_WorldData_Cell,
 	//Bottom of the list objects
 	priority_Default
 };

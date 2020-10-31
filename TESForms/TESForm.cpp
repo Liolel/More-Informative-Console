@@ -7,6 +7,7 @@
 #include "TESModelTextureSwap.h"
 #include "TESObjectARMA.h"
 #include "TESObjectARMO.h"
+#include "TESObjectCELL.h"
 #include "TESObjectCONT.h"
 #include "TESObjectREFR.h"
 #include "TESObjectWeap.h"
@@ -134,12 +135,12 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 		logger::debug("GetExtraData: Get Form Data ARMA found");
 		GetArmaData(resultArray, baseForm);
 	}
-	/*
-	else if (pbaseFormType == kFormType_Cell)
+	
+	else if (baseFormType == RE::FormType::Cell)
 	{
-		DebugMessage("GetExtraData: Get Form Data CELL found");
-		GetCellEntry(resultArray, pBaseForm);
-	}*/
+		logger::debug("GetExtraData: Get Form Data CELL found");
+		GetCellEntry(resultArray, baseForm);
+	}
 
 	//reset any filtering
 	MICGlobals::filterARMAByRace = nullptr;

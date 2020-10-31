@@ -2,8 +2,10 @@
 
 #include "MICScaleform_GetExtraData.h"
 #include "Util/ScaleformUtil.h"
+#include "Util/NameUtil.h"
 #include "globals.h"
 #include "TESForms/TESForm.h"
+#include "TESForms/TESObjectCELL.h"
 
 
 void MICScaleform_GetExtraData::Call(Params& a_params)
@@ -41,11 +43,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	else if (modeInt == Constant_ModeWorldInformation)
 	{
 		MICGlobals::rootEntry.Clear();
-		//GetWorldData(&MICGlobals::rootEntry);
-
-		ExtraInfoEntry* test;
-		CreateExtraInfoEntry(test, "World", "", priority_Default);
-		MICGlobals::rootEntry.PushBack(test);
+		GetWorldData(&MICGlobals::rootEntry);
 	}
 
 	else if (modeInt == Constant_ModeMFG)
@@ -73,4 +71,62 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	root.Invoke("AddExtraInfo", 0, &resultArray, 1);
 
 	logger::debug("GetExtraData: Invoke End");
+}
+
+void GetWorldData(ExtraInfoEntry* resultArray)
+{	
+	RE::PlayerCharacter* pc = RE::PlayerCharacter::GetSingleton();
+
+	if (pc)
+	{
+		logger::debug("Starting Worldspace");
+
+		RE::TESWorldSpace* currentWorldSpace = pc->GetWorldspace();;
+
+		if (currentWorldSpace)
+		{
+			std::string worldSpaceName = GetName(currentWorldSpace);
+
+			ExtraInfoEntry* worldSpaceEntry;
+			CreateExtraInfoEntry(worldSpaceEntry, "World Space", worldSpaceName, priority_WorldData_WorldSpace);
+
+			GetFormData(worldSpaceEntry, currentWorldSpace, nullptr);
+			resultArray->PushBack(worldSpaceEntry);
+		}
+
+		GetCurrentCellForWorldData(resultArray, pc);
+	}
+
+	//Find the current music track
+	/*
+	DataHandler* dataHandler = DataHandler::GetSingleton();
+
+	if (dataHandler)
+	{
+		DebugMessage("Starting Music");
+		tArray<BGSMusicTrackFormWrapper*>* musicTrackArray = (tArray<BGSMusicTrackFormWrapper*>*)(&(dataHandler->arrMUST));
+
+		int numberOfMusicTracks = musicTrackArray->count;
+
+		for (int i = 0; i <= numberOfMusicTracks; i++)
+		{
+			BGSMusicTrackFormWrapper* wrapper;
+			musicTrackArray->GetNthItem(i, wrapper);
+
+			if (wrapper)
+			{
+				BSIMusicTrack* musicTrack = &(wrapper->track);
+
+				MUSIC_STATUS musicTrackStatus = (MUSIC_STATUS)musicTrack->Unk_08();
+
+				if (musicTrackStatus == MUSIC_STATUS::kPlaying)
+				{
+					std::string  formIDString = FormIDToString(wrapper->formID);
+					ExtraInfoEntry* musicEntry;
+					CreateExtraInfoEntry(musicEntry, "Music", formIDString);
+					resultArray->PushBack(musicEntry);
+				}
+			}
+		}
+	}*/
 }
