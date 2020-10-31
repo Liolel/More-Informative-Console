@@ -169,7 +169,8 @@ enum priority
 	//WorldData Top Level Items
 	priority_WorldData_WorldSpace,
 	priority_WorldData_Cell,
-	priority_WorldData_Music,
+	priority_WorldData_MusicType,
+	priority_WorldData_MusicTrack,
 	//Bottom of the list objects
 	priority_Default
 };

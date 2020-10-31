@@ -609,7 +609,19 @@ std::string GetName(RE::TESForm* baseForm)
 			break;
 		}
 
-	//for objects with no name data show the formID
+		case RE::FormType::MusicType:
+		{
+			logger::debug("GetExtraData: GetName MusicTrack");
+			RE::BGSMusicType* musicType = static_cast<RE::BGSMusicType*>(baseForm);
+			if (musicType)
+			{
+				name = musicType->formEditorID.c_str();
+			}
+
+			break;
+		}
+
+		//for objects with no name data show the formID
 		case RE::FormType::Package:
 		case RE::FormType::MusicTrack:
 		{
