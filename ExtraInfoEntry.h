@@ -171,6 +171,7 @@ enum priority
 	priority_WorldData_Cell,
 	priority_WorldData_MusicType,
 	priority_WorldData_MusicTrack,
+	priority_WorldData_Weather,
 	//Bottom of the list objects
 	priority_Default
 };
