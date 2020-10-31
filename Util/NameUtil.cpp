@@ -611,6 +611,7 @@ std::string GetName(RE::TESForm* baseForm)
 
 	//for objects with no name data show the formID
 		case RE::FormType::Package:
+		case RE::FormType::MusicTrack:
 		{
 			name = FormIDToString(baseForm->formID);
 			break;

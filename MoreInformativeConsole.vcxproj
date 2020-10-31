@@ -242,6 +242,7 @@
     <ClCompile Include="Scaleform\MICScaleform_GetReferenceInfo.cpp" />
     <ClCompile Include="Scaleform\MICScaleform_Log.cpp" />
     <ClCompile Include="Scaleform\MICScaleform_RetrieveExtraData.cpp" />
+    <ClCompile Include="TESForms\BGSMusicTrack.cpp" />
     <ClCompile Include="TESForms\BGSTextureSet.cpp" />
     <ClCompile Include="TESForms\EffectSetting.cpp" />
     <ClCompile Include="TESForms\MagicItem.cpp" />
@@ -278,6 +279,7 @@
     <ClInclude Include="Scaleform\MICScaleform_GetReferenceInfo.h" />
     <ClInclude Include="Scaleform\MICScaleform_Log.h" />
     <ClInclude Include="Scaleform\MICScaleform_RetrieveExtraData.h" />
+    <ClInclude Include="TESForms\BGSMusicTrack.h" />
     <ClInclude Include="TESForms\BGSTextureSet.h" />
     <ClInclude Include="TESForms\EffectSetting.h" />
     <ClInclude Include="TESForms\MagicItem.h" />

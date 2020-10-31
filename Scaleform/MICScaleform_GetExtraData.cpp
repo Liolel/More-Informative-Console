@@ -6,7 +6,7 @@
 #include "globals.h"
 #include "TESForms/TESForm.h"
 #include "TESForms/TESObjectCELL.h"
-
+#include "TESForms/BGSMusicTrack.h"
 
 void MICScaleform_GetExtraData::Call(Params& a_params)
 {
@@ -96,6 +96,8 @@ void GetWorldData(ExtraInfoEntry* resultArray)
 
 		GetCurrentCellForWorldData(resultArray, pc);
 	}
+
+	GetCurrentMusic(resultArray);
 
 	//Find the current music track
 	/*
