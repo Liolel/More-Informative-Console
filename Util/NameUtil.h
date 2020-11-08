@@ -20,3 +20,7 @@ std::string GetDeliveryTypeName(RE::MagicSystem::Delivery deliveryType);
 
 std::string GetExtraDataTypeName(int extraDataType);
 std::string GetLockLevelName(RE::LOCK_LEVEL lockLevel);
+
+std::string GetMFGExpressionName(int expressionIndex);
+std::string GetMFGModiferName(int modifierIndex);
+std::string GetMFGPhenomeName(int phonemeIndex);

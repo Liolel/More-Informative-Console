@@ -269,7 +269,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor )
 	logger::debug("GetActorData: End");
 }
 
-void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, priority actorValuePriority)
+void GetActorValue(ExtraInfoEntry* resultArray, RE::Actor* actor, int id, priority actorValuePriority)
 {
 	logger::debug("GetExtraData: GetActover Value Start");
 
@@ -303,7 +303,7 @@ void GetActorValue(ExtraInfoEntry*& resultArray, RE::Actor* actor, int id, prior
 	logger::debug("GetExtraData: GetActover Value End");
 }
 
-void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* npc)
+void GetLevelData(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESNPC* npc)
 {
 	//Level stuff	
 	logger::debug("GetLevelData: Start");
@@ -348,7 +348,7 @@ void GetLevelData(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESNPC* np
 	logger::debug("GetLevelData: End");
 }
 
-void GetPerksForNPC( ExtraInfoEntry*& resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player )
+void GetPerksForNPC( ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player )
 {
 	logger::debug("Starting GetPerks");
 	int numPerks = actorBase->perkCount;
@@ -403,7 +403,7 @@ void GetPerksForNPC( ExtraInfoEntry*& resultArray, RE::TESActorBase* actorBase, 
 	logger::debug("Ending GetPerks");
 }
 
-void GetNPCAppearanceData(ExtraInfoEntry*& resultArray, RE::TESNPC* npc)
+void GetNPCAppearanceData(ExtraInfoEntry* resultArray, RE::TESNPC* npc)
 {
 	//apperance - currently height and weight
 	logger::debug("GetNPCAppearanceData Started");
@@ -431,7 +431,7 @@ void GetNPCAppearanceData(ExtraInfoEntry*& resultArray, RE::TESNPC* npc)
 
 }
 
-void GetFactionsForNPC(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESActorBase* actorBase)
+void GetFactionsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActorBase* actorBase)
 {
 	logger::debug("GetFactionsForNPC start");
 
@@ -499,4 +499,49 @@ void GetFactionsForNPC(ExtraInfoEntry*& resultArray, RE::Actor* actor, RE::TESAc
 	}
 
 	resultArray->PushBack(factionsEntry);
+}
+
+void GetMFGInformation(ExtraInfoEntry* expressionsRoot, ExtraInfoEntry* modifierRoot, ExtraInfoEntry* phenomeRoot, RE::Actor* actor)
+{
+	RE::BSFaceGenAnimationData * bsFaceGenAnimationData = actor->GetFaceGenAnimationData();
+
+	if (bsFaceGenAnimationData)
+	{
+		RE::BSFaceGenKeyframeMultiple* expressions = &bsFaceGenAnimationData->expressionKeyFrame;
+
+		for (int i = 0; i < numberOfMFGExpressions; i++)
+		{
+			ExtraInfoEntry* expressionEntry;
+			std::string expressionName = "Expression " + IntToString(i ) + " " + GetMFGExpressionName(i);
+			std::string value = FloatToString(expressions->values[i] * 100);
+
+			CreateExtraInfoEntry(expressionEntry, expressionName, value, priority_MFG_Expression);
+			expressionsRoot->PushBack(expressionEntry);
+		}
+
+		RE::BSFaceGenKeyframeMultiple* modifiers = &bsFaceGenAnimationData->modifierKeyFrame;
+
+		for (int i = 0; i < numberOfMFGModifiers; i++)
+		{
+			ExtraInfoEntry* modifierEntry;
+			std::string modifierName = "Modifier " + IntToString(i) + " " + GetMFGModiferName(i);
+			std::string value = FloatToString(modifiers->values[i] * 100);
+
+			CreateExtraInfoEntry(modifierEntry, modifierName, value, priority_MFG_Modifier);
+			modifierRoot->PushBack(modifierEntry);
+		}
+
+		RE::BSFaceGenKeyframeMultiple* phenomes = &bsFaceGenAnimationData->phenomeKeyFrame;
+
+		for (int i = 0; i < numberOfMFGPhenomes; i++)
+		{
+			ExtraInfoEntry* phenomeEntry;
+			std::string modifierName = "Phenome " + IntToString(i) + " " + GetMFGPhenomeName(i);
+			std::string value = FloatToString(phenomes->values[i] * 100);
+
+			CreateExtraInfoEntry(phenomeEntry, modifierName, value, priority_MFG_Phenome);
+			phenomeRoot->PushBack(phenomeEntry);
+		}
+
+	}
 }

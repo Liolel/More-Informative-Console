@@ -5,6 +5,7 @@
 #include "Util/NameUtil.h"
 #include "globals.h"
 #include "TESForms/TESForm.h"
+#include "TESForms/TESNPC.h"
 #include "TESForms/TESObjectCELL.h"
 #include "TESForms/BGSMusicTrack.h"
 
@@ -13,6 +14,8 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	logger::debug("GetExtraData: Invoke Start");
 
 	RE::GFxMovie* movie = a_params.movie;
+
+	boolean skipUsualEndCode = false;
 
 	//Determine mode to use
 	RE::GFxValue* modeGFX = &a_params.args[0];
@@ -49,28 +52,74 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	else if (modeInt == Constant_ModeMFG)
 	{
 		MICGlobals::rootEntry.Clear();
-		ExtraInfoEntry* test;
-		CreateExtraInfoEntry(test, "MFG", "", priority_Default);
-		MICGlobals::rootEntry.PushBack(test);
+		
+		RE::TESObjectREFR* ref = RE::Console::GetSelectedRef().get();
+		if (ref != nullptr && ref->GetFormType() == RE::FormType::ActorCharacter )
+		{
+			logger::debug("GetExtraData MFG: Character found");
+
+			skipUsualEndCode = true; //We need to return the mfg information slightly differently from the other types of information so skip the usual end code
+
+			ExtraInfoEntry expressionsRoot("", "", priority_Default);
+			ExtraInfoEntry modifierRoot("", "", priority_Default);
+			ExtraInfoEntry phenomeRoot("", "", priority_Default);
+
+			RE::Actor* actor = static_cast<RE::Actor*>(ref);
+				
+			GetMFGInformation(&expressionsRoot, &modifierRoot, &phenomeRoot, actor);
+
+			expressionsRoot.Finalize();
+			modifierRoot.Finalize();
+			phenomeRoot.Finalize();
+
+			RE::GFxValue expressionsArray, modifierArray, phenomeArray;
+			expressionsRoot.CreatePrimaryScaleformArray(&expressionsArray, movie);
+			modifierRoot.CreatePrimaryScaleformArray(&modifierArray, movie);
+			phenomeRoot.CreatePrimaryScaleformArray(&phenomeArray, movie);
+
+			RE::GFxValue root;
+			movie->GetVariable(&root, "_root.consoleFader_mc.Console_mc");
+
+			//Send the expressions
+			root.Invoke("AddExtraInfo", 0, &expressionsArray, 1);
+
+			//Send the modifier
+			root.Invoke("AddExtraInfo", 0, &modifierArray, 1);
+
+			//Send the phenome
+			root.Invoke("AddExtraInfo", 0, &phenomeArray, 1);
+
+			logger::debug("Get MFG information done");
+		}
+
+		else
+		{
+			ExtraInfoEntry * noNPCSelectedWarning;
+			CreateExtraInfoEntry(noNPCSelectedWarning, "There is no npc selected", "", priority_Warning);
+			MICGlobals::rootEntry.PushBack(noNPCSelectedWarning);
+		}
 	}
 
-	//Sort the final results
-	MICGlobals::rootEntry.Finalize();
+	if ( !skipUsualEndCode )
+	{
+		//Sort the final results
+		MICGlobals::rootEntry.Finalize();
 
-	//RE::GFxValue returnValue;
-	RE::GFxValue resultArray;
+		//RE::GFxValue returnValue;
+		RE::GFxValue resultArray;
 
-	//Convert the results into an array we can send to the swf
-	MICGlobals::rootEntry.CreatePrimaryScaleformArray(&resultArray, movie);
+		//Convert the results into an array we can send to the swf
+		MICGlobals::rootEntry.CreatePrimaryScaleformArray(&resultArray, movie);
 
-	//Returning the desired results can crash the game if the method called takes too long to return the value. Invoking an method in the console.swf when we've finished running our code
-	//Seems to prevent this crash
-	RE::GFxValue root;
-	movie->GetVariable(&root, "_root.consoleFader_mc.Console_mc");
-	
-	root.Invoke("AddExtraInfo", 0, &resultArray, 1);
+		//Returning the desired results can crash the game if the method called takes too long to return the value. Invoking an method in the console.swf when we've finished running our code
+		//Seems to prevent this crash
+		RE::GFxValue root;
+		movie->GetVariable(&root, "_root.consoleFader_mc.Console_mc");
 
-	logger::debug("GetExtraData: Invoke End");
+		root.Invoke("AddExtraInfo", 0, &resultArray, 1);
+
+		logger::debug("GetExtraData: Invoke End");
+	}
 }
 
 void GetWorldData(ExtraInfoEntry* resultArray)

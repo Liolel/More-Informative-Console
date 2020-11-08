@@ -1541,3 +1541,142 @@ std::string GetLockLevelName(RE::LOCK_LEVEL lockLevel)
 
 	return lockLevelString;
 }
+
+std::string GetMFGExpressionName(int expressionIndex)
+{
+	std::string expressionName;
+
+	switch (expressionIndex)
+	{
+	case 0: expressionName = "Dialog Anger";
+		break;
+	case 1: expressionName = "Dialog Fear";
+		break;
+	case 2: expressionName = "Dialog Happy";
+		break;
+	case 3: expressionName = "Dialog Sad";
+		break;
+	case 4: expressionName = "Dialog Surprise";
+		break;
+	case 5: expressionName = "Dialog Puzzled";
+		break;
+	case 6: expressionName = "Dialog Disgust";
+		break;
+	case 7: expressionName = "Mood Neutral";
+		break;
+	case 8: expressionName = "Mood Anger";
+		break;
+	case 9: expressionName = "Mood Fear";
+		break;
+	case 10: expressionName = "Mood Happy";
+		break;
+	case 11: expressionName = "Mood Sad";
+		break;
+	case 12: expressionName = "Mood Surprise";
+		break;
+	case 13: expressionName = "Mood Puzzled";
+		break;
+	case 14: expressionName = "Mood Disgust";
+		break;
+	case 15: expressionName = "Combat Anger";
+		break;
+	case 16: expressionName = "Combat Shout";
+		break;
+	default: expressionName = "Unknown";
+		break;
+	}
+
+	return expressionName;
+}
+
+std::string GetMFGModiferName(int modifierIndex)
+{
+	std::string modifierName;
+
+	switch (modifierIndex)
+	{
+	case 0: modifierName = "BlinkLeft";
+		break;
+	case 1: modifierName = "BlinkRight";
+		break;
+	case 2: modifierName = "BrowDownLeft";
+		break;
+	case 3: modifierName = "BrowDownRight";
+		break;
+	case 4: modifierName = "BrowInLeft";
+		break;
+	case 5: modifierName = "BrowInRight";
+		break;
+	case 6: modifierName = "BrowUpLeft";
+		break;
+	case 7: modifierName = "BrowUpRight";
+		break;
+	case 8: modifierName = "LookDown";
+		break;
+	case 9: modifierName = "LookLeft";
+		break;
+	case 10: modifierName = "LookRight";
+		break;
+	case 11: modifierName = "LookUp";
+		break;
+	case 12: modifierName = "SquintLeft";
+		break;
+	case 13: modifierName = "SquintRight";
+		break;
+	case 14: modifierName = "HeadPitch";
+		break;
+	case 15: modifierName = "HeadRoll";
+		break;
+	case 16: modifierName = "HeadYaw";
+		break;
+	default: modifierName = "Unknown";
+		break;
+	}
+
+	return modifierName;
+}
+
+std::string GetMFGPhenomeName(int phenomeIndex)
+{
+	std::string phenomeName;
+
+	switch (phenomeIndex)
+	{
+	case 0: phenomeName = "Aah";
+		break;
+	case 1: phenomeName = "BigAah";
+		break;
+	case 2: phenomeName = "BMP";
+		break;
+	case 3: phenomeName = "ChJSh";
+		break;
+	case 4: phenomeName = "DST";
+		break;
+	case 5: phenomeName = "Eee";
+		break;
+	case 6: phenomeName = "Eh";
+		break;
+	case 7: phenomeName = "FV";
+		break;
+	case 8: phenomeName = "I";
+		break;
+	case 9: phenomeName = "K";
+		break;
+	case 10: phenomeName = "N";
+		break;
+	case 11: phenomeName = "Oh";
+		break;
+	case 12: phenomeName = "OohQ";
+		break;
+	case 13: phenomeName = "R";
+		break;
+	case 14: phenomeName = "Th";
+		break;
+	case 15: phenomeName = "W";
+		break;
+	default: phenomeName = "Unknown";
+		break;
+	}
+
+	return phenomeName;
+}

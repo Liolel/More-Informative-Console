@@ -32,6 +32,7 @@ private:
 
 enum priority
 {
+	priority_Warning,
 	//General items at the type of any list
 	priority_Name,
 	priority_EditorID,
@@ -172,6 +173,10 @@ enum priority
 	priority_WorldData_MusicType,
 	priority_WorldData_MusicTrack,
 	priority_WorldData_Weather,
+	//MFG
+	priority_MFG_Expression,
+	priority_MFG_Modifier,
+	priority_MFG_Phenome,
 	//Bottom of the list objects
 	priority_Default
 };
