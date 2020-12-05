@@ -3,6 +3,7 @@
 #include "ExtraEnableStateParent.h"
 #include "ExtraContainerChanges.h"
 #include "ExtraLock.h"
+#include "ExtraTeleport.h"
 #include "globals.h"
 #include "Util/NameUtil.h"
 
@@ -48,55 +49,11 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			ProcessLockData(resultArray, data, refForm);
 		}
 
-		/*
-		//Check if the selected reference has a lock
-		if (extraList->HasType(kExtraData_Lock))
+		if (extraList->HasType(RE::ExtraDataType::kTeleport))
 		{
-			BSExtraData* data = extraList->GetByType(kExtraData_Lock);
-			lockData = DYNAMIC_CAST(data, BSExtraData, ExtraLock);
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kTeleport);
+			ProcessTeleportData(resultArray, data);
 		}
-
-		//if the reference doesn't have a lock check if there is a linked reference with a lock
-		if (!lockData
-			&& extraList->HasType(kExtraData_Teleport))
-		{
-			DebugMessage("Starting checking linked reference");
-			BSExtraData* data = extraList->GetByType(kExtraData_Teleport);
-			ExtraTeleport* teleportData = DYNAMIC_CAST(data, BSExtraData, ExtraTeleport);
-
-			int linkedReferenceHandle = teleportData->data->dest;
-
-
-
-#if SKSE_VERSION_INTEGER_BETA <= 12
-			TESObjectREFR* linkedRef = nullptr;
-			LookupREFRByHandle(linkedReferenceHandle, &linkedRef);
-#else
-			NiPointer<TESObjectREFR> linkedRef;
-			LookupREFRByHandle(linkedReferenceHandle, linkedRef);
-#endif
-
-			if (linkedRef)
-			{
-				BaseExtraList* linkedRefExtraList = &linkedRef->extraData;
-
-				if (linkedRefExtraList->HasType(kExtraData_Lock))
-				{
-					BSExtraData* data = linkedRefExtraList->GetByType(kExtraData_Lock);
-					lockData = DYNAMIC_CAST(data, BSExtraData, ExtraLock);
-				}
-			}
-			DebugMessage("Ending checking linked reference");
-		}
-
-		if (lockData)
-		{
-			GetLockData(resultArray, lockData);
-		}
-
-		DebugMessage("Ending lock checks");
-		*/
-		//Extra Data Test
 
 		if (MICOptions::MICDebugMode)
 		{

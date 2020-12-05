@@ -30,11 +30,10 @@ void readINI()
 		logger::info("Reading in ini file");
 		MICOptions::MICDebugMode = ini.GetBoolValue("Debug", "EnableDebugLogging", false);
 		MICOptions::Transparency = (double)ini.GetLongValue("UI", "Transparency", false) / 100.0;
-		MICOptions::FieldsToDisplay = ini.GetLongValue("UI", "FieldsToDisplay", false);
-		MICOptions::Scale = (double)ini.GetLongValue("UI", "Scale", false) / 100.0;
+		MICOptions::WindowHeight = ini.GetLongValue("UI", "WindowHeight", false);
+		MICOptions::WindowWidth = ini.GetLongValue("UI", "WindowWidth", false);
+		MICOptions::FontSize = ini.GetLongValue("UI", "FontSize", false);
 		MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
-
-
 	}
 }
 

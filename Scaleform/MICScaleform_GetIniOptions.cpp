@@ -16,7 +16,8 @@ void MICScaleform_GetIniOptions::Call(Params& a_params)
 	movie->CreateObject(results);
 
 	RegisterNumber(results, "Transparency", MICOptions::Transparency);
-	RegisterNumber(results, "Scale", MICOptions::Scale);
-	RegisterNumber(results, "FieldsToDisplay", MICOptions::FieldsToDisplay);
+	RegisterNumber(results, "FontSize", MICOptions::FontSize);
+	RegisterNumber(results, "WindowHeight", MICOptions::WindowHeight);
+	RegisterNumber(results, "WindowWidth", MICOptions::WindowWidth);
 	RegisterNumber(results, "BaseInfoFormat", MICOptions::BaseInfoFormat);
 }

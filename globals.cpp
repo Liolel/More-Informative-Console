@@ -15,7 +15,8 @@ namespace MICOptions
 	boolean MICDebugMode = false; //Enables debugging code. Currently this just activates the logging features
 	//int BackgroundColor = 0x3d3d3d; //Background color of the extra info window
 	double Transparency = 0.8; //Transperency of the extra info window background
-	double Scale = 1; //Scale of the extra info window
-	int FieldsToDisplay = 18; //Number of text fields to display
+	extern int WindowWidth = 300; //Width of the extra info window
+	extern int WindowHeight = 600; //Heigh of the extra info window
+	extern int FontSize = 16; //Size of the font used in the extra info window
 	int BaseInfoFormat = 2; //How much information to display in the base info window
 }

@@ -16,7 +16,8 @@ namespace MICOptions
 	extern boolean MICDebugMode; //Enables debugging code. Currently this just activates the logging features
 	//extern int BackgroundColor; //Background color of the extra info window
 	extern double Transparency; //Transperency of the extra info window background
-	extern double Scale; //Scale of the extra info window
-	extern int FieldsToDisplay; //Number of text fields to display
 	extern int BaseInfoFormat; //How much information to display in the base info window
+	extern int WindowWidth; //Width of the extra info window
+	extern int WindowHeight; //Heigh of the extra info window
+	extern int FontSize; //Size of the font used in the extra info window
 }

@@ -14,52 +14,6 @@ MICScaleform_RetrieveExtraData* retrieveExtraData = nullptr;
 MICScaleform_GetExtraData* getExtraData = nullptr;
 MICScaleform_Log* MICScaleformlog = nullptr;
 
-/*
-	/*
-
-	void GetCellEntry(ExtraInfoEntry* resultArray, TESForm* pBaseForm)
-	{
-		DebugMessage("Starting GetCellEntry");
-
-		TESObjectCELL* pCell = DYNAMIC_CAST(pBaseForm, TESForm, TESObjectCELL);
-		if (pCell)
-		{
-
-			LightingCoordinates * lightningCoordinates = (LightingCoordinates*)(&(pCell->unk060));
-			
-			if (lightningCoordinates->coordinates)
-			{
-				
-				Coordinates* coordinates = lightningCoordinates->coordinates;
-
-				std::string coordinateString = IntToString(coordinates->cellX) + "," + IntToString(coordinates->cellY);
-
-				ExtraInfoEntry* coordinateEntry;
-
-				CreateExtraInfoEntry(coordinateEntry, "Coordinates", coordinateString);
-
-				resultArray->PushBack(coordinateEntry);
-			}
-
-			BSExtraData * extraData = pCell->unk048.extraData;
-
-			while (extraData)
-			{
-				int extraDataType = extraData->GetType();
-				std::string extraDataString = GetExtraDataTypeName(extraDataType);
-
-				ExtraInfoEntry* extraDataTypeEntry;
-
-				CreateExtraInfoEntry(extraDataTypeEntry, "Extra Data", extraDataString);
-				resultArray->PushBack(extraDataTypeEntry);
-
-				extraData = extraData->next;
-			}
-			
-		}
-	}
-};*/
-
 //// core hook
 bool moreInformativeConsoleScaleForm::InstallHooks( RE::GFxMovieView* a_view, RE::GFxValue* a_root )
 {
