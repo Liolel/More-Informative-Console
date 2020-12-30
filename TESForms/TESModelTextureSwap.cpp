@@ -50,12 +50,11 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		case RE::FormType::Tree:
 		{
-			RE::TESObjectTREE* tree = static_cast<RE::TESObjectTREE*>(baseForm);
+			RE::TESModel* tree = static_cast<RE::TESObjectTREE*>(baseForm);
 
 			if (tree)
 			{
-				RE::TESModelTextureSwap* textSwap = tree->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, "Model", tree); //For some reason trees don't have a ModelTextureSwap
 			}
 
 			break;

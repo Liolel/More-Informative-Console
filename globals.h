@@ -14,6 +14,7 @@ namespace MICGlobals
 namespace MICOptions
 {
 	extern boolean MICDebugMode; //Enables debugging code. Currently this just activates the logging features
+	extern boolean ExperimentalFeatures; //Enable experimental features
 	//extern int BackgroundColor; //Background color of the extra info window
 	extern double Transparency; //Transperency of the extra info window background
 	extern int BaseInfoFormat; //How much information to display in the base info window

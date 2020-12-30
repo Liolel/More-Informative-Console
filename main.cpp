@@ -29,6 +29,7 @@ void readINI()
 	{
 		logger::info("Reading in ini file");
 		MICOptions::MICDebugMode = ini.GetBoolValue("Debug", "EnableDebugLogging", false);
+		MICOptions::ExperimentalFeatures = ini.GetBoolValue("Debug", "EnableExperimentalFeatures", false);
 		MICOptions::Transparency = (double)ini.GetLongValue("UI", "Transparency", false) / 100.0;
 		MICOptions::WindowHeight = ini.GetLongValue("UI", "WindowHeight", false);
 		MICOptions::WindowWidth = ini.GetLongValue("UI", "WindowWidth", false);
@@ -97,25 +98,6 @@ extern "C" DLLEXPORT bool SKSEAPI  SKSEPlugin_Load(const SKSE::LoadInterface* a_
 	const auto scaleform = SKSE::GetScaleformInterface();
 
 	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
-		
-					/*
-					RE::UI::GetSingleton()->Register
-
-					scaleform->Register("MIC", moreInformativeConsoleScaleForm::InstallHooks)
-
-					//SKSEScaleformInterface::RegisterCallback callback = moreInformativeConsoleScaleForm::InstallHooks;
-
-					/*
-					logger::info("Establishing interfaces 2..." );
-
-					g_SKSEScaleformInterface = (SKSEScaleformInterface *)skse->QueryInterface(kInterface_Scaleform);
-
-
-					logger::info("Establishing interfaces 3...");
-					g_SKSEScaleformInterface->Register("MIC", callback);*/
-					//readINI();
-
-					//Console::Register();
 
 	logger::info("Plugin Initialization complete.");
 

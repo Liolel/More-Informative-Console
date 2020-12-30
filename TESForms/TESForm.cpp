@@ -226,26 +226,29 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	//Model information
 	GetModelTextures(resultArray, baseForm);
 
-	//Get scripts
-	ExtraInfoEntry* scriptsEntry;
-	CreateExtraInfoEntry(scriptsEntry, "Scripts", "", priority_Scripts_Scripts);
-
-	GetScripts(scriptsEntry, baseForm);
-
-	if (refForm)
+	if (MICOptions::ExperimentalFeatures)
 	{
-		GetScripts(scriptsEntry, refForm);
-	}
+		//Get scripts
+		ExtraInfoEntry* scriptsEntry;
+		CreateExtraInfoEntry(scriptsEntry, "Scripts", "", priority_Scripts_Scripts);
 
-	//There's no point showing an empty script entry as having no scripts is the standard and some formtypes can't even have scripts. So check if we found anything
-	if (scriptsEntry->HasChildren())
-	{
-		resultArray->PushBack(scriptsEntry);
-	}
+		GetScripts(scriptsEntry, baseForm);
 
-	else
-	{
-		delete(scriptsEntry); //Free up the memory
+		if (refForm)
+		{
+			GetScripts(scriptsEntry, refForm);
+		}
+
+		//There's no point showing an empty script entry as having no scripts is the standard and some formtypes can't even have scripts. So check if we found anything
+		if (scriptsEntry->HasChildren())
+		{
+			resultArray->PushBack(scriptsEntry);
+		}
+
+		else
+		{
+			delete(scriptsEntry); //Free up the memory
+		}
 	}
 }
 
