@@ -621,6 +621,18 @@ std::string GetName(RE::TESForm* baseForm)
 			break;
 		}
 
+		case RE::FormType::Keyword:
+		{
+			logger::debug("GetExtraData: GetName Keyword");
+			RE::BGSKeyword* keyword = static_cast<RE::BGSKeyword*>(baseForm);
+			if (keyword)
+			{
+				name = keyword->formEditorID.c_str();
+			}
+
+			break;
+		}
+
 		//for objects with no name data show the formID
 		case RE::FormType::Package:
 		case RE::FormType::MusicTrack:

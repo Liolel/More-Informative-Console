@@ -331,6 +331,7 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		formLocationHolder->PushBack(allModsTouchingBaseHolder);
 	}
 
+
 	resultArray->PushBack(formLocationHolder);
 
 	logger::debug("GetExtraData: GetFormLocationData End");
@@ -410,4 +411,38 @@ void GetScripts( ExtraInfoEntry*& resultArray, RE::TESForm* form)
 	}
 
 	logger::debug("GetScript End");
+}
+
+//Get all keywords for forms that store keywords in the normal location
+void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
+{ 
+	logger::debug("GetKeywords Start");
+
+	if ( keywordForm )
+	{
+		ExtraInfoEntry* keywordsEntry;
+
+		CreateExtraInfoEntry(keywordsEntry, "Keywords", "", priority_Keywords);
+
+		for (int i = 0; i < keywordForm->numKeywords; i++)
+		{
+			RE::BGSKeyword * keyword = *(keywordForm->GetKeywordAt(i) );
+
+			if (keyword)
+			{
+				ExtraInfoEntry* keywordEntry;
+				std::string keywordName = GetName(keyword);
+
+				CreateExtraInfoEntry(keywordEntry, keywordName, "", priority_Keywords);
+
+				GetFormData(keywordEntry, keyword, nullptr);
+
+				keywordsEntry->PushBack(keywordEntry);
+			}
+		}
+
+		resultArray->PushBack(keywordsEntry);
+	}
+
+	logger::debug("GetKeywords End");
 }

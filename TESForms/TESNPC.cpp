@@ -81,6 +81,8 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 			GetNPCAppearanceData(resultArray, npc); 
 
 			GetFactionsForNPC(resultArray, actor, actorBase);
+
+			GetKeywords(resultArray, actorBase);
 		}
 	}
 	

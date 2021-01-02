@@ -1,4 +1,5 @@
 #include "TESObjectWEAP.h"
+#include "TESForm.h"
 #include "Util/NameUtil.h"
 
 void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
@@ -85,6 +86,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight), priority_Weapon_Weight);
 		resultArray->PushBack(weightEntry);
 
+		GetKeywords(resultArray, weapon);
 	}
 
 	logger::debug("GetWeaponData End");

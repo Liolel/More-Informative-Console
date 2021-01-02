@@ -1,5 +1,6 @@
 #include "SpellItem.h"
 #include "MagicItem.h"
+#include "TESForm.h"
 #include "Util/NameUtil.h"
 
 void GetSpellData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
@@ -44,6 +45,8 @@ void GetSpellData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		//Get Data for the magic effects for the spell
 		GetMagicItemData(resultArray, baseForm);
+
+		GetKeywords(resultArray, spellItem);
 
 		/*
 		BGSEquipSlot * equipSlot = pSpellItem->equipType.GetEquipSlot();

@@ -61,6 +61,8 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		std::string isChild = BooleanToYesNoString(HasFlag(flags, (int)RE::RACE_DATA::Flag::kChild));
 		CreateExtraInfoEntry(childEntry, "Child", isChild, priority_Race_Child);
 		resultArray->PushBack(childEntry);
+
+		GetKeywords(resultArray, race);
 	}
 
 	logger::debug("Ending GetRaceEntry");

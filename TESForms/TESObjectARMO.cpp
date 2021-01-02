@@ -92,6 +92,8 @@ void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			}
 		}
 
+		GetKeywords(resultArray, armor);
+
 		resultArray->PushBack(armorAddonsEntry);
 	}
 

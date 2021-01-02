@@ -57,6 +57,9 @@ enum priority
 	priority_ExtraContainerChanges_Equipment,
 	priority_ExtraContainerChanges_Inventory,
 	priority_ExtraContainerChanges_Item,
+	//Keyword
+	priority_Keywords,
+	priority_Keyword,
 	//Actor-Part 2
 	priority_Actor_ActorValues,
 	priority_Actor_ActorValues_ActorValue,
