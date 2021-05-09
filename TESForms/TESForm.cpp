@@ -184,6 +184,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	resultArray->PushBack(nameArray);
 	
+	/* This rarely works and I suspect it might be causing crashes for some keywords
 	std::string editorID = baseForm->GetFormEditorID();
 
 	if (editorID != "")
@@ -191,7 +192,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 		ExtraInfoEntry* editorIDEntry;
 		CreateExtraInfoEntry(editorIDEntry, "Editor ID", editorID, priority_EditorID);
 		resultArray->PushBack(editorIDEntry);
-	}
+	}*/
 
 	//base formid
 	std::string formID = FormIDToString(baseForm->formID);
@@ -218,10 +219,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	}
 
 	//mod location info
-
 	GetFormLocationData(resultArray, baseForm, refForm);
-
-	logger::debug("GetCommonFormData: GetCommonFormData End");
 
 	//Model information
 	GetModelTextures(resultArray, baseForm);
@@ -250,6 +248,9 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 			delete(scriptsEntry); //Free up the memory
 		}
 	}
+
+
+	logger::debug("GetCommonFormData: GetCommonFormData End");
 }
 
 //get information related to where mods the form is found in
@@ -415,8 +416,9 @@ void GetScripts( ExtraInfoEntry*& resultArray, RE::TESForm* form)
 
 //Get all keywords for forms that store keywords in the normal location
 void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
-{ 
+{
 	logger::debug("GetKeywords Start");
+
 
 	if ( keywordForm )
 	{
@@ -424,11 +426,16 @@ void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
 
 		CreateExtraInfoEntry(keywordsEntry, "Keywords", "", priority_Keywords);
 
+		logger::debug("GetKeywords Before crash");
+
 		for (int i = 0; i < keywordForm->numKeywords; i++)
 		{
 			RE::BGSKeyword * keyword = *(keywordForm->GetKeywordAt(i) );
 
-			if (keyword)
+			if ( keyword 
+				 && ( ( keyword->formID & 0xFF000000 )
+					    != 0xFF000000 ) ) //There was a strange Keyword with a formid starting with FF that is causing a crash. There must be some skse plugin reponsible for this
+																 //as it can't be created by normal methods. For now I want to filter those keywords out
 			{
 				ExtraInfoEntry* keywordEntry;
 				std::string keywordName = GetName(keyword);
@@ -445,4 +452,5 @@ void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
 	}
 
 	logger::debug("GetKeywords End");
+
 }

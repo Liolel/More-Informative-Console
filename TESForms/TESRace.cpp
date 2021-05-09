@@ -11,7 +11,6 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
 	if (race)
 	{		
-		/* Currently this is covered by the GetCommonData method
 		//editor ID
 		std::string editorID = race->GetFormEditorID();
 
@@ -19,7 +18,6 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		CreateExtraInfoEntry(editorIDEntry, "EditorID", editorID, priority_EditorID );
 		resultArray->PushBack(editorIDEntry);
-		*/
 		
 		logger::debug("Getting Models");
 		//models

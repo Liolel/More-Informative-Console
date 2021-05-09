@@ -17,6 +17,8 @@ namespace MICOptions
 	double Transparency = 0.8; //Transperency of the extra info window background
 	extern int WindowWidth = 300; //Width of the extra info window
 	extern int WindowHeight = 600; //Heigh of the extra info window
-	extern int FontSize = 16; //Size of the font used in the extra info window
+	extern int FontSizeExtraInfo = 16; //Size of the font used in the extra info window
+	extern int FontSizeBaseInfo = 16; //Size of the font used in the base info
+	extern int FontSizeConsoleText = 16; //Size of the font used in the console text
 	int BaseInfoFormat = 2; //How much information to display in the base info window
 }
