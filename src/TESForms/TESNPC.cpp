@@ -143,8 +143,8 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 
 	CreateExtraInfoEntry(activeEffectsEntry, "Effects", "", priority_Actor_Effects);
 
+#ifndef SKYRIMVR
 	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
-
 	logger::debug("GetCharacterData: Active Effects Gotten");
 
 	if (activeEffects) {
@@ -182,6 +182,39 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 			logger::debug("GetCharacterData: Ending Active Effect");
 		}
 	}
+#else
+	int total = 0;
+	logger::debug("GetCharacterData: Starting Active Effect");
+	actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
+		logger::debug("GetCharacterData: Visiting Active Effect {}", total++);
+		if (activeEffect) {
+			ExtraInfoEntry* effectEntry;
+			if (activeEffect->effect) {
+				logger::debug("GetCharacterData: Active Effect MGEF found");
+				std::string effectActive;
+				RE::Effect* effect = activeEffect->effect;
+				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive)) {
+					effectActive = "Inactive";
+				} else {
+					effectActive = "Active";
+				}
+
+				logger::debug("ActiveEffect: {}, magnitude: {}, duration:{}, formID: {}", activeEffect->effect->baseEffect->GetFullName(), activeEffect->magnitude, activeEffect->duration, activeEffect->effect->baseEffect->formID);
+
+				GetEffectData(activeEffectsEntry, effect, effectActive);
+			}
+
+			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
+			else {
+				CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
+				activeEffectsEntry->PushBack(effectEntry);
+			}
+			logger::debug("GetCharacterData: Ending Active Effect");
+		}
+		return RE::BSContainer::ForEachResult::kContinue;
+	});
+
+#endif
 
 	resultArray->PushBack(activeEffectsEntry);
 

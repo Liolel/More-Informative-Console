@@ -8,22 +8,23 @@ void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 	RE::BGSTextureSet* textureSet = static_cast<RE::BGSTextureSet*>(baseForm);
 
-	if (textureSet)
-	{
+	if (textureSet) {
 		ExtraInfoEntry* textureSetEntry;
 		CreateExtraInfoEntry(textureSetEntry, "Texture Set", "", priority_TextureSet);
 
+#ifndef SKYRIMVR
 		int totalTextures = RE::BGSTextureSet::Textures::kTotal;
+#else  //VR appears to not use all 9 and results in a crash
+		int totalTextures = RE::BGSTextureSet::Textures::kUsedTotal;
+#endif
 
-		for (int i = 0; i < totalTextures; i++)
-		{
+		for (int i = 0; i < totalTextures; i++) {
 			RE::TESTexture* texture = &textureSet->textures[i];
 			std::string texturePath = texture->textureName.c_str();
 
 			std::string textureName = "";
 
-			if (texturePath != "")
-			{
+			if (texturePath != "") {
 				textureName = GetFileName(texturePath);
 			}
 
@@ -33,8 +34,7 @@ void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 			CreateExtraInfoEntry(textureEntry, textureType, textureName, priority_TextureSet_TextureName);
 
-			if (texturePath != "")
-			{
+			if (texturePath != "") {
 				CreateFilePathSubarray(textureEntry, texturePath);
 			}
 
