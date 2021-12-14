@@ -27,7 +27,7 @@ void MICScaleform_RetrieveExtraData::Call(Params& a_params)
 }
 
 //Recursively travel through the extra info structure to find the desired entry
-ExtraInfoEntry* MICScaleform_RetrieveExtraData::TraverseExtraInfoEntries(ExtraInfoEntry* currentEntry, RE::GFxValue* indexArray, int currentIndex)
+ExtraInfoEntry* MICScaleform_RetrieveExtraData::TraverseExtraInfoEntries(ExtraInfoEntry* currentEntry, RE::GFxValue* indexArray, uint32_t currentIndex)
 {
 	logger::debug( ("Traverse Current Index " + IntToString(currentIndex) ).c_str() );
 

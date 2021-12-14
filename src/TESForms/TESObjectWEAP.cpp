@@ -58,7 +58,6 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		RE::BGSEquipSlot* equipSlot = weapon->GetEquipSlot();
 		if (equipSlot) {
-			RE::TESForm* equipSlotForm = static_cast<RE::TESForm*>(equipSlot);
 			std::string equipSlotName = GetEquipTypeName(equipSlot->GetFormID());
 
 			ExtraInfoEntry* equipSlotEntry;

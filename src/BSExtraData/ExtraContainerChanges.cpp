@@ -130,7 +130,7 @@ RE::TESForm* FindEquipedItemInSlot( int slotMask, RE::ExtraContainerChanges* con
 	RE::BSSimpleList<RE::InventoryEntryData*> ::iterator itr, itrEnd;
 	itrEnd = inventoryChanges->entryList->end();
 
-	for ( itr = inventoryChanges->entryList->begin(); itr != itrEnd; itr++)
+	for ( itr = inventoryChanges->entryList->begin(); itr != itrEnd; ++itr)
 	{
 		//logger::debug("FindEquipedItemInSlot Item found");
 
@@ -152,7 +152,7 @@ RE::TESForm* FindEquipedItemInSlot( int slotMask, RE::ExtraContainerChanges* con
 				{
 					RE::BSSimpleList<RE::ExtraDataList*> ::iterator itrExtraList, itrExtraListEnd;
 					itrExtraListEnd  = inventoryEntryData->extraLists->end();
-					for ( itrExtraList = inventoryEntryData->extraLists->begin(); itrExtraList != itrExtraListEnd; itrExtraList++)
+					for ( itrExtraList = inventoryEntryData->extraLists->begin(); itrExtraList != itrExtraListEnd; ++itrExtraList)
 					{
 						RE::ExtraDataList* extraDataList = *itrExtraList;
 
@@ -185,7 +185,7 @@ void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 	RE::BSSimpleList<RE::InventoryEntryData*>::iterator itr, itrEnd;
 	itrEnd = inventoryChanges->entryList->end();
 
-	for ( itr = inventoryChanges->entryList->begin(); itr != itrEnd; itr++)
+	for ( itr = inventoryChanges->entryList->begin(); itr != itrEnd; ++itr)
 	{
 		//logger::debug("FindEquipedItemInSlot Item found");
 
@@ -297,7 +297,7 @@ bool InventoryChangesContainsItem(RE::InventoryChanges* inventoryChanges, RE::TE
 			containsItem = true;
 		}
 
-		itr++;
+		++itr;
 	}
 
 	logger::debug("InventoryChangesContainsItem End");

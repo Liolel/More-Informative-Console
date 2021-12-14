@@ -14,7 +14,7 @@ MICScaleform_GetExtraData* getExtraData = nullptr;
 MICScaleform_Log* MICScaleformlog = nullptr;
 
 //// core hook
-bool moreInformativeConsoleScaleForm::InstallHooks(RE::GFxMovieView* a_view, RE::GFxValue* a_root)
+bool moreInformativeConsoleScaleForm::InstallHooks(RE::GFxMovieView* a_view, RE::GFxValue*)
 {
 	logger::debug("Install Hooks Called");
 

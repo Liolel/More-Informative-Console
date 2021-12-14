@@ -30,7 +30,7 @@ void GetCurrentMusic(ExtraInfoEntry* resultArray)
 
 				if (musicStatus == RE::BSIMusicType::MUSIC_STATUS::kPlaying)
 				{
-					int currentTrackIndex = musicType->currentTrackIndex;
+					uint32_t currentTrackIndex = musicType->currentTrackIndex;
 
 					if (musicType->tracks.size() > currentTrackIndex)
 					{

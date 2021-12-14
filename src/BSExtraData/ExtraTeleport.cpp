@@ -22,8 +22,8 @@ void ProcessTeleportData(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 			{
 				if (extraList->HasType(RE::ExtraDataType::kLock))
 				{
-					RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kLock);
-					ProcessLockData(resultArray, data, destination);
+					RE::BSExtraData* lockData = extraList->GetByType(RE::ExtraDataType::kLock);
+					ProcessLockData(resultArray, lockData, destination);
 				}
 			}
 		}

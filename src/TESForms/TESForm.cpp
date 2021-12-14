@@ -235,7 +235,6 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		logger::debug("GetExtraData: GetFormLocationData ref mod info found");
 
 		//Reference Form
-		int numModsModifyingRef = GetNumberOfSourceFiles(refForm);
 
 		std::string refFirstDefinedIn = GetFirstFormLocationName(refForm);
 		bool SkyrimESMNotDetectedBug = false;
@@ -271,8 +270,6 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 
 	if (GetHasSourceFileArray(baseForm)) {
 		logger::debug("GetExtraData: GetFormLocationData baseFormModInfo found");
-
-		int numModsModifyingBase = GetNumberOfSourceFiles(baseForm);
 
 		std::string baseFirstDefinedIn = GetFirstFormLocationName(baseForm);
 
@@ -381,7 +378,7 @@ void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
 
 		logger::debug("GetKeywords Before crash");
 
-		for (int i = 0; i < keywordForm->numKeywords; i++) {
+		for (uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 			RE::BGSKeyword* keyword = *(keywordForm->GetKeywordAt(i));
 
 			if (keyword && ((keyword->formID & 0xFF000000) != 0xFF000000))  //There was a strange Keyword with a formid starting with FF that is causing a crash. There must be some skse plugin reponsible for this
