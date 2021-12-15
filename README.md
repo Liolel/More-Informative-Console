@@ -17,8 +17,8 @@ These must be completed for any later steps to work.
 
 ## Building
 ```
-git clone https://github.com/Ryan-rsm-McKenzie/ExamplePlugin-CommonLibSSE
-cd ExamplePlugin-CommonLibSSE
+git clone https://github.com/Liolel/More-Infromative-Console
+cd More-Informative-Console
 ```
 ### CommonLibSSE or CommonLibVR
 ```
@@ -53,10 +53,10 @@ Open build/ExampleProject.sln in Visual Studio.
 		* [SKSEVR](https://skse.silverlock.org/)
 		* [VR Address Library for SKSE](https://www.nexusmods.com/skyrimspecialedition/mods/58101)
 2. Run Skyrim.
-3. Logs will be generated in `my games\Skyrim Special Edition\SKSE\ExampleProject.log` or `my games\Skyrim VR\SKSE\ExampleProject.log`
+3. Logs will be generated in `my games\Skyrim Special Edition\SKSE\MoreInformativeConsole.log` or `my games\Skyrim VR\SKSE\MoreInformativeConsole.log`
 ```text
-ExamplePlugin-CommonLibSSE\src\main.cpp(28): [info] ExampleProject v1.0.0
-ExamplePlugin-CommonLibSSE\src\main.cpp(56): [info] loaded
+main.cpp(74): [info] More Informative Console
+main.cpp(75): [info] Initalizing
 ```
 
 ## Making Changes
