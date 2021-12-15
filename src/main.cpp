@@ -1,5 +1,6 @@
 #pragma once
 #include "MIC_Scaleform.h"
+#include "Version.h"
 #include "SKSE/API.h"
 #include "Simpleini.h"
 #include "globals.h"
@@ -32,81 +33,89 @@ void readINI()
 		MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
 	}
 }
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
-{
-#ifndef NDEBUG
-	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-#else
-	auto path = logger::log_directory();
-	if (!path) {
-		return false;
-	}
 
-	*path /= Version::PROJECT;
-	*path += ".log"sv;
-	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+extern "C"
+{
+	DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+		SKSE::PluginVersionData v{};
+		v.pluginVersion = Version::ASINT;
+		v.PluginName("More Informative Console"sv);
+		v.AuthorName("Linthar"sv);
+		v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+		v.UsesAddressLibrary(true);
+		return v;
+	}();
+
+	DLLEXPORT auto SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_skse) -> bool
+	{	
+#ifndef NDEBUG
+		auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+#else
+		auto path = logger::log_directory();
+		if (!path) {
+			return false;
+		}
+
+		*path /= Version::PROJECT;
+		*path += ".log"sv;
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 #endif
 
-	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 
 #ifndef NDEBUG
-	log->set_level(spdlog::level::trace);
+		log->set_level(spdlog::level::trace);
 #else
-	log->set_level(spdlog::level::info);
-	log->flush_on(spdlog::level::info);
-	readINI();
-	//Set the logger print level based on if debug mode is enabled
-	if (MICOptions::MICDebugMode) {
-		log->set_level(spdlog::level::debug);
-		log->flush_on(spdlog::level::debug);
-	}
-
-	else {
 		log->set_level(spdlog::level::info);
 		log->flush_on(spdlog::level::info);
-	}
+
+		//Set the logger print level based on if debug mode is enabled
+		if (MICOptions::MICDebugMode) {
+			log->set_level(spdlog::level::debug);
+			log->flush_on(spdlog::level::debug);
+		}
+
+		else {
+			log->set_level(spdlog::level::info);
+			log->flush_on(spdlog::level::info);
+		}
 #endif
 
-	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
+		spdlog::set_default_logger(std::move(log));
+		spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
 
-	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
-	logger::info("Initalizing");
+		logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
+		logger::info("Initalizing");
 
-	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = Version::PROJECT.data();
-	a_info->version = Version::MAJOR;
 
-	if (a_skse->IsEditor()) {
-		logger::critical("Loaded in editor, marking as incompatible"sv);
-		return false;
-	}
+		if (a_skse->IsEditor()) {
+			logger::critical("Loaded in editor, marking as incompatible"sv);
+			return false;
+		}
 
-	const auto ver = a_skse->RuntimeVersion();
-	if (ver <
+		const auto ver = a_skse->RuntimeVersion();
+		if (ver <
 #ifndef SKYRIMVR
-		SKSE::RUNTIME_1_5_39
+			SKSE::RUNTIME_1_5_39
 #else
-		SKSE::RUNTIME_VR_1_4_15
+			SKSE::RUNTIME_VR_1_4_15
 #endif
-	) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
-		return false;
+			) {
+			logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
+			return false;
+		}
+
+		readINI();
+
+		logger::info("Establishing interfaces...");
+
+		SKSE::Init(a_skse);
+		const auto scaleform = SKSE::GetScaleformInterface();
+
+		scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
+
+		logger::info("Plugin Initialization complete.");
+
+		return true;
 	}
-
-	return true;
-}
-
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
-{
-	logger::info("Establishing interfaces...");
-
-	SKSE::Init(a_skse);
-	const auto scaleform = SKSE::GetScaleformInterface();
-
-	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
-
-	logger::info("Plugin Initialization complete.");
-
-	return true;
-}
+};

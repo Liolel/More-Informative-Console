@@ -124,6 +124,7 @@ else ()
 endif()
 
 find_package(spdlog REQUIRED)
+find_package(binary_io REQUIRED CONFIG)
 
 # ---- Add source files ----
 
@@ -246,6 +247,7 @@ target_link_libraries(
 	PRIVATE
 		${CommonLibName}::${CommonLibName}
 		spdlog::spdlog
+		binary_io::binary_io
 )
 
 if (MSVC)

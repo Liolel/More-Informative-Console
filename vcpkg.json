@@ -8,9 +8,8 @@
   "dependencies": [
     "boost-atomic",
     "boost-stl-interfaces",
-    "span-lite",
     "spdlog",
-    "simpleini"
-
+    "simpleini",
+	"rsm-binary-io"
   ]
 }
