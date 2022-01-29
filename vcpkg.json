@@ -10,7 +10,7 @@
     "boost-stl-interfaces",
     "span-lite",
     "spdlog",
-    "simpleini"
-
+    "simpleini",
+	"robin-hood-hashing"
   ]
 }

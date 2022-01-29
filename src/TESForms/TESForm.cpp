@@ -14,6 +14,7 @@
 #include "TESRace.h"
 #include "Util/NameUtil.h"
 #include "globals.h"
+#include "EditorIDCache.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
 {
@@ -159,15 +160,35 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	resultArray->PushBack(nameArray);
 
-	/* This rarely works and I suspect it might be causing crashes for some keywords
-	std::string editorID = baseForm->GetFormEditorID();
+	
+	//highly experimental code. This has a noticable hitch when selecting player character.
+	//Requires Power of 3 tweaks to actually store all of this information
+	auto editorIDCache = EditorIDCache::GetSingleton();
+
+	std::string editorID = editorIDCache->GetEditorID(baseForm);
+
+	/*
+	const auto& [map, lock] = RE::TESForm::GetAllFormsByEditorID();
+	const RE::BSReadLockGuard locker{ lock };
+	if (map) {
+		for (auto& [id, form] : *map) 
+		{
+			if (form == baseForm)
+			{
+				editorID = id;
+			}
+		}
+	}
+	*/
+	
+	//std::string editorID = baseForm->GetFormEditorID();
 
 	if (editorID != "")
 	{
 		ExtraInfoEntry* editorIDEntry;
 		CreateExtraInfoEntry(editorIDEntry, "Editor ID", editorID, priority_EditorID);
 		resultArray->PushBack(editorIDEntry);
-	}*/
+	}
 
 	//base formid
 	std::string formID = FormIDToString(baseForm->formID);

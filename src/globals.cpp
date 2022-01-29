@@ -5,6 +5,7 @@ namespace MICGlobals
 	bool readRaceSkins = true;                //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
 	RE::TESRace* filterARMAByRace = nullptr;  //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
 	bool reducedMode = false;                 //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstancesv
+	bool useEditorIDs = false; //True if power of 3 tweaks is installed allowing editor ids to be read in from memory
 	int maxInventoryBeforeReducedMode = 750;  //Maximum inventory size before triggering reduced mode
 	ExtraInfoEntry rootEntry("", "", priority_Default);
 }

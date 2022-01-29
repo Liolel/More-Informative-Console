@@ -130,6 +130,8 @@ find_package(spdlog REQUIRED)
 set(SOURCES
 	src/main.cpp
 	src/PCH.h
+	src/EditorIDCache.h
+	src/EditorIDCache.cpp
 	src/ExtraInfoEntry.cpp
 	src/ExtraInfoEntry.h
 	src/globals.cpp

@@ -6,8 +6,9 @@ namespace MICGlobals
 {
 	extern bool readRaceSkins; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
 	extern RE::TESRace* filterARMAByRace; //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
-	extern bool reducedMode; //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstancesv
+	extern bool reducedMode; //Used to reduce the amount of info read to prevent crashes on opening chests with very large number of armors in certain circumstances
 	extern int maxInventoryBeforeReducedMode; //Maximum inventory size before triggering reduced mode
+	extern bool useEditorIDs; //True if power of 3 tweaks is installed allowing editor ids to be read in from memory
 	extern ExtraInfoEntry rootEntry;
 }
 

@@ -3,6 +3,7 @@
 #include "SKSE/API.h"
 #include "Simpleini.h"
 #include "globals.h"
+#include "EditorIDCache.h"
 
 void readINI()
 {
@@ -32,6 +33,17 @@ void readINI()
 		MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
 	}
 }
+
+void MessageHandler(SKSE::MessagingInterface::Message* a_message)
+{
+	logger::info("Processed message");
+	if (a_message->type == SKSE::MessagingInterface::kDataLoaded) {
+		auto editorIDCache = EditorIDCache::GetSingleton();
+		editorIDCache->CacheEditorIDs();
+		logger::info("Cached editor ids");
+	}
+}
+
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
 #ifndef NDEBUG
@@ -105,6 +117,17 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	const auto scaleform = SKSE::GetScaleformInterface();
 
 	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
+
+	//Check if power of 3 tweaks is installed
+	const auto tweaksHandle = GetModuleHandle(L"po3_Tweaks");
+	MICGlobals::useEditorIDs = tweaksHandle != nullptr;
+
+	//if we are using editor ids we need to register a listner to wait for all data to get loaded
+	if (true ) //MICGlobals::useEditorIDs)
+	{
+		auto messaging = SKSE::GetMessagingInterface();
+		messaging->RegisterListener(MessageHandler);
+	}
 
 	logger::info("Plugin Initialization complete.");
 
