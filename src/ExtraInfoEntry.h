@@ -10,6 +10,9 @@ public:
 
 	void Clear();
 	void PushBack(ExtraInfoEntry* subArrayEntry);
+	void CopyChildren(ExtraInfoEntry* entryToCopyFrom);
+
+	void SetMayCopy(bool valueToSet );
 
 	bool HasChildren();
 
@@ -24,6 +27,10 @@ public:
 private:
 	std::string entry1;
 	std::string entry2;
+
+	int parents;
+	bool isFinalized;
+	bool mayCopy;
 
 	std::vector<ExtraInfoEntry*> subarray;
 };
@@ -112,6 +119,8 @@ enum priority
 	priority_Spell_DeliveryType,
 	//Magic Item (This is used in Spells and ... )
 	priority_MagicItem_MagicEffects,
+	priority_MagicItem_Effect_Active,
+	priority_MagicItem_Effect_Inactive,
 	priority_MagicItem_Effect,
 	//Effects - This is one half of magic effect data. This is the magnitude/duration/area part
 	priority_Effect_Magnitude,

@@ -2,8 +2,6 @@
 #include <vector>
 #include "robin_hood.h"
 #include "RE/Skyrim.h"
-//#include tring>
-
 class EditorIDCache
 {
 public:

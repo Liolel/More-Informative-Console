@@ -8,6 +8,7 @@
 #include "Util/NameUtil.h"
 #include "Util/ScaleformUtil.h"
 #include "globals.h"
+#include "FormExtraInfoCache.h"
 
 void MICScaleform_GetExtraData::Call(Params& a_params)
 {
@@ -16,6 +17,8 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	RE::GFxMovie* movie = a_params.movie;
 
 	bool skipUsualEndCode = false;
+
+	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
 
 	//Determine mode to use
 	RE::GFxValue* modeGFX = &a_params.args[0];
@@ -32,6 +35,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 				logger::debug("GetExtraData: BaseFound");
 
 				MICGlobals::rootEntry.Clear();
+				formExtraInfoCache->ClearCache();
 				GetFormData(&MICGlobals::rootEntry, baseForm, ref);
 
 				logger::debug("Get Form Information done");
@@ -41,11 +45,13 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 
 	else if (modeInt == Constant_ModeWorldInformation) {
 		MICGlobals::rootEntry.Clear();
+		formExtraInfoCache->ClearCache();
 		GetWorldData(&MICGlobals::rootEntry);
 	}
 
 	else if (modeInt == Constant_ModeMFG) {
 		MICGlobals::rootEntry.Clear();
+		formExtraInfoCache->ClearCache();
 
 		RE::TESObjectREFR* ref = RE::Console::GetSelectedRef().get();
 		if (ref != nullptr && ref->GetFormType() == RE::FormType::ActorCharacter) {

@@ -15,6 +15,7 @@
 #include "Util/NameUtil.h"
 #include "globals.h"
 #include "EditorIDCache.h"
+#include "FormExtraInfoCache.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
 {
@@ -63,67 +64,81 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 {
 	logger::debug(("GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID)).c_str());
 
-	GetCommonFormData(resultArray, baseForm, refForm);
+	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
+	auto extraInfoEntryCached = formExtraInfoCache->GetExtraInfoEntry(baseForm);
 
-	if (refForm != nullptr) {
-		GetReferenceFormData(resultArray, refForm);
+	if (extraInfoEntryCached == nullptr)
+	{
+		GetCommonFormData(resultArray, baseForm, refForm);
+
+		if (refForm != nullptr) {
+			GetReferenceFormData(resultArray, refForm);
+		}
+
+		RE::FormType baseFormType = baseForm->GetFormType();
+
+		if (baseForm != nullptr && baseFormType == RE::FormType::NPC && (refForm == nullptr || refForm->GetFormType() == RE::FormType::ActorCharacter)) {
+			logger::debug("GetExtraData: Get Form Data character found");
+			GetCharacterData(resultArray, refForm, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::MagicEffect) {
+			logger::debug("GetExtraData: Get Form Data magic effect found");
+			GetMagicEffectData(resultArray, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::Spell) {
+			logger::debug("GetExtraData: Get Form Data spell found");
+			GetSpellData(resultArray, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::Armor) {
+			logger::debug("GetExtraData: Get Form Data armor found");
+			GetArmorData(resultArray, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::Weapon) {
+			logger::debug("GetExtraData: Get Form Data Weapon found");
+			GetWeaponData(resultArray, baseForm);
+		}
+		else if (baseFormType == RE::FormType::Ammo) {
+			logger::debug("GetExtraData: Get Form Data Ammo found");
+			GetAmmoData(resultArray, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::Container) {
+			logger::debug("GetExtraData: Get Form Data Container found");
+			GetContainerData(resultArray, baseForm);
+		}
+		else if (baseFormType == RE::FormType::Race) {
+			logger::debug("GetExtraData: Get Form Data Race found");
+			GetRaceEntry(resultArray, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::TextureSet) {
+			logger::debug("GetExtraData: Get Form Data Texture Set found");
+			GetTextureSet(resultArray, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::Armature) {
+			logger::debug("GetExtraData: Get Form Data ARMA found");
+			GetArmaData(resultArray, baseForm);
+		}
+
+		else if (baseFormType == RE::FormType::Cell) {
+			logger::debug("GetExtraData: Get Form Data CELL found");
+			GetCellEntry(resultArray, baseForm);
+		}
+
+		//reset any filtering
+		MICGlobals::filterARMAByRace = nullptr;
+
+		formExtraInfoCache->CacheExtraInfoEntry( baseForm, resultArray );
 	}
-
-	RE::FormType baseFormType = baseForm->GetFormType();
-
-	if (baseForm != nullptr && baseFormType == RE::FormType::NPC && (refForm == nullptr || refForm->GetFormType() == RE::FormType::ActorCharacter)) {
-		logger::debug("GetExtraData: Get Form Data character found");
-		GetCharacterData(resultArray, refForm, baseForm);
+	else
+	{
+		resultArray->CopyChildren(extraInfoEntryCached);
 	}
-
-	else if (baseFormType == RE::FormType::MagicEffect) {
-		logger::debug("GetExtraData: Get Form Data magic effect found");
-		GetMagicEffectData(resultArray, baseForm);
-	}
-
-	else if (baseFormType == RE::FormType::Spell) {
-		logger::debug("GetExtraData: Get Form Data spell found");
-		GetSpellData(resultArray, baseForm);
-	}
-
-	else if (baseFormType == RE::FormType::Armor) {
-		logger::debug("GetExtraData: Get Form Data armor found");
-		GetArmorData(resultArray, baseForm);
-	}
-
-	else if (baseFormType == RE::FormType::Weapon) {
-		logger::debug("GetExtraData: Get Form Data Weapon found");
-		GetWeaponData(resultArray, baseForm);
-	} else if (baseFormType == RE::FormType::Ammo) {
-		logger::debug("GetExtraData: Get Form Data Ammo found");
-		GetAmmoData(resultArray, baseForm);
-	}
-
-	else if (baseFormType == RE::FormType::Container) {
-		logger::debug("GetExtraData: Get Form Data Container found");
-		GetContainerData(resultArray, baseForm);
-	} else if (baseFormType == RE::FormType::Race) {
-		logger::debug("GetExtraData: Get Form Data Race found");
-		GetRaceEntry(resultArray, baseForm);
-	}
-
-	else if (baseFormType == RE::FormType::TextureSet) {
-		logger::debug("GetExtraData: Get Form Data Texture Set found");
-		GetTextureSet(resultArray, baseForm);
-	}
-
-	else if (baseFormType == RE::FormType::Armature) {
-		logger::debug("GetExtraData: Get Form Data ARMA found");
-		GetArmaData(resultArray, baseForm);
-	}
-
-	else if (baseFormType == RE::FormType::Cell) {
-		logger::debug("GetExtraData: Get Form Data CELL found");
-		GetCellEntry(resultArray, baseForm);
-	}
-
-	//reset any filtering
-	MICGlobals::filterARMAByRace = nullptr;
 
 	logger::debug("GetExtraData: Get Form Data End");
 }

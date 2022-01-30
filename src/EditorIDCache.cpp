@@ -7,7 +7,6 @@ EditorIDCache* EditorIDCache::GetSingleton()
 	return std::addressof(singleton);
 }
 
-
 void EditorIDCache::CacheEditorIDs()
 {
 	int numFormTypes = (int)RE::FormType::Max;
@@ -40,3 +39,4 @@ std::string EditorIDCache::GetEditorID(RE::TESForm* form)
 
 	return editorID;
 }
+

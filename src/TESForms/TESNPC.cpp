@@ -163,14 +163,18 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 				std::string effectActive;
 
 				RE::Effect* effect = activeEffect->effect;
+				priority priorityToUse;
 
-				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive)) {
+				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive)) 
+				{
 					effectActive = "Inactive";
+					priorityToUse = priority_MagicItem_Effect_Inactive;
 				} else {
 					effectActive = "Active";
+					priorityToUse = priority_MagicItem_Effect_Active;
 				}
 
-				GetEffectData(activeEffectsEntry, effect, effectActive);
+				GetEffectData(activeEffectsEntry, effect, effectActive, priorityToUse );
 			}
 
 			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case

@@ -1,5 +1,6 @@
 #include "NameUtil.h"
 #include "GeneralUtil.h"
+#include "EditorIDCache.h"
 #include "SKSE/Logger.h"
 
 //Vector of all form types used to convert form types into readable strings
@@ -533,12 +534,6 @@ std::string GetName(RE::TESForm* baseForm)
 			if (perk)
 			{
 				name = perk->fullName.c_str();
-
-				//If the name is empty show the formID as a backup
-				if (name == "")
-				{
-					name = FormIDToString(baseForm->formID);
-				}
 			}
 			break;
 		}
@@ -551,12 +546,6 @@ std::string GetName(RE::TESForm* baseForm)
 			if (faction)
 			{
 				name = faction->fullName.c_str();
-
-				//If the name is empty show the formID as a backup
-				if (name == "")
-				{
-					name = FormIDToString(baseForm->formID);
-				}
 			}
 			break;
 		}
@@ -631,17 +620,21 @@ std::string GetName(RE::TESForm* baseForm)
 			}
 
 			break;
-		}
+		}	
+	}
 
-		//for objects with no name data show the formID
-		case RE::FormType::Package:
-		case RE::FormType::MusicTrack:
-		case RE::FormType::Weather:
+	//If the name is empty try getting the editor id
+	if( name == "")
+	{
+		auto editorIDCache = EditorIDCache::GetSingleton();
+
+		name = editorIDCache->GetEditorID(baseForm);
+
+		//if the editor id was not found use the form id as a final backup
+		if( name == "")
 		{
 			name = FormIDToString(baseForm->formID);
-			break;
 		}
-	
 	}
 
 	logger::debug(("GetExtraData: GetName End: " + name).c_str());

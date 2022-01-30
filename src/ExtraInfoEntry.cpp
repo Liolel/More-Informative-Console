@@ -7,16 +7,27 @@ ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2, int prior
 	this->entry1 = entry1;
 	this->entry2 = entry2;
 	this->priority = priority;
+	this->parents = 0;
+	this->isFinalized = 0;
+	this->mayCopy = true;
 }
 
 void ExtraInfoEntry::Clear()
 {
 	//DebugMessage("Clear Start " + entry1 + " " + entry2 + " " + IntToString( subarray.size() ) );
 
-	for (std::vector<ExtraInfoEntry*>::iterator it = subarray.begin(); it != subarray.end(); ++it) {
-		//DebugMessage("In Clear Loop");
-		(*it)->Clear();
-		delete (*it);
+	for (std::vector<ExtraInfoEntry*>::iterator it = subarray.begin(); it != subarray.end(); ++it) 
+	{
+		//if this is the last parent of the entry remove the entry
+		if ( (*it)->parents <= 1)
+		{
+			(*it)->Clear();
+			delete (*it);
+		}
+		else
+		{
+			(*it)->parents--;
+		}
 	}
 
 	subarray.clear();
@@ -25,6 +36,18 @@ void ExtraInfoEntry::Clear()
 void ExtraInfoEntry::PushBack(ExtraInfoEntry* subArrayEntry)
 {
 	subarray.push_back(subArrayEntry);
+	subArrayEntry->parents++;
+}
+
+void ExtraInfoEntry::CopyChildren(ExtraInfoEntry* entryToCopyFrom)
+{
+	for ( auto extraInfoEntryChild = entryToCopyFrom->subarray.begin(); extraInfoEntryChild != entryToCopyFrom->subarray.end(); extraInfoEntryChild++ )
+	{
+		if( (*extraInfoEntryChild)->mayCopy )
+		{
+			this->PushBack(*extraInfoEntryChild);
+		}
+	}
 }
 
 bool ExtraInfoEntry::HasChildren()
@@ -36,6 +59,12 @@ ExtraInfoEntry* ExtraInfoEntry::GetChild(int index)
 {
 	return subarray[index];
 }
+
+void ExtraInfoEntry::SetMayCopy(bool valueToSet )
+{
+	this->mayCopy = valueToSet;
+}
+
 
 void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue* mainScaleFormArray, RE::GFxMovie* root)
 {
@@ -79,13 +108,18 @@ bool comparePrioritys(ExtraInfoEntry* extraInfoEntryA, ExtraInfoEntry* extraInfo
 //Sort each vector by priority
 void ExtraInfoEntry::Finalize()
 {
-	if (!subarray.empty()) {
-		std::stable_sort(subarray.begin(), subarray.end(), comparePrioritys);
+	if (!this->isFinalized)
+	{
+		if (!subarray.empty()) {
+			std::stable_sort(subarray.begin(), subarray.end(), comparePrioritys);
 
-		for (int i = 0; i < subarray.size(); i++) {
-			subarray[i]->Finalize();
+			for (int i = 0; i < subarray.size(); i++) {
+				subarray[i]->Finalize();
+			}
 		}
 	}
+
+	this->isFinalized = true;
 }
 
 void CreateExtraInfoEntry(ExtraInfoEntry*& extraInfoEntry, std::string extraInfoName, std::string extraInfoContents, priority priority)

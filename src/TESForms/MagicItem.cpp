@@ -1,5 +1,6 @@
 #include "MagicItem.h"
 #include "TESForm.h"
+#include "Util/NameUtil.h"
 
 //
 void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
@@ -19,7 +20,7 @@ void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			RE::Effect* effect = magicItem->effects[i];
 
 			if (effect && effect->baseEffect) {
-				GetEffectData(magicEffectsEntry, effect, "");
+				GetEffectData(magicEffectsEntry, effect, "", priority_MagicItem_Effect );
 			}
 
 			else {
@@ -37,16 +38,16 @@ void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	}
 }
 
-void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string effectActiveString)
+void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string effectActiveString, priority priorityToUse)
 {
 	logger::debug("GetEffectData Start");
 
 	ExtraInfoEntry* effectEntry;
 
 	RE::EffectSetting* effectSetting = effect->baseEffect;
-	std::string effectName = effectSetting->fullName.c_str();
+	std::string effectName = GetName(effectSetting);
 
-	CreateExtraInfoEntry(effectEntry, effectName, effectActiveString, priority_MagicItem_Effect);
+	CreateExtraInfoEntry(effectEntry, effectName, effectActiveString, priorityToUse);
 
 	//Get data for the actual effect
 	GetFormData(effectEntry, effectSetting, nullptr);
@@ -56,6 +57,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 
 	float magnitude = effect->effectItem.magnitude;
 	CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude), priority_Effect_Magnitude);
+	magnitudeEntry->SetMayCopy(false);
 	effectEntry->PushBack(magnitudeEntry);
 
 	//Duration
@@ -63,6 +65,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 
 	int duration = effect->effectItem.duration;
 	CreateExtraInfoEntry(durationEntry, "Duration", IntToString(duration), priority_Effect_Duration);
+	durationEntry->SetMayCopy(false);
 	effectEntry->PushBack(durationEntry);
 
 	//Magnitude
@@ -70,6 +73,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 
 	int area = effect->effectItem.area;
 	CreateExtraInfoEntry(areaEntry, "Area", IntToString(area), priority_Effect_Area);
+	areaEntry->SetMayCopy(false);
 	effectEntry->PushBack(areaEntry);
 
 	resultArray->PushBack(effectEntry);
