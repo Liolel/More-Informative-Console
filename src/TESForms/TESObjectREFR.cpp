@@ -2,6 +2,7 @@
 #include "BSExtraData/BSExtraData.h"
 #include "Util/GeneralUtil.h"
 #include "EditorIDCache.h"
+#include  "Util/FilePathUtil.h"
 
 void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
@@ -19,6 +20,7 @@ void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refFor
 	}
 
 	GetPositionData(resultArray, refForm);
+	GetTextures(resultArray, refForm);
 
 	//Check if the refrence is Enabled
 	bool isDisabled = refForm->IsDisabled();
@@ -74,4 +76,77 @@ void GetPositionData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 	resultArray->PushBack(positionEntry);
 
 	logger::debug("Ending GetPositionData");
+}
+
+
+void GetTextures(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
+{
+	logger::debug("Starting GetTextures");
+	auto reference3d = refForm->Get3D();
+
+	//try alternative calls to get 3d if the first one we try does not work
+	/*
+	if (!reference3d)
+	{
+		reference3d = refForm->Get3D(false);
+	}
+	if (!reference3d)
+	{
+		reference3d = refForm->Get3D(true);
+	}*/
+
+	if (reference3d)
+	{
+		std::set<std::string> uniqueFilePaths;
+		//vist each geometry
+		RE::BSVisit::TraverseScenegraphGeometries(reference3d, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl
+		{
+			//go from the geometry object to the texture set if it has one
+			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
+			if (lightingShader)
+			{
+				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
+				if (material)
+				{
+					if (const auto textureSet = material->textureSet; textureSet)
+					{
+						//there are 8 distinct texture categories
+						for (int i = 0; i < 8; i++)
+						{
+							auto sourcePath = textureSet->GetTexturePath((RE::BSTextureSet::Texture)i);
+
+							if (sourcePath)
+							{
+								uniqueFilePaths.insert(sourcePath);
+							}
+						}
+					}
+				}
+			}
+
+			return RE::BSVisit::BSVisitControl::kContinue;
+		});
+
+		if (!uniqueFilePaths.empty())
+		{
+			ExtraInfoEntry* texturesEntry;
+			CreateExtraInfoEntry(texturesEntry, "Textures", "", priority_TextureSet);
+
+			for (auto itr = uniqueFilePaths.begin(); itr != uniqueFilePaths.end(); itr++)
+			{
+				ExtraInfoEntry* textureEntry;
+				std::string filePath = *itr;
+				std::string fileName = GetFileName(filePath);
+
+				CreateExtraInfoEntry(textureEntry, fileName, "", priority_Texture);
+				CreateFilePathSubarray(textureEntry, filePath);
+				texturesEntry->PushBack(textureEntry);
+			}
+
+			resultArray->PushBack(texturesEntry);
+		}
+	}
+
+	logger::debug("Ending GetTextures");
 }

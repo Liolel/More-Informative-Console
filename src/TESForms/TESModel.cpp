@@ -20,9 +20,6 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 			//Create an entry for the model path
 			logger::debug("Splitting Model Path");
-
-			CreateFilePathSubarray(modelEntry, modelPath);
-
 			
 			ExtraInfoEntry* modelPathEntry;
 			CreateExtraInfoEntry(modelPathEntry, "Model Path", "", priority_Model);

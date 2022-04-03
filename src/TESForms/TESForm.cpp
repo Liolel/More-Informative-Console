@@ -226,7 +226,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	GetFormLocationData(resultArray, baseForm, refForm);
 
 	//Model information
-	GetModelTextures(resultArray, baseForm, refForm);
+	GetModelTextures(resultArray, baseForm );
 
 	if (MICOptions::ExperimentalFeatures) {
 		//Get scripts

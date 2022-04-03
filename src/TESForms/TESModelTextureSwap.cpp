@@ -5,7 +5,7 @@
 #include "Util/FilePathUtil.h"
 #include "TESForm.h"
 
-void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm)
+void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm )
 {
 	logger::debug(("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType.underlying())).c_str());
 	switch (baseForm->GetFormType())
@@ -260,46 +260,6 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TE
 			break;
 		}
 	}
-
-	if(refForm)
-	{
-
-		//Check for textures
-		auto NifModel = refForm->Get3D();
-
-		RE::BSVisit::TraverseScenegraphGeometries(NifModel, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl
-		{
-			int type = (int)a_geometry->type.get();
-			logger::debug("Visting something" + IntToString(type) );
-			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
-			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
-			if (lightingShader)
-			{
-				logger::debug("Reached Lighting shader");
-				const auto material = static_cast<RE::BSLightingShaderMaterialBase*>(lightingShader->material);
-				if (material)
-				{
-					logger::debug("Reached Material");
-					if (const auto textureSet = material->textureSet; textureSet)
-					{
-						for (int i = 0; i < 8; i++)
-						{
-							auto sourcePath = textureSet->GetTexturePath( (RE::BSTextureSet::Texture)i );
-
-							if (sourcePath)
-							{
-								ExtraInfoEntry* textureEntry;
-								CreateExtraInfoEntry(textureEntry, "Texture", sourcePath, priority_Model);
-								resultArray->PushBack(textureEntry);
-							}
-						}
-					}
-				}
-			}
-
-			return RE::BSVisit::BSVisitControl::kContinue;
-		});
-	}
 	logger::debug("Ending GetModelTextures");
 }
 
@@ -360,30 +320,4 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 	}
 
 	logger::debug("Ending AddModelEntry for modelTextureSwap");
-}
-
-RE::BSVisit::BSVisitControl TraverseTextureSets(RE::NiAVObject* a_object, std::function<RE::BSVisit::BSVisitControl(RE::BSTextureSet*)> a_func)
-{
-	if (!a_object) 
-	{
-		return RE::BSVisit::BSVisitControl::kContinue;
-	}
-	
-	auto textureSet = dynamic_cast<RE::BSTextureSet*>(a_object);
-	if (textureSet) {
-		return a_func(textureSet);
-	}
-
-	auto result = RE::BSVisit::BSVisitControl::kContinue;
-	auto node = a_object->AsNode();
-	if (node) {
-		for (auto& child : node->children) {
-			result = TraverseTextureSets(child.get(), a_func);
-			if (result == RE::BSVisit::BSVisitControl::kStop) {
-				break;
-			}
-		}
-	}
-	
-	return result;
 }
