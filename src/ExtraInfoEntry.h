@@ -41,6 +41,7 @@ enum priority
 	//General items at the type of any list
 	priority_Name,
 	priority_EditorID,
+	priority_EditorIDReference,
 	priority_FormID,
 	priority_FormType,
 	priority_FormLocation,  //Mods form is found in
@@ -102,6 +103,10 @@ enum priority
 	priority_Ammo_Value,
 	//Cell
 	priority_Cell_Coordinate,
+	priority_Cell_Owner,
+	//Location
+	priority_Location_ParentLocation,
+	priority_Location_Cleared,
 	//Race
 	priority_Race_Skin,
 	priority_Race_SkeletonMale,
@@ -157,12 +162,12 @@ enum priority
 	//Scripts
 	priority_Scripts_Scripts,
 	priority_Scripts_Script,
-	//Enable Parent Extra Data
+	//Extra Data
 	priority_ExtraData_EnableParent_ParentForm,
 	priority_ExtraData_EnableParent_StateOppositeParent,
 	priority_ExtraData_EnableParent_Popin,
-	//Enable Parent Ownership
 	priority_ExtraData_Ownership,
+	priority_ExtraData_Location,
 	//Form Location Information
 	priority_FormLocation_BaseDefined,
 	priority_FormLocation_BaseLastChanged,

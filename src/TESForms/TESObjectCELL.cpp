@@ -1,5 +1,6 @@
 #include "TESObjectCell.h"
 #include "TESForm.h"
+#include "BSExtraData/BSExtraData.h"
 #include "Util/NameUtil.h"
 
 void GetCellEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
@@ -18,21 +19,40 @@ void GetCellEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			resultArray->PushBack(coordinateEntry);
 		}
 
-		/*
-		BSExtraData* extraData = pCell->unk048.extraData;
-
-		while (extraData)
+		//it seems that ownership is both attached to the cell and stored in an extraOwnership object. The code for parsing extraOwnership is used in multiple locations so I can't really disable that, so only check
+		//the ownership attached to the cell if it is somehow missing from the extra data
+		if (!cell->extraList.HasType(RE::ExtraDataType::kOwnership))
 		{
-			int extraDataType = extraData->GetType();
-			std::string extraDataString = GetExtraDataTypeName(extraDataType);
 
-			ExtraInfoEntry* extraDataTypeEntry;
+			auto ownerFaction = cell->GetFactionOwner();
 
-			CreateExtraInfoEntry(extraDataTypeEntry, "Extra Data", extraDataString);
-			resultArray->PushBack(extraDataTypeEntry);
+			if (ownerFaction != nullptr)
+			{
+				std::string factionName = GetName(ownerFaction);
+				ExtraInfoEntry* factionOwnerEntry;
+				CreateExtraInfoEntry(factionOwnerEntry, "Owner", factionName, priority_Cell_Owner);
+				GetFormData(factionOwnerEntry, ownerFaction, nullptr);
 
-			extraData = extraData->next;
-		}*/
+				resultArray->PushBack(factionOwnerEntry);
+			}
+			else
+			{
+				auto ownerActor = cell->GetActorOwner();
+
+				if (ownerActor != nullptr)
+				{
+					std::string actorName = GetName(ownerActor);
+					ExtraInfoEntry* ownerActorEntry;
+					CreateExtraInfoEntry(ownerActorEntry, "Owner", actorName, priority_Cell_Owner);
+					GetFormData(ownerActorEntry, ownerActor, nullptr);
+					resultArray->PushBack(ownerActorEntry);
+				}
+			}
+		}
+
+		
+		auto extraData = &(cell->extraList);
+		ProcessExtraDataList(resultArray, extraData, nullptr);
 	}
 }
 
@@ -72,8 +92,6 @@ void GetCurrentCellForWorldData(ExtraInfoEntry* resultArray, RE::PlayerCharacter
 		CreateExtraInfoEntry(cellEntry, "Cell", cellName, priority_WorldData_Cell);
 
 		GetFormData(cellEntry, currentCell, nullptr);
-
-		//BSExtraData * extraData = currentCell->unk048.extraData;
 
 		resultArray->PushBack(cellEntry);
 	}

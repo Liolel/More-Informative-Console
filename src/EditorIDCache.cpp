@@ -20,7 +20,7 @@ void EditorIDCache::CacheEditorIDs()
 		for (auto& [id, form] : *map) {
 			auto formType = form->GetFormType();
 			auto editorID = id.c_str();
-			auto formID = form->GetFormID();
+			auto formID =  form->GetFormID();
 
 			this->formIDToEditorIDMap[(int)formType].emplace(formID, editorID);
 		}

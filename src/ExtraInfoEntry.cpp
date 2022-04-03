@@ -8,7 +8,7 @@ ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2, int prior
 	this->entry2 = entry2;
 	this->priority = priority;
 	this->parents = 0;
-	this->isFinalized = 0;
+	this->isFinalized = false;
 	this->mayCopy = true;
 }
 
@@ -31,6 +31,7 @@ void ExtraInfoEntry::Clear()
 	}
 
 	subarray.clear();
+	isFinalized = false;
 }
 
 void ExtraInfoEntry::PushBack(ExtraInfoEntry* subArrayEntry)

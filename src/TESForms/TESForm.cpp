@@ -1,4 +1,5 @@
 #include "TESForm.h"
+#include "BGSLocation.h"
 #include "BGSTextureSet.h"
 #include "EffectSetting.h"
 #include "MagicItem.h"
@@ -129,6 +130,10 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 			logger::debug("GetExtraData: Get Form Data CELL found");
 			GetCellEntry(resultArray, baseForm);
 		}
+		else if (baseFormType == RE::FormType::Location) {
+			logger::debug("GetExtraData: Get Form Data LCTN found");
+			GetLocationEntry(resultArray, baseForm);
+		}
 
 		//reset any filtering
 		MICGlobals::filterARMAByRace = nullptr;
@@ -182,21 +187,10 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	std::string editorID = editorIDCache->GetEditorID(baseForm);
 
-	/*
-	const auto& [map, lock] = RE::TESForm::GetAllFormsByEditorID();
-	const RE::BSReadLockGuard locker{ lock };
-	if (map) {
-		for (auto& [id, form] : *map) 
-		{
-			if (form == baseForm)
-			{
-				editorID = id;
-			}
-		}
+	if (editorID == "")
+	{
+		editorID = baseForm->GetFormEditorID();
 	}
-	*/
-	
-	//std::string editorID = baseForm->GetFormEditorID();
 
 	if (editorID != "")
 	{

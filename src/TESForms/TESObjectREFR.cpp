@@ -1,10 +1,22 @@
 #include "TESObjectREFR.h"
 #include "BSExtraData/BSExtraData.h"
 #include "Util/GeneralUtil.h"
+#include "EditorIDCache.h"
 
 void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
 	logger::debug("GetReferenceFormData Start");
+
+	//get the editor id if there is one
+	auto editorIDCache = EditorIDCache::GetSingleton();
+	std::string editorID = editorIDCache->GetEditorID(refForm);
+
+	if (editorID != "" )
+	{
+		ExtraInfoEntry* referenceEditorIDEntry;
+		CreateExtraInfoEntry(referenceEditorIDEntry, "Reference editor ID", editorID, priority_EditorIDReference);
+		resultArray->PushBack(referenceEditorIDEntry);
+	}
 
 	GetPositionData(resultArray, refForm);
 

@@ -2,6 +2,7 @@
 #include "ExtraOwnership.h"
 #include "ExtraEnableStateParent.h"
 #include "ExtraContainerChanges.h"
+#include "ExtraLocation.h"
 #include "ExtraLock.h"
 #include "ExtraTeleport.h"
 #include "globals.h"
@@ -37,25 +38,34 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			ProcessOwnership(resultArray, data);
 		}
 
-		if (extraList->HasType(RE::ExtraDataType::kContainerChanges))
+		if (extraList->HasType( RE::ExtraDataType::kContainerChanges )
+			&& refForm != nullptr )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kContainerChanges);
 			ProcessContainerChanges(resultArray, data, refForm);
 		}
 		
-		if (extraList->HasType(RE::ExtraDataType::kLock))
+		if (extraList->HasType( RE::ExtraDataType::kLock )
+			&& refForm != nullptr )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kLock);
 			ProcessLockData(resultArray, data, refForm);
 		}
 
-		if (extraList->HasType(RE::ExtraDataType::kTeleport))
+		if (extraList->HasType( RE::ExtraDataType::kTeleport )
+			&& refForm != nullptr )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kTeleport);
 			ProcessTeleportData(resultArray, data);
 		}
 
-		if (MICOptions::MICDebugMode)
+		if (extraList->HasType(RE::ExtraDataType::kLocation) )
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kLocation);
+			ProcessLocationData(resultArray, data);
+		}
+
+		if ( true /*MICOptions::MICDebugMode*/)
 		{
 				
 			ExtraInfoEntry* extraDataTypes;

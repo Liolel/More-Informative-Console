@@ -621,6 +621,19 @@ std::string GetName(RE::TESForm* baseForm)
 
 			break;
 		}	
+
+		case RE::FormType::Location:
+		{
+			logger::debug("GetExtraData: GetName Location");
+			RE::BGSLocation* location = static_cast<RE::BGSLocation*>(baseForm);
+
+			if (location)
+			{
+				name = location->fullName.c_str();
+			}
+			break;
+		}
+
 	}
 
 	//If the name is empty try getting the editor id
