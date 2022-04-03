@@ -149,7 +149,7 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 }
 
 //get data common to all form types
-void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
+void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm)
 {
 	logger::debug("GetCommonFormData Start");
 
@@ -226,7 +226,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	GetFormLocationData(resultArray, baseForm, refForm);
 
 	//Model information
-	GetModelTextures(resultArray, baseForm);
+	GetModelTextures(resultArray, baseForm, refForm);
 
 	if (MICOptions::ExperimentalFeatures) {
 		//Get scripts

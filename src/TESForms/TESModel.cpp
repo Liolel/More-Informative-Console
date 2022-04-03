@@ -23,7 +23,7 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 			CreateFilePathSubarray(modelEntry, modelPath);
 
-			/*
+			
 			ExtraInfoEntry* modelPathEntry;
 			CreateExtraInfoEntry(modelPathEntry, "Model Path", "", priority_Model);
 
@@ -32,21 +32,7 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 			modelEntry->PushBack(modelPathEntry);
 
 			logger::debug("Done Splitting Model Path");
-
-			//Add textures
-			int numberOfTextures = model->numTextures;
-
-			if (numberOfTextures > 0)
-			{
-				ExtraInfoEntry* modelPathEntry;
-				CreateExtraInfoEntry(modelPathEntry, "Model Path", "", priority_Texture);
-
-				for (int i = 0; i < numberOfTextures; i++)
-				{
-
-				}
-			}
-			*/
+			
 			resultArray->PushBack(modelEntry);
 
 			RE::TESDataHandler* handler = RE::TESDataHandler::GetSingleton();
