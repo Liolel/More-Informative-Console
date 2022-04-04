@@ -84,17 +84,6 @@ void GetTextures(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 	logger::debug("Starting GetTextures");
 	auto reference3d = refForm->Get3D();
 
-	//try alternative calls to get 3d if the first one we try does not work
-	/*
-	if (!reference3d)
-	{
-		reference3d = refForm->Get3D(false);
-	}
-	if (!reference3d)
-	{
-		reference3d = refForm->Get3D(true);
-	}*/
-
 	if (reference3d)
 	{
 		std::set<std::string> uniqueFilePaths;

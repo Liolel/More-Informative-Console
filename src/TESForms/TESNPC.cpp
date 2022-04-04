@@ -174,7 +174,9 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 					priorityToUse = priority_MagicItem_Effect_Active;
 				}
 
-				GetEffectData(activeEffectsEntry, effect, effectActive, priorityToUse );
+				auto caster = activeEffect->GetCasterActor().get();
+
+				GetEffectData(activeEffectsEntry, effect, effectActive, priorityToUse, caster );				
 			}
 
 			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case

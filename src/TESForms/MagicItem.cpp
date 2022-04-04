@@ -1,6 +1,7 @@
 #include "MagicItem.h"
 #include "TESForm.h"
 #include "Util/NameUtil.h"
+#include "globals.h"
 
 //
 void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
@@ -20,7 +21,7 @@ void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			RE::Effect* effect = magicItem->effects[i];
 
 			if (effect && effect->baseEffect) {
-				GetEffectData(magicEffectsEntry, effect, "", priority_MagicItem_Effect );
+				GetEffectData(magicEffectsEntry, effect, "", priority_MagicItem_Effect, nullptr);
 			}
 
 			else {
@@ -38,7 +39,7 @@ void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	}
 }
 
-void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string effectActiveString, priority priorityToUse)
+void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string effectActiveString, priority priorityToUse, RE::Actor* caster )
 {
 	logger::debug("GetEffectData Start");
 
@@ -75,6 +76,26 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 	CreateExtraInfoEntry(areaEntry, "Area", IntToString(area), priority_Effect_Area);
 	areaEntry->SetMayCopy(false);
 	effectEntry->PushBack(areaEntry);
+
+	//Caster
+	if (MICGlobals::readEffectCaster)
+	{
+		if (caster)
+		{
+			auto baseFormCaster = caster->GetActorBase();
+
+			if (baseFormCaster)
+			{
+				MICGlobals::readEffectCaster = false;
+				ExtraInfoEntry* casterEntry;
+				std::string casterName = GetName(baseFormCaster);
+				CreateExtraInfoEntry(casterEntry, "Caster", casterName, priority_Effect_Caster);
+				GetFormData(casterEntry, baseFormCaster, caster);
+				effectEntry->PushBack(casterEntry);
+				MICGlobals::readEffectCaster = true;
+			}
+		}
+	}
 
 	resultArray->PushBack(effectEntry);
 }
