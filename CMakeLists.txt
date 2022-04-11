@@ -134,6 +134,8 @@ set(SOURCES
 	src/EditorIDCache.cpp
 	src/ExtraInfoEntry.cpp
 	src/ExtraInfoEntry.h
+	src/FormExtraInfoCache.cpp
+	src/FormExtraInfoCache.h
 	src/globals.cpp
 	src/globals.h
 	src/MIC_Scaleform.cpp
@@ -158,6 +160,8 @@ set(SOURCES
 	src/Util/ScaleFormUtil.cpp
 	src/TESForms/BGSMusicTrack.cpp
 	src/TESForms/BGSMusicTrack.h
+	src/TESForms/BGSLocation.cpp
+	src/TESForms/BGSLocation.h
 	src/TESForms/BGSTextureSet.cpp
 	src/TESForms/BGSTextureSet.h
 	src/TESForms/EffectSetting.cpp
@@ -196,8 +200,10 @@ set(SOURCES
 	src/BSExtraData/ExtraContainerChanges.h
 	src/BSExtraData/ExtraEnableStateParent.cpp
 	src/BSExtraData/ExtraEnableStateParent.h
+	src/BSExtraData/ExtraLocation.cpp
+	src/BSExtraData/ExtraLocation.h
 	src/BSExtraData/ExtraLock.cpp
-	src/BSExtraData/ExtraLock.h
+	src/BSExtraData/ExtraLock.h	
 	src/BSExtraData/ExtraOwnership.cpp
 	src/BSExtraData/ExtraOwnership.h
 	src/BSExtraData/ExtraTeleport.cpp
