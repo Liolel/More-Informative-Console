@@ -101,13 +101,17 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 			ExtraInfoEntry* spellEntry;
 
 			RE::SpellItem* spell = actor->addedSpells[i];
-			std::string spellName = GetName(spell);
 
-			CreateExtraInfoEntry(spellEntry, spellName, "Added Spell", priority_Actor_Spells_AddedSpell);
+			if (spell)
+			{
+				std::string spellName = GetName(spell);
 
-			GetFormData(spellEntry, spell, nullptr);
+				CreateExtraInfoEntry(spellEntry, spellName, "Added Spell", priority_Actor_Spells_AddedSpell);
 
-			allSpellsEntry->PushBack(spellEntry);
+				GetFormData(spellEntry, spell, nullptr);
+
+				allSpellsEntry->PushBack(spellEntry);
+			}
 		}
 	}
 
@@ -121,13 +125,17 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 			ExtraInfoEntry* spellEntry;
 
 			RE::SpellItem* spell = actorBase->actorEffects->spells[i];
-			std::string spellName = GetName(spell);
 
-			CreateExtraInfoEntry(spellEntry, spellName, "Base Spell", priority_Actor_Spells_BaseSpell);
+			if (spell)
+			{
+				std::string spellName = GetName(spell);
 
-			GetFormData(spellEntry, spell, nullptr);
+				CreateExtraInfoEntry(spellEntry, spellName, "Base Spell", priority_Actor_Spells_BaseSpell);
 
-			allSpellsEntry->PushBack(spellEntry);
+				GetFormData(spellEntry, spell, nullptr);
+
+				allSpellsEntry->PushBack(spellEntry);
+			}
 		}
 	}
 

@@ -262,6 +262,8 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 
 		GetModInfoData(allModsTouchingReferenceHolder, refForm, SkyrimESMNotDetectedBug);
 
+		logger::debug("GetExtraData: Ref Last Modified By " + refLastDefinedIn);
+
 		formLocationHolder->PushBack(allModsTouchingReferenceHolder);
 	}
 	//Base Form
@@ -289,6 +291,8 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "", priority_FormLocation_BaseInMods);
 
 		GetModInfoData(allModsTouchingBaseHolder, baseForm, false);
+
+		logger::debug("GetExtraData: Base Last Modified By " + baseLastDefinedIn);
 
 		formLocationHolder->PushBack(allModsTouchingBaseHolder);
 	}
