@@ -22,11 +22,13 @@ public:
 
 	void Finalize();
 
-	int priority;  //Priority for use in sorting. Higher Priority entires move to the top of the list
-
-private:
 	std::string entry1;
 	std::string entry2;
+
+	int priority;  //Priority for use in sorting. Higher Priority entires move to the top of the list
+	bool disableSortingByName;
+
+private:
 
 	int parents;
 	bool isFinalized;

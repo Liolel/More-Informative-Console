@@ -10,6 +10,7 @@ ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2, int prior
 	this->parents = 0;
 	this->isFinalized = false;
 	this->mayCopy = true;
+	this->disableSortingByName = false;
 }
 
 void ExtraInfoEntry::Clear()
@@ -106,13 +107,28 @@ bool comparePrioritys(ExtraInfoEntry* extraInfoEntryA, ExtraInfoEntry* extraInfo
 	return extraInfoEntryA->priority < extraInforEntryB->priority;
 }
 
+bool comparePrioritysFullSorting(ExtraInfoEntry* extraInfoEntryA, ExtraInfoEntry* extraInforEntryB)
+{
+	return  extraInfoEntryA->priority == extraInforEntryB->priority 
+			? extraInfoEntryA->entry1.compare( extraInforEntryB->entry1 ) < 0
+			: extraInfoEntryA->priority < extraInforEntryB->priority;
+}
+
 //Sort each vector by priority
 void ExtraInfoEntry::Finalize()
 {
 	if (!this->isFinalized)
 	{
 		if (!subarray.empty()) {
-			std::stable_sort(subarray.begin(), subarray.end(), comparePrioritys);
+
+			if (this->disableSortingByName)
+			{
+				std::stable_sort(subarray.begin(), subarray.end(), comparePrioritys);
+			}
+			else
+			{
+				std::stable_sort(subarray.begin(), subarray.end(), comparePrioritysFullSorting);
+			}
 
 			for (int i = 0; i < subarray.size(); i++) {
 				subarray[i]->Finalize();

@@ -242,6 +242,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	//Get all actor values in a subarray
 	ExtraInfoEntry* actorValueArray;
 	CreateExtraInfoEntry(actorValueArray, "Actor Values", "", priority_Actor_ActorValues);
+	actorValueArray->disableSortingByName = true; //for actor values specifically we want to keep the sorting of the index numbers
 
 	for (int i = 0; i < totalNumberOfActorValues; i++) {
 		GetActorValue(actorValueArray, actor, i, priority_Actor_ActorValues_ActorValue);

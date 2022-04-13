@@ -440,7 +440,7 @@ void GetScriptsForHandle(ExtraInfoEntry*& resultArray, RE::BSScript::Internal::V
 
 				ExtraInfoEntry* scriptEntry;
 
-				CreateExtraInfoEntry(scriptEntry, "Script", scriptName, priority_Scripts_Script);
+				CreateExtraInfoEntry(scriptEntry, scriptName, "", priority_Scripts_Script);
 
 				RE::TESForm* sourceForm = nullptr;
 
