@@ -72,73 +72,76 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	{
 		GetCommonFormData(resultArray, baseForm, refForm);
 
-		if (refForm != nullptr) {
-			GetReferenceFormData(resultArray, refForm);
-		}
+		if (!MICGlobals::minimizeFormDataRead) //for the caster of an effect just getting the common form data should be enough information
+		{
+			if (refForm != nullptr) {
+				GetReferenceFormData(resultArray, refForm);
+			}
 
-		RE::FormType baseFormType = baseForm->GetFormType();
+			RE::FormType baseFormType = baseForm->GetFormType();
 
-		if (baseForm != nullptr && baseFormType == RE::FormType::NPC && (refForm == nullptr || refForm->GetFormType() == RE::FormType::ActorCharacter)) {
-			logger::debug("GetExtraData: Get Form Data character found");
-			GetCharacterData(resultArray, refForm, baseForm);
-		}
+			if (baseForm != nullptr && baseFormType == RE::FormType::NPC && (refForm == nullptr || refForm->GetFormType() == RE::FormType::ActorCharacter)) {
+				logger::debug("GetExtraData: Get Form Data character found");
+				GetCharacterData(resultArray, refForm, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::MagicEffect) {
-			logger::debug("GetExtraData: Get Form Data magic effect found");
-			GetMagicEffectData(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::MagicEffect) {
+				logger::debug("GetExtraData: Get Form Data magic effect found");
+				GetMagicEffectData(resultArray, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::Spell) {
-			logger::debug("GetExtraData: Get Form Data spell found");
-			GetSpellData(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::Spell) {
+				logger::debug("GetExtraData: Get Form Data spell found");
+				GetSpellData(resultArray, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::Armor) {
-			logger::debug("GetExtraData: Get Form Data armor found");
-			GetArmorData(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::Armor) {
+				logger::debug("GetExtraData: Get Form Data armor found");
+				GetArmorData(resultArray, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::Weapon) {
-			logger::debug("GetExtraData: Get Form Data Weapon found");
-			GetWeaponData(resultArray, baseForm);
-		}
-		else if (baseFormType == RE::FormType::Ammo) {
-			logger::debug("GetExtraData: Get Form Data Ammo found");
-			GetAmmoData(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::Weapon) {
+				logger::debug("GetExtraData: Get Form Data Weapon found");
+				GetWeaponData(resultArray, baseForm);
+			}
+			else if (baseFormType == RE::FormType::Ammo) {
+				logger::debug("GetExtraData: Get Form Data Ammo found");
+				GetAmmoData(resultArray, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::Container) {
-			logger::debug("GetExtraData: Get Form Data Container found");
-			GetContainerData(resultArray, baseForm);
-		}
-		else if (baseFormType == RE::FormType::Race) {
-			logger::debug("GetExtraData: Get Form Data Race found");
-			GetRaceEntry(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::Container) {
+				logger::debug("GetExtraData: Get Form Data Container found");
+				GetContainerData(resultArray, baseForm);
+			}
+			else if (baseFormType == RE::FormType::Race) {
+				logger::debug("GetExtraData: Get Form Data Race found");
+				GetRaceEntry(resultArray, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::TextureSet) {
-			logger::debug("GetExtraData: Get Form Data Texture Set found");
-			GetTextureSet(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::TextureSet) {
+				logger::debug("GetExtraData: Get Form Data Texture Set found");
+				GetTextureSet(resultArray, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::Armature) {
-			logger::debug("GetExtraData: Get Form Data ARMA found");
-			GetArmaData(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::Armature) {
+				logger::debug("GetExtraData: Get Form Data ARMA found");
+				GetArmaData(resultArray, baseForm);
+			}
 
-		else if (baseFormType == RE::FormType::Cell) {
-			logger::debug("GetExtraData: Get Form Data CELL found");
-			GetCellEntry(resultArray, baseForm);
-		}
-		else if (baseFormType == RE::FormType::Location) {
-			logger::debug("GetExtraData: Get Form Data LCTN found");
-			GetLocationEntry(resultArray, baseForm);
-		}
+			else if (baseFormType == RE::FormType::Cell) {
+				logger::debug("GetExtraData: Get Form Data CELL found");
+				GetCellEntry(resultArray, baseForm);
+			}
+			else if (baseFormType == RE::FormType::Location) {
+				logger::debug("GetExtraData: Get Form Data LCTN found");
+				GetLocationEntry(resultArray, baseForm);
+			}
 
-		//reset any filtering
-		MICGlobals::filterARMAByRace = nullptr;
+			//reset any filtering
+			MICGlobals::filterARMAByRace = nullptr;
 
-		formExtraInfoCache->CacheExtraInfoEntry( baseForm, resultArray );
+			formExtraInfoCache->CacheExtraInfoEntry(baseForm, resultArray);
+		}
 	}
 	else
 	{
@@ -229,23 +232,23 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	GetModelTextures(resultArray, baseForm );
 
 	if (MICOptions::ExperimentalFeatures) {
-		//Get scripts
-		ExtraInfoEntry* scriptsEntry;
-		CreateExtraInfoEntry(scriptsEntry, "Scripts", "", priority_Scripts_Scripts);
 
-		GetScripts(scriptsEntry, baseForm);
+		if (!MICGlobals::minimizeFormDataRead)
+		{
+			//Get scripts
+			ExtraInfoEntry* scriptsEntry;
+			CreateExtraInfoEntry(scriptsEntry, "Scripts", "", priority_Scripts_Scripts);
 
-		if (refForm) {
-			GetScripts(scriptsEntry, refForm);
-		}
+			GetScripts(scriptsEntry, baseForm, refForm);
 
-		//There's no point showing an empty script entry as having no scripts is the standard and some formtypes can't even have scripts. So check if we found anything
-		if (scriptsEntry->HasChildren()) {
-			resultArray->PushBack(scriptsEntry);
-		}
+			//There's no point showing an empty script entry as having no scripts is the standard and some formtypes can't even have scripts. So check if we found anything
+			if (scriptsEntry->HasChildren()) {
+				resultArray->PushBack(scriptsEntry);
+			}
 
-		else {
-			delete (scriptsEntry);  //Free up the memory
+			else {
+				delete (scriptsEntry);  //Free up the memory
+			}
 		}
 	}
 
@@ -357,47 +360,116 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm* form, bool Skyrim
 	logger::debug("GetExtraData: GetModInfoData end");
 }
 
-void GetScripts(ExtraInfoEntry*& resultArray, RE::TESForm* form)
+void GetScripts(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
 {
 	logger::debug("GetScript start");
 
 	//Get the VM handle for the form. Based on the HasVMAD method that is part of CommonLibSSEs implementation of TESFORM
-	auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
+	RE::BSScript::Internal::VirtualMachine* vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 
-	if (vm) {
-		auto policy = vm->GetObjectHandlePolicy();
-		if (policy) {
-			auto handle = policy->GetHandleForObject(form->GetFormType(), form);
+	MICGlobals::minimizeFormDataRead = true;
 
-			//if (handle != policy->EmptyHandle())
-			while (handle != policy->EmptyHandle()) {
-				//If we have a handle for the object the next step is to look if there are any scripts attached
+	if (vm) 
+	{
+		RE::BSScript::IObjectHandlePolicy* policy = vm->GetObjectHandlePolicy();
+		if (policy) 
+		{
+			RE::VMHandle handle = policy->GetHandleForObject(baseForm->GetFormType(), baseForm);
+			GetScriptsForHandle(resultArray, vm, policy, handle, baseForm, nullptr);
+		}
 
-				auto attachedScriptsIterator = vm->attachedScripts.find(handle);
+		if (refForm)
+		{
+			RE::VMHandle handle = policy->GetHandleForObject(refForm->GetFormType(), baseForm);
+			GetScriptsForHandle(resultArray, vm, policy, handle, refForm, nullptr);
 
-				if (attachedScriptsIterator != vm->attachedScripts.end()) {
-					RE::BSTSmallSharedArray<RE::BSScript::Internal::AttachedScript>* scripts = &(*attachedScriptsIterator).second;
-					int numberOfScripts = scripts->size();
+			if (refForm->GetFormType() == RE::FormType::ActorCharacter)
+			{
+				//Check active effects if this is an actor
+				RE::Actor* actor = nullptr;
+				actor = static_cast<RE::Actor*>(refForm);
 
-					for (int i = 0; i < numberOfScripts; i++) {
-						auto script = (*scripts)[i].get();
+				if (actor)
+				{
+#ifndef SKYRIMVR
+					RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
+					logger::debug("GetCharacterData: Active Effects Gotten");
 
-						std::string scriptName = script->type->name.c_str();
-						//std::string scriptName = script->type->G
+					if (activeEffects)
+					{
+						RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
 
-						ExtraInfoEntry* scriptEntry;
+						for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr)
+						{
+							//logger::debug("GetCharacterData: Starting Active Effect");
 
-						CreateExtraInfoEntry(scriptEntry, "Script", scriptName, priority_Scripts_Script);
-						resultArray->PushBack(scriptEntry);
+							RE::ActiveEffect* activeEffect = *(itr);
+							auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
+							GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
+						}
 					}
+#endif
 				}
-
-				handle = policy->GetHandleScriptsMovedFrom(handle);
 			}
 		}
 	}
 
+	MICGlobals::minimizeFormDataRead = false;
+
 	logger::debug("GetScript End");
+}
+
+void GetScriptsForHandle(ExtraInfoEntry*& resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect)
+{
+	//if (handle != policy->EmptyHandle())
+	while (handle != policy->EmptyHandle()) 
+	{
+		//If we have a handle for the object the next step is to look if there are any scripts attached
+
+		auto attachedScriptsIterator = vm->attachedScripts.find(handle);
+
+		if (attachedScriptsIterator != vm->attachedScripts.end()) {
+			RE::BSTSmallSharedArray<RE::BSScript::Internal::AttachedScript>* scripts = &(*attachedScriptsIterator).second;
+			int numberOfScripts = scripts->size();
+
+			for (int i = 0; i < numberOfScripts; i++) {
+				auto script = (*scripts)[i].get();
+
+				std::string scriptName = script->type->name.c_str();
+				//std::string scriptName = script->type->G
+
+				ExtraInfoEntry* scriptEntry;
+
+				CreateExtraInfoEntry(scriptEntry, "Script", scriptName, priority_Scripts_Script);
+
+				RE::TESForm* sourceForm = nullptr;
+
+				if (form)
+				{
+					sourceForm = form;
+				}
+				else if( activeEffect )
+				{
+					sourceForm = activeEffect->GetBaseObject();
+				}
+
+				if (sourceForm)
+				{
+					ExtraInfoEntry* sourceEntry;
+					std::string sourceName = GetName(sourceForm);
+					CreateExtraInfoEntry(sourceEntry, "Source", sourceName, priority_Scripts_Source);
+
+					GetFormData(sourceEntry, sourceForm, nullptr);
+
+					scriptEntry->PushBack(sourceEntry);
+				}
+
+				resultArray->PushBack(scriptEntry);
+			}
+		}
+
+		handle = policy->GetHandleScriptsMovedFrom(handle);
+	}
 }
 
 //Get all keywords for forms that store keywords in the normal location

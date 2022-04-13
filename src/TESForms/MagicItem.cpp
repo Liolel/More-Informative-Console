@@ -78,7 +78,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 	effectEntry->PushBack(areaEntry);
 
 	//Caster
-	if (MICGlobals::readEffectCaster)
+	if (!MICGlobals::minimizeFormDataRead)
 	{
 		if (caster)
 		{
@@ -86,13 +86,13 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 
 			if (baseFormCaster)
 			{
-				MICGlobals::readEffectCaster = false;
+				MICGlobals::minimizeFormDataRead = true;
 				ExtraInfoEntry* casterEntry;
 				std::string casterName = GetName(baseFormCaster);
 				CreateExtraInfoEntry(casterEntry, "Caster", casterName, priority_Effect_Caster);
 				GetFormData(casterEntry, baseFormCaster, caster);
 				effectEntry->PushBack(casterEntry);
-				MICGlobals::readEffectCaster = true;
+				MICGlobals::minimizeFormDataRead = false;
 			}
 		}
 	}
