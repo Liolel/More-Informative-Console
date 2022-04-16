@@ -206,6 +206,8 @@ set(SOURCES
 	src/BSExtraData/ExtraLock.h	
 	src/BSExtraData/ExtraOwnership.cpp
 	src/BSExtraData/ExtraOwnership.h
+	src/BSExtraData/ExtraRegionList.cpp
+	src/BSExtraData/ExtraRegionList.h	
 	src/BSExtraData/ExtraTeleport.cpp
 	src/BSExtraData/ExtraTeleport.h
 )

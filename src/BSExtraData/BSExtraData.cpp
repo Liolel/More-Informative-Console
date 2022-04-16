@@ -4,6 +4,7 @@
 #include "ExtraContainerChanges.h"
 #include "ExtraLocation.h"
 #include "ExtraLock.h"
+#include "ExtraRegionList.h"
 #include "ExtraTeleport.h"
 #include "globals.h"
 #include "Util/NameUtil.h"
@@ -63,6 +64,12 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kLocation);
 			ProcessLocationData(resultArray, data);
+		}
+
+		if (extraList->HasType(RE::ExtraDataType::kRegionList))
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kRegionList);
+			ProcessRegionList(resultArray, data);
 		}
 
 		if ( true /*MICOptions::MICDebugMode*/)

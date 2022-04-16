@@ -172,6 +172,8 @@ enum priority
 	priority_ExtraData_EnableParent_Popin,
 	priority_ExtraData_Ownership,
 	priority_ExtraData_Location,
+	priority_ExtraData_RegionList,
+	priority_ExtraData_Region,
 	//Form Location Information
 	priority_FormLocation_BaseDefined,
 	priority_FormLocation_BaseLastChanged,

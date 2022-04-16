@@ -26,6 +26,6 @@ void ProcessLocationData(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 		}
 	}
 
-	logger::debug("ProcessTeleportData End");
+	logger::debug("ProcessLocationData End");
 }
 
