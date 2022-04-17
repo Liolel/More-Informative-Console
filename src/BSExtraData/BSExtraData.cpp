@@ -6,6 +6,8 @@
 #include "ExtraLock.h"
 #include "ExtraRegionList.h"
 #include "ExtraTeleport.h"
+#include "TESForms/TESForm.h"
+#include "TESForms/EnchantmentItem.h"
 #include "globals.h"
 #include "Util/NameUtil.h"
 
@@ -70,6 +72,27 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kRegionList);
 			ProcessRegionList(resultArray, data);
+		}
+
+		if (extraList->HasType(RE::ExtraDataType::kEnchantment))
+		{
+			auto enchantmentExtra = extraList->GetByType<RE::ExtraEnchantment>();
+			if (enchantmentExtra)
+			{
+				auto enchantmentForm = enchantmentExtra->enchantment;
+
+				if (enchantmentForm)
+				{
+					ExtraInfoEntry* enchantmentEntry;
+					std::string enchantmentName = GetName(enchantmentForm);
+
+					CreateExtraInfoEntry(enchantmentEntry, "Enchantment", enchantmentName, priority_Enchantment);
+					GetFormData(enchantmentEntry, enchantmentForm, nullptr);
+					GetCharge(enchantmentEntry, &(refForm->extraList), nullptr, enchantmentExtra);
+
+					resultArray->PushBack(enchantmentEntry);
+				}
+			}
 		}
 
 		if ( true /*MICOptions::MICDebugMode*/)

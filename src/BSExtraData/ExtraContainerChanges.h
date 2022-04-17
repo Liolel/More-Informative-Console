@@ -9,3 +9,4 @@ RE::TESForm* FindEquipedItemInSlot(int slotMask, RE::ExtraContainerChanges* cont
 void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* containerChanges, RE::TESContainer* baseContainer);
 int GetNumberOfItemInContainer(RE::TESContainer* container, RE::TESForm* item);
 bool InventoryChangesContainsItem(RE::InventoryChanges* inventoryChanges, RE::TESForm* item);
+void GetEnchantments(ExtraInfoEntry* resultArray, RE::InventoryEntryData* inventoryEntryData, RE::TESForm* item);

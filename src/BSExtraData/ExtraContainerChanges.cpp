@@ -208,6 +208,8 @@ void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 
 			GetFormData(inventoryItemEntry, item, nullptr);
 
+			GetEnchantments(inventoryItemEntry, inventoryEntryData, item);
+
 			inventoryEntry->PushBack(inventoryItemEntry);
 		}
 
@@ -228,7 +230,7 @@ void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 			bool displayItem = !InventoryChangesContainsItem(inventoryChanges, item);
 
 			if (displayItem
-				&& item->GetFormType() != RE::FormType::LeveledItem ) //Don't display leved items in the inventory for the moment
+				&& item->GetFormType() != RE::FormType::LeveledItem ) //Don't display leveled items in the inventory for the moment
 			{
 				//DebugMessage("GetInventory: Displaying container item");
 				int itemCount = containerObject->count;
@@ -240,6 +242,8 @@ void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 				CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount), priority_ExtraContainerChanges_Item);
 
 				GetFormData(inventoryItemEntry, item, nullptr);
+
+				//GetEnchantments(inventoryItemEntry, nullptr, item);
 
 				inventoryEntry->PushBack(inventoryItemEntry);
 			}
@@ -304,3 +308,50 @@ bool InventoryChangesContainsItem(RE::InventoryChanges* inventoryChanges, RE::TE
 
 	return containsItem;
 }
+
+void GetEnchantments(ExtraInfoEntry* resultArray, RE::InventoryEntryData* inventoryEntryData, RE::TESForm* item)
+{
+	if (item)
+	{
+		
+	}
+
+	if (inventoryEntryData)
+	{
+
+	}
+
+	if (resultArray)
+	{
+
+	}
+/*
+	if (extraLists) {
+		for (auto& xList : *extraLists) {
+			if (xList) {
+				auto xCharge = xList->GetByType<ExtraCharge>();
+				auto xEnch = xList->GetByType<ExtraEnchantment>();
+				if (xEnch && xEnch->enchantment && xEnch->charge != 0) {
+					if (xCharge) {
+						result.emplace((static_cast<double>(xCharge->charge) /
+							static_cast<double>(xEnch->charge)) *
+							100.0);
+					}
+					else {
+						result.emplace(100.0);
+					}
+					break;
+				}
+				else if (xCharge && ench && ench->formEnchanting && ench->amountofEnchantment != 0) {
+					result.emplace((static_cast<double>(xCharge->charge) /
+						static_cast<double>(ench->amountofEnchantment)) *
+						100.0);
+					break;
+				}
+			}
+		}
+	}
+
+	return result; */
+}
+

@@ -2,6 +2,7 @@
 #include "BGSLocation.h"
 #include "BGSTextureSet.h"
 #include "EffectSetting.h"
+#include "EnchantmentItem.h"
 #include "MagicItem.h"
 #include "SpellItem.h"
 #include "TESAmmo.h"
@@ -136,6 +137,11 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 				logger::debug("GetExtraData: Get Form Data LCTN found");
 				GetLocationEntry(resultArray, baseForm);
 			}
+			else if (baseFormType == RE::FormType::Enchantment) {
+				logger::debug("GetExtraData: Get Form Data Enchantment found");
+				GetEnchantmentInfomation(resultArray, baseForm);
+			}
+
 
 			//reset any filtering
 			MICGlobals::filterARMAByRace = nullptr;
@@ -250,6 +256,28 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 				delete (scriptsEntry);  //Free up the memory
 			}
 		}
+	}
+
+	//Enchantments. This will only catch enchantments that are part of the base form. Enchantments added by players will be covered elsewhere in the code
+	auto formWithEnchantment = baseForm ? baseForm->As<RE::TESEnchantableForm>() : nullptr;
+	if (formWithEnchantment && formWithEnchantment->formEnchanting)
+	{
+		logger::debug("GetCommonFormData: Checking enchantment");
+
+		auto enchantmentForm = formWithEnchantment->formEnchanting;
+
+		ExtraInfoEntry* enchantmentEntry;
+		std::string enchantmentName = GetName(enchantmentForm);
+
+		CreateExtraInfoEntry(enchantmentEntry, "Enchantment", enchantmentName, priority_Enchantment);
+		GetFormData(enchantmentEntry, enchantmentForm, nullptr);
+
+		if (refForm)
+		{
+			GetCharge(enchantmentEntry, &(refForm->extraList), formWithEnchantment, nullptr);
+		}
+
+		resultArray->PushBack(enchantmentEntry);
 	}
 
 	logger::debug("GetCommonFormData: GetCommonFormData End");

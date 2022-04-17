@@ -93,6 +93,10 @@ enum priority
 	priority_Arma_SkinFemale,
 	priority_Arma_PrimaryRace,
 	priority_Arma_AddtionalRaces,
+	//Enchantments
+	priority_Enchantment,
+	priority_Enchantment_Charge,
+	priority_Enchantment_MaximumCharge,
 	//Armor
 	priority_Armor_ArmorType,
 	priority_Armor_ArmorRating,
