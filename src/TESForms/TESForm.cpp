@@ -75,7 +75,8 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 
 		if (!MICGlobals::minimizeFormDataRead) //for the caster of an effect just getting the common form data should be enough information
 		{
-			if (refForm != nullptr) {
+			if (refForm != nullptr) 
+			{
 				GetReferenceFormData(resultArray, refForm);
 			}
 
@@ -141,7 +142,6 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 				logger::debug("GetExtraData: Get Form Data Enchantment found");
 				GetEnchantmentInfomation(resultArray, baseForm);
 			}
-
 
 			//reset any filtering
 			MICGlobals::filterARMAByRace = nullptr;

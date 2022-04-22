@@ -1,4 +1,5 @@
 #include "ExtraContainerChanges.h"
+#include "TESForms/EnchantmentItem.h"
 #include "Util/NameUtil.h"
 #include "Util/GeneralUtil.h"
 #include "TESForms/TESForm.h"
@@ -48,8 +49,11 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 
 	//weapons and shouts
 
+	logger::debug("GetEquipment Left");
+
 	//left hand
-	RE::TESForm* leftHand = actor->GetEquippedObject(true);
+	RE::InventoryEntryData* inventoryEntryData = nullptr;
+	RE::TESForm* leftHand = FindEquipedItemInSlot(-1, false, true, containerChanges, inventoryEntryData);
 
 	if (leftHand != nullptr)
 	{
@@ -59,11 +63,22 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 		CreateExtraInfoEntry(leftHandEntry, "Left Hand:", name, priority_ExtraContainerChanges_Item);
 
 		GetFormData(leftHandEntry, leftHand, nullptr);
+		
+		if (inventoryEntryData)
+		{
+			GetEnchantments(leftHandEntry, inventoryEntryData);
+		}
+		
 		equipmentEntry->PushBack(leftHandEntry);
 	}
 
+
+	logger::debug("GetEquipment Right");
+
 	//right hand
-	RE::TESForm* rightHand = actor->GetEquippedObject(false);
+	inventoryEntryData = nullptr;
+	RE::TESForm* rightHand = FindEquipedItemInSlot(-1, true, false, containerChanges, inventoryEntryData);
+
 
 	if (rightHand != nullptr)
 	{
@@ -71,6 +86,11 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 		std::string name = GetName(rightHand);
 
 		CreateExtraInfoEntry(rightHandEntry, "Right Hand:", name, priority_ExtraContainerChanges_Item);
+
+		if (inventoryEntryData)
+		{
+			GetEnchantments(rightHandEntry, inventoryEntryData);
+		}
 
 		GetFormData(rightHandEntry, rightHand, nullptr);
 		equipmentEntry->PushBack(rightHandEntry);
@@ -96,8 +116,8 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 		logger::debug("GetEquipment: Starting EquipSlot item");
 
 		int mask = 1 << i;
-
-		RE::TESForm* equipedItem = FindEquipedItemInSlot(mask, containerChanges);
+		inventoryEntryData = nullptr;
+		RE::TESForm* equipedItem = FindEquipedItemInSlot(mask, false, false, containerChanges, inventoryEntryData);
 
 		if ( equipedItem )
 		{
@@ -110,6 +130,12 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 			CreateExtraInfoEntry(equipedItemEntry, slotName, name, priority_ExtraContainerChanges_Item);
 
 			GetFormData(equipedItemEntry, equipedItem, nullptr);
+
+			if (inventoryEntryData)
+			{
+				GetEnchantments(equipedItemEntry, inventoryEntryData);
+			}
+
 			equipmentEntry->PushBack(equipedItemEntry);
 
 		}
@@ -122,7 +148,7 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 	logger::debug("GetEquipment: GetEquipment End");
 }
 
-RE::TESForm* FindEquipedItemInSlot( int slotMask, RE::ExtraContainerChanges* containerChanges )
+RE::TESForm* FindEquipedItemInSlot( int slotMask, bool equipRight, bool equipLeft, RE::ExtraContainerChanges* containerChanges, RE::InventoryEntryData* & inventoryEntryDataForSlot )
 {
 	logger::debug("FindEquipedItemInSlot Start");
 	RE::TESForm* equipedSlot = nullptr;
@@ -137,7 +163,9 @@ RE::TESForm* FindEquipedItemInSlot( int slotMask, RE::ExtraContainerChanges* con
 		RE::InventoryEntryData* inventoryEntryData = *itr;
 		RE::TESForm* item = inventoryEntryData->object;
 
-		if (item->GetFormType() == RE::FormType::Armor)
+		if ( !equipRight
+			 && !equipLeft
+			 && item->GetFormType() == RE::FormType::Armor)
 		{
 			//logger::debug("FindEquipedItemInSlot Armor Found");
 			RE::TESObjectARMO* armor = static_cast<RE::TESObjectARMO*>(item);
@@ -159,7 +187,28 @@ RE::TESForm* FindEquipedItemInSlot( int slotMask, RE::ExtraContainerChanges* con
 						if (extraDataList->HasType(RE::ExtraDataType::kWorn) || extraDataList->HasType(RE::ExtraDataType::kWornLeft))
 						{
 							equipedSlot = item;
+							inventoryEntryDataForSlot = inventoryEntryData;
 						}
+					}
+				}
+			}
+		}
+		else if (item->GetFormType() == RE::FormType::Weapon)
+		{
+			//If there is extra data associated with the item found
+			if (inventoryEntryData->extraLists)
+			{
+				RE::BSSimpleList<RE::ExtraDataList*> ::iterator itrExtraList, itrExtraListEnd;
+				itrExtraListEnd = inventoryEntryData->extraLists->end();
+				for (itrExtraList = inventoryEntryData->extraLists->begin(); itrExtraList != itrExtraListEnd; ++itrExtraList)
+				{
+					RE::ExtraDataList* extraDataList = *itrExtraList;
+
+					if( ( equipRight && extraDataList->HasType(RE::ExtraDataType::kWorn) )
+						|| ( equipLeft && extraDataList->HasType(RE::ExtraDataType::kWornLeft) ) )
+					{
+						equipedSlot = item;
+						inventoryEntryDataForSlot = inventoryEntryData;
 					}
 				}
 			}
@@ -208,7 +257,7 @@ void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 
 			GetFormData(inventoryItemEntry, item, nullptr);
 
-			GetEnchantments(inventoryItemEntry, inventoryEntryData, item);
+			GetEnchantments(inventoryItemEntry, inventoryEntryData );
 
 			inventoryEntry->PushBack(inventoryItemEntry);
 		}
@@ -242,8 +291,6 @@ void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 				CreateExtraInfoEntry(inventoryItemEntry, name, IntToString(itemCount), priority_ExtraContainerChanges_Item);
 
 				GetFormData(inventoryItemEntry, item, nullptr);
-
-				//GetEnchantments(inventoryItemEntry, nullptr, item);
 
 				inventoryEntry->PushBack(inventoryItemEntry);
 			}
@@ -309,49 +356,34 @@ bool InventoryChangesContainsItem(RE::InventoryChanges* inventoryChanges, RE::TE
 	return containsItem;
 }
 
-void GetEnchantments(ExtraInfoEntry* resultArray, RE::InventoryEntryData* inventoryEntryData, RE::TESForm* item)
+void GetEnchantments(ExtraInfoEntry* resultArray, RE::InventoryEntryData* inventoryEntryData)
 {
-	if (item)
+	auto extraLists = inventoryEntryData->extraLists;
+	if (extraLists)
 	{
-		
-	}
+		for (auto& extraList : *extraLists)
+		{
+			if (extraList)
+			{
+				auto extraEnchantment = extraList->GetByType<RE::ExtraEnchantment>();
+				if (extraEnchantment)
+				{
+					auto enchantmentForm = extraEnchantment->enchantment;
 
-	if (inventoryEntryData)
-	{
+					if (enchantmentForm)
+					{
+						ExtraInfoEntry* enchantmentEntry;
+						std::string enchantmentName = GetName(enchantmentForm);
 
-	}
+						CreateExtraInfoEntry(enchantmentEntry, "Enchantment", enchantmentName, priority_Enchantment);
+						GetFormData(enchantmentEntry, enchantmentForm, nullptr);
+						GetCharge(enchantmentEntry, extraList, nullptr, extraEnchantment);
+						enchantmentEntry->SetMayCopy(false);
 
-	if (resultArray)
-	{
-
-	}
-/*
-	if (extraLists) {
-		for (auto& xList : *extraLists) {
-			if (xList) {
-				auto xCharge = xList->GetByType<ExtraCharge>();
-				auto xEnch = xList->GetByType<ExtraEnchantment>();
-				if (xEnch && xEnch->enchantment && xEnch->charge != 0) {
-					if (xCharge) {
-						result.emplace((static_cast<double>(xCharge->charge) /
-							static_cast<double>(xEnch->charge)) *
-							100.0);
+						resultArray->PushBack(enchantmentEntry);
 					}
-					else {
-						result.emplace(100.0);
-					}
-					break;
-				}
-				else if (xCharge && ench && ench->formEnchanting && ench->amountofEnchantment != 0) {
-					result.emplace((static_cast<double>(xCharge->charge) /
-						static_cast<double>(ench->amountofEnchantment)) *
-						100.0);
-					break;
 				}
 			}
 		}
 	}
-
-	return result; */
 }
-

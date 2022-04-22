@@ -90,6 +90,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 					GetFormData(enchantmentEntry, enchantmentForm, nullptr);
 					GetCharge(enchantmentEntry, &(refForm->extraList), nullptr, enchantmentExtra);
 
+					enchantmentEntry->SetMayCopy(false);
 					resultArray->PushBack(enchantmentEntry);
 				}
 			}

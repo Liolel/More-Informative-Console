@@ -39,9 +39,11 @@ void GetCharge(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList , RE::T
 	{
 		ExtraInfoEntry* chargeEntry;
 		CreateExtraInfoEntry(chargeEntry, "Charge", DoubleToString( charge ), priority_Enchantment_Charge);
+		chargeEntry->SetMayCopy(false);
 		resultArray->PushBack(chargeEntry);
 		ExtraInfoEntry* maximumChargeEntry;
 		CreateExtraInfoEntry(maximumChargeEntry, "Maximum charge", DoubleToString(maximumCharge), priority_Enchantment_MaximumCharge);
+		maximumChargeEntry->SetMayCopy(false);
 		resultArray->PushBack(maximumChargeEntry);
 	}
 }
