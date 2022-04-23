@@ -4,6 +4,8 @@
 #include "Util/ScaleformUtil.h"
 #include "globals.h"
 
+//4-23-2022: Checked for translations needed
+
 void MICScaleform_RetrieveExtraData::Call(Params& a_params)
 {
 	logger::debug( ("RetrieveExtraData: Invoke Start, NumArgs " + IntToString(a_params.argCount) ).c_str() );

@@ -4,6 +4,7 @@
 #include "Util/ScaleformUtil.h"
 #include "globals.h"
 
+//4-23-2022: Checked for translations needed
 
 void MICScaleform_GetIniOptions::Call(Params& a_params)
 {

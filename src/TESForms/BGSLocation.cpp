@@ -1,6 +1,9 @@
 #include "BGSLocation.h"
 #include "TESForm.h"
 #include "Util/NameUtil.h"
+#include "TranslationCache.h"
+
+//4-23-2022: Checked for translations needed
 
 void GetLocationEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -12,7 +15,7 @@ void GetLocationEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* clearedEntry;
 
-		CreateExtraInfoEntry(clearedEntry, "Cleared", BooleanToYesNoString(cleared), priority_Location_Cleared);
+		CreateExtraInfoEntry(clearedEntry, GetTranslation("$Cleared"), BooleanToYesNoString(cleared), priority_Location_Cleared);
 		resultArray->PushBack(clearedEntry);
 
 		//parent location
@@ -23,10 +26,9 @@ void GetLocationEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			ExtraInfoEntry* parentLocEntry;
 			std::string parentLocName = GetName(bgsLocationParent);
 
-			CreateExtraInfoEntry(parentLocEntry, "Parent", parentLocName, priority_Location_ParentLocation);
+			CreateExtraInfoEntry(parentLocEntry, GetTranslation("$Parent"), parentLocName, priority_Location_ParentLocation);
 			GetFormData(parentLocEntry, bgsLocationParent, nullptr);
 			resultArray->PushBack(parentLocEntry);
-
 		}
 
 		GetKeywords(resultArray, bgsLocation);

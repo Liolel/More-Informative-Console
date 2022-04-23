@@ -27,7 +27,7 @@ bool GetHasSourceFileArray(RE::TESForm* form)
 
 std::string GetNthFormLocationName(RE::TESForm* form, uint32_t n)
 {
-	std::string formName = "Unknown";
+	std::string formName = GetTranslation("$UnknownMod");
 
 	if (GetHasSourceFileArray(form) && form->sourceFiles.array->size() > n) {
 		RE::TESFile** sourceFiles = form->sourceFiles.array->data();
@@ -44,7 +44,7 @@ std::string GetFirstFormLocationName(RE::TESForm* form)
 
 std::string GetLastFormLocationName(RE::TESForm* form)
 {
-	std::string formName = "Unknown";
+	std::string formName = GetTranslation("$UnknownMod");;
 	int lastFileIndex = GetNumberOfSourceFiles(form) - 1;
 	formName = GetNthFormLocationName(form, lastFileIndex);
 
