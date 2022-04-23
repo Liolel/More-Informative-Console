@@ -4,6 +4,7 @@
 #include "Simpleini.h"
 #include "globals.h"
 #include "EditorIDCache.h"
+#include "TranslationCache.h"
 
 void readINI()
 {
@@ -105,6 +106,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 		logger::critical(FMT_STRING("Unsupported runtime version {}"sv), ver.string());
 		return false;
 	}
+
+	auto translationCache = TranslationCache::GetSingleton();
+	translationCache->CacheTranslations();
 
 	return true;
 }

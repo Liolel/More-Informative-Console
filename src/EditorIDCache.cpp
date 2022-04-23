@@ -39,4 +39,3 @@ std::string EditorIDCache::GetEditorID(RE::TESForm* form)
 
 	return editorID;
 }
-

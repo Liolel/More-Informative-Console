@@ -138,6 +138,8 @@ set(SOURCES
 	src/FormExtraInfoCache.h
 	src/globals.cpp
 	src/globals.h
+	src/TranslationCache.cpp
+	src/TranslationCache.h
 	src/MIC_Scaleform.cpp
 	src/MIC_Scaleform.h
 	src/Scaleform/MICScaleform_GetExtraData.cpp

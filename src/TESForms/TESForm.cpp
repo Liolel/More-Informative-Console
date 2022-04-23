@@ -18,6 +18,7 @@
 #include "globals.h"
 #include "EditorIDCache.h"
 #include "FormExtraInfoCache.h"
+#include "TranslationCache.h"
 
 bool GetHasSourceFileArray(RE::TESForm* form)
 {
@@ -185,7 +186,9 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	}
 
 	ExtraInfoEntry* nameArray;
-	CreateExtraInfoEntry(nameArray, "Name", name, priority_Name);
+	auto nameTranslation = GetTranslation("$Name");
+
+	CreateExtraInfoEntry(nameArray, nameTranslation, name, priority_Name);
 
 	resultArray->PushBack(nameArray);
 
