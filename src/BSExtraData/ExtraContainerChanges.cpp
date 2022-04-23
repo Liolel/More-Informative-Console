@@ -55,7 +55,13 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 	RE::InventoryEntryData* inventoryEntryData = nullptr;
 	RE::TESForm* leftHand = FindEquipedItemInSlot(-1, false, true, containerChanges, inventoryEntryData);
 
-	if (leftHand != nullptr)
+	//the previous call will only get weapons. If we found nothing we need to check if a spell is equiped
+	if (!leftHand )
+	{
+		leftHand = actor->GetEquippedObject(true);
+	}
+
+	if( leftHand )
 	{
 		ExtraInfoEntry* leftHandEntry;
 		std::string name = GetName(leftHand);
@@ -79,8 +85,14 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 	inventoryEntryData = nullptr;
 	RE::TESForm* rightHand = FindEquipedItemInSlot(-1, true, false, containerChanges, inventoryEntryData);
 
+	//the previous call will only get weapons. If we found nothing we need to check if a spell is equiped
+	if (!rightHand)
+	{
+		rightHand = actor->GetEquippedObject(false);
+	}
 
-	if (rightHand != nullptr)
+
+	if (rightHand)
 	{
 		ExtraInfoEntry* rightHandEntry;
 		std::string name = GetName(rightHand);

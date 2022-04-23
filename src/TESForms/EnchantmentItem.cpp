@@ -4,10 +4,17 @@
 void GetEnchantmentInfomation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
 	RE::EnchantmentItem* enchantment = static_cast<RE::EnchantmentItem*>(baseForm);
+	
+	if (resultArray && enchantment )
+	{
+
+	}
+
+	/*
 	if (enchantment)
 	{
 		GetMagicItemData(resultArray, enchantment);
-	}
+	}*/
 }
 
 void GetCharge(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList , RE::TESEnchantableForm* item, RE::ExtraEnchantment * extraEnchantment)

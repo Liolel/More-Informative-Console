@@ -166,6 +166,8 @@ set(SOURCES
 	src/TESForms/BGSTextureSet.h
 	src/TESForms/EffectSetting.cpp
 	src/TESForms/EffectSetting.h
+	src/TESForms/EnchantmentItem.h
+	src/TESForms/EnchantmentItem.cpp
 	src/TESForms/MagicItem.cpp
 	src/TESForms/MagicItem.h
 	src/TESForms/SpellItem.cpp

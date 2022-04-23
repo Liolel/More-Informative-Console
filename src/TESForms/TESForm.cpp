@@ -280,6 +280,20 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 		resultArray->PushBack(enchantmentEntry);
 	}
 
+	//Keywords
+	auto keyWordForm = baseForm ? baseForm->As<RE::BGSKeywordForm>() : nullptr;
+	if (keyWordForm)
+	{
+		GetKeywords(resultArray, keyWordForm);
+	}
+
+	//MagicItem
+	auto magicItem = baseForm ? baseForm->As<RE::MagicItem>() : nullptr;
+	if (magicItem)
+	{
+		GetMagicItemData(resultArray, magicItem);
+	}
+
 	logger::debug("GetCommonFormData: GetCommonFormData End");
 }
 

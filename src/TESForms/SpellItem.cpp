@@ -44,7 +44,7 @@ void GetSpellData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		resultArray->PushBack(castTimeEntry);
 
 		//Get Data for the magic effects for the spell
-		GetMagicItemData(resultArray, baseForm);
+		//GetMagicItemData(resultArray, baseForm);
 
 		GetKeywords(resultArray, spellItem);
 
