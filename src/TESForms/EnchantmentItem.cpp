@@ -1,21 +1,8 @@
 #include "EnchantmentItem.h"
 #include "MagicItem.h"
+#include "TranslationCache.h"
 
-void GetEnchantmentInfomation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
-{
-	RE::EnchantmentItem* enchantment = static_cast<RE::EnchantmentItem*>(baseForm);
-	
-	if (resultArray && enchantment )
-	{
-
-	}
-
-	/*
-	if (enchantment)
-	{
-		GetMagicItemData(resultArray, enchantment);
-	}*/
-}
+//4-24-2022: Checked for translations needed
 
 void GetCharge(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList , RE::TESEnchantableForm* item, RE::ExtraEnchantment * extraEnchantment)
 {
@@ -45,11 +32,11 @@ void GetCharge(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraList , RE::T
 	if (maximumCharge > 0.0 )
 	{
 		ExtraInfoEntry* chargeEntry;
-		CreateExtraInfoEntry(chargeEntry, "Charge", DoubleToString( charge ), priority_Enchantment_Charge);
+		CreateExtraInfoEntry(chargeEntry, GetTranslation("$Charge"), DoubleToString( charge ), priority_Enchantment_Charge);
 		chargeEntry->SetMayCopy(false);
 		resultArray->PushBack(chargeEntry);
 		ExtraInfoEntry* maximumChargeEntry;
-		CreateExtraInfoEntry(maximumChargeEntry, "Maximum charge", DoubleToString(maximumCharge), priority_Enchantment_MaximumCharge);
+		CreateExtraInfoEntry(maximumChargeEntry, GetTranslation("$MaximumCharge"), DoubleToString(maximumCharge), priority_Enchantment_MaximumCharge);
 		maximumChargeEntry->SetMayCopy(false);
 		resultArray->PushBack(maximumChargeEntry);
 	}

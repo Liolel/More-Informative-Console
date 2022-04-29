@@ -139,10 +139,6 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 				logger::debug("GetExtraData: Get Form Data LCTN found");
 				GetLocationEntry(resultArray, baseForm);
 			}
-			else if (baseFormType == RE::FormType::Enchantment) {
-				logger::debug("GetExtraData: Get Form Data Enchantment found");
-				GetEnchantmentInfomation(resultArray, baseForm);
-			}
 
 			//reset any filtering
 			MICGlobals::filterARMAByRace = nullptr;

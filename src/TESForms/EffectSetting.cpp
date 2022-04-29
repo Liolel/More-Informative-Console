@@ -2,7 +2,10 @@
 #include "EffectSetting.h"
 #include "TESForm.h"
 #include "Util/NameUtil.h"
+#include "TranslationCache.h"
 #include <Util/GeneralUtil.h>
+
+//4-24-2022: Checked for translations needed
 
 void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -17,7 +20,7 @@ void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		int skill = (int)effectSetting->data.associatedSkill;
 		ExtraInfoEntry* skillEntry;
 
-		CreateExtraInfoEntry(skillEntry, "Magic Skill", GetActorValueName(skill), priority_EffectSetting_Skill);
+		CreateExtraInfoEntry(skillEntry, GetTranslation("$MagicSkill"), GetActorValueName(skill), priority_EffectSetting_Skill);
 		resultArray->PushBack(skillEntry);
 
 		//Minimum Skill Level
@@ -25,7 +28,7 @@ void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		int minimumSkill = effectSetting->data.minimumSkill;
 		ExtraInfoEntry* minimumSkillEntry;
 
-		CreateExtraInfoEntry(minimumSkillEntry, "Minimum Skill", std::to_string(minimumSkill), priority_EffectSetting_MinimumSkill);
+		CreateExtraInfoEntry(minimumSkillEntry, GetTranslation("$MinimumSkill"), std::to_string(minimumSkill), priority_EffectSetting_MinimumSkill);
 		resultArray->PushBack(minimumSkillEntry);
 
 		//Effect type
@@ -33,41 +36,41 @@ void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		int effectType = (int)effectSetting->data.archetype;
 		ExtraInfoEntry* effectTypeEntry;
 
-		CreateExtraInfoEntry(effectTypeEntry, "Effect type", GetEffectTypeName(effectType), priority_EffectSetting_EffectType);
+		CreateExtraInfoEntry(effectTypeEntry, GetTranslation("$EffectType"), GetEffectTypeName(effectType), priority_EffectSetting_EffectType);
 		resultArray->PushBack(effectTypeEntry);
 
 		//First AV
 		int primaryAV = (int)effectSetting->data.primaryAV;
 		ExtraInfoEntry* primaryAVEntry;
 
-		CreateExtraInfoEntry(primaryAVEntry, "Primary AV", GetActorValueName(primaryAV), priority_EffectSetting_PrimaryAV);
+		CreateExtraInfoEntry(primaryAVEntry, GetTranslation("$PrimaryAV"), GetActorValueName(primaryAV), priority_EffectSetting_PrimaryAV);
 		resultArray->PushBack(primaryAVEntry);
 
 		//Second AV
 		int secondaryAV = (int)effectSetting->data.secondaryAV;
 		ExtraInfoEntry* secondaryAVEntry;
 
-		CreateExtraInfoEntry(secondaryAVEntry, "Secondary AV", GetActorValueName(secondaryAV), priority_EffectSetting_SecondaryAV);
+		CreateExtraInfoEntry(secondaryAVEntry, GetTranslation("$SecondaryAV"), GetActorValueName(secondaryAV), priority_EffectSetting_SecondaryAV);
 		resultArray->PushBack(secondaryAVEntry);
 
 		//Resistence
 		int resistence = (int)effectSetting->data.resistVariable;
 		ExtraInfoEntry* resistenceEntry;
 
-		CreateExtraInfoEntry(resistenceEntry, "Resistance", GetActorValueName(resistence), priority_EffectSetting_Resistance);
+		CreateExtraInfoEntry(resistenceEntry, GetTranslation("$Resistance"), GetActorValueName(resistence), priority_EffectSetting_Resistance);
 		resultArray->PushBack(resistenceEntry);
 
 		//delivery type
 		ExtraInfoEntry* deliveryTypeEntry;
 
-		CreateExtraInfoEntry(deliveryTypeEntry, "Delivery Type", GetDeliveryTypeName(effectSetting->data.delivery), priority_EffectSetting_DeliveryType);
+		CreateExtraInfoEntry(deliveryTypeEntry, GetTranslation("$DeliveryType"), GetDeliveryTypeName(effectSetting->data.delivery), priority_EffectSetting_DeliveryType);
 		resultArray->PushBack(deliveryTypeEntry);
 
 		//Hostile Flag
 		ExtraInfoEntry* hostileEntry;
 
 		std::string hostile = BooleanToYesNoString(HasFlag(effectSetting->data.flags.underlying(), (int)RE::EffectSetting::EffectSettingData::Flag::kHostile));
-		CreateExtraInfoEntry(hostileEntry, "Hostile", hostile, priority_EffectSetting_Hostile);
+		CreateExtraInfoEntry(hostileEntry, GetTranslation("$FlagHostile"), hostile, priority_EffectSetting_Hostile);
 		resultArray->PushBack(hostileEntry);
 		/*
 
