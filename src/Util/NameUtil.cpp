@@ -521,7 +521,7 @@ std::string GetTextureType(int textureType)
 		break;
 	case RE::BGSTextureSet::Texture::kNormal: textureTypeName = GetTranslation("$TextureSetNormalGloss");
 		break;
-	case RE::BGSTextureSet::Texture::kEnvironmentMask: textureTypeName = GetTranslation("TextureSetEnvironmentMaskSubsurface");
+	case RE::BGSTextureSet::Texture::kEnvironmentMask: textureTypeName = GetTranslation("$TextureSetEnvironmentMaskSubsurface");
 		break;
 	case RE::BGSTextureSet::Texture::kGlowMap: textureTypeName = GetTranslation("$TextureSetGlowDetail");
 		break;
@@ -570,7 +570,8 @@ std::string GetEquipSlotName(int slot)
 
 std::string GetActorValueName(int id)
 {
-	std::string actorValueKey = "$ActorValue" + IntToString(id);
+	//its expected that sometimes we will be passed a -1 id, for cases like effects that have no actor value defined for the primary av
+	std::string actorValueKey = id >= 0 ? "$ActorValue" + IntToString(id) : "$Unknown";
 	return GetTranslation(actorValueKey);
 }
 
@@ -587,33 +588,33 @@ std::string GetSpellTypeName(RE::MagicSystem::SpellType spellType)
 
 	switch (spellType)
 	{
-	case RE::MagicSystem::SpellType::kSpell: spellTypeName = "Spell";
+	case RE::MagicSystem::SpellType::kSpell: spellTypeName = GetTranslation("$SpellTypeSpell");
 		break;
-	case RE::MagicSystem::SpellType::kDisease: spellTypeName = "Disease";
+	case RE::MagicSystem::SpellType::kDisease: spellTypeName = GetTranslation("$SpellTypeDisease");
 		break;
-	case RE::MagicSystem::SpellType::kPower: spellTypeName = "Power";
+	case RE::MagicSystem::SpellType::kPower: spellTypeName = GetTranslation("$SpellTypePower");
 		break;
-	case RE::MagicSystem::SpellType::kLesserPower: spellTypeName = "Lesser Power";
+	case RE::MagicSystem::SpellType::kLesserPower: spellTypeName = GetTranslation("$SpellTypeLesserPower");
 		break;
-	case RE::MagicSystem::SpellType::kAbility: spellTypeName = "Ability";
+	case RE::MagicSystem::SpellType::kAbility: spellTypeName = GetTranslation("$SpellTypeAbility");
 		break;
-	case RE::MagicSystem::SpellType::kPoison: spellTypeName = "Poison";
+	case RE::MagicSystem::SpellType::kPoison: spellTypeName = GetTranslation("$SpellTypePoison");
 		break;
-	case RE::MagicSystem::SpellType::kEnchantment: spellTypeName = "Enchantment";
+	case RE::MagicSystem::SpellType::kEnchantment: spellTypeName = GetTranslation("$SpellTypeEnchantment");
 		break;
-	case RE::MagicSystem::SpellType::kIngredient: spellTypeName = "Ingredient";
+	case RE::MagicSystem::SpellType::kIngredient: spellTypeName = GetTranslation("$SpellTypeIngredient");
 		break;
-	case RE::MagicSystem::SpellType::kLeveledSpell: spellTypeName = "Leveled Spell";
+	case RE::MagicSystem::SpellType::kLeveledSpell: spellTypeName = GetTranslation("$SpellTypeLeveledSpell");
 		break;
-	case RE::MagicSystem::SpellType::kAddiction: spellTypeName = "Addiction";
+	case RE::MagicSystem::SpellType::kAddiction: spellTypeName = GetTranslation("$SpellTypeAddiction");
 		break;
-	case RE::MagicSystem::SpellType::kVoicePower: spellTypeName = "Voice";
+	case RE::MagicSystem::SpellType::kVoicePower: spellTypeName = GetTranslation("$SpellTypeVoice");
 		break;
-	case RE::MagicSystem::SpellType::kStaffEnchantment: spellTypeName = "Staff Enchantment";
+	case RE::MagicSystem::SpellType::kStaffEnchantment: spellTypeName = GetTranslation("$SpellTypeStaffEnchantment");
 		break;
-	case RE::MagicSystem::SpellType::kScroll: spellTypeName = "Scroll";
+	case RE::MagicSystem::SpellType::kScroll: spellTypeName = GetTranslation("$SpellTypeScroll");
 		break;
-	default: spellTypeName = "Unknown type";
+	default: spellTypeName = GetTranslation("$Unknown");
 		break;
 	}
 
@@ -626,15 +627,15 @@ std::string GetCastingTypeName(RE::MagicSystem::CastingType castingType)
 
 	switch (castingType)
 	{
-	case RE::MagicSystem::CastingType::kConcentration: castingTypeName = "Concentration";
+	case RE::MagicSystem::CastingType::kConcentration: castingTypeName = GetTranslation("$CastingTypeConcentration");
 		break;
-	case RE::MagicSystem::CastingType::kConstantEffect: castingTypeName = "Constant Effect";
+	case RE::MagicSystem::CastingType::kConstantEffect: castingTypeName = GetTranslation("$CastingTypeConstantEffect");
 		break;
-	case RE::MagicSystem::CastingType::kFireAndForget: castingTypeName = "Fire and Forget";
+	case RE::MagicSystem::CastingType::kFireAndForget: castingTypeName = GetTranslation("$CastingTypeFireForget");
 		break;
-	case RE::MagicSystem::CastingType::kScroll: castingTypeName = "Scroll";
+	case RE::MagicSystem::CastingType::kScroll: castingTypeName = GetTranslation("$CastingTypeScroll");
 		break;
-	default: castingTypeName = "Unknown type";
+	default: castingTypeName = GetTranslation("$Unknown");
 		break;
 	}
 
@@ -647,17 +648,17 @@ std::string GetDeliveryTypeName(RE::MagicSystem::Delivery deliveryType)
 
 	switch (deliveryType)
 	{
-	case RE::MagicSystem::Delivery::kAimed: deliveryTypeName = "Aimed";
+	case RE::MagicSystem::Delivery::kAimed: deliveryTypeName = GetTranslation("$DeliveryTypeAimed");
 		break;
-	case RE::MagicSystem::Delivery::kTouch: deliveryTypeName = "Contact";
+	case RE::MagicSystem::Delivery::kTouch: deliveryTypeName = GetTranslation("$DeliveryTypeContact");
 		break;
-	case RE::MagicSystem::Delivery::kSelf: deliveryTypeName = "Self";
+	case RE::MagicSystem::Delivery::kSelf: deliveryTypeName = GetTranslation("$DeliveryTypeSelf");
 		break;
-	case RE::MagicSystem::Delivery::kTargetActor: deliveryTypeName = "Target Actor";
+	case RE::MagicSystem::Delivery::kTargetActor: deliveryTypeName = GetTranslation("$DeliveryTypeTargetActor");
 		break;
-	case RE::MagicSystem::Delivery::kTargetLocation: deliveryTypeName = "Target Location";
+	case RE::MagicSystem::Delivery::kTargetLocation: deliveryTypeName = GetTranslation("$DeliveryTypeTargetLocation");
 		break;
-	default: deliveryTypeName = "Unknown type";
+	default: deliveryTypeName = GetTranslation("$Unknown");
 		break;
 	}
 
@@ -678,55 +679,55 @@ std::string GetWeaponAnimationTypeName(RE::WEAPON_TYPE weaponType)
 	{
 		case RE::WEAPON_TYPE::kHandToHandMelee:
 		{
-			weaponTypeName = "Hand to Hand";
+			weaponTypeName = GetTranslation("$WeaponTypeHandToHand");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kOneHandSword:
 		{
-			weaponTypeName = "One handed sword";
+			weaponTypeName = GetTranslation("$WeaponTypeOneHandedSword");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kOneHandDagger:
 		{
-			weaponTypeName = "Dagger";
+			weaponTypeName = GetTranslation("$WeaponTypeDagger");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kOneHandAxe:
 		{
-			weaponTypeName = "One handed axe";
+			weaponTypeName = GetTranslation("$WeaponTypeOneHandedAxe");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kTwoHandSword:
 		{
-			weaponTypeName = "Two handed sword";
+			weaponTypeName = GetTranslation("$WeaponTypeTwoHandedSword");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kTwoHandAxe:
 		{
-			weaponTypeName = "Two handed axe";
+			weaponTypeName = GetTranslation("$WeaponTypeTwoHandedAxe");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kBow:
 		{
-			weaponTypeName = "Bow";
+			weaponTypeName = GetTranslation("$WeaponTypeBow");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kStaff:
 		{
-			weaponTypeName = "Staff";
+			weaponTypeName = GetTranslation("$WeaponTypeStaff");
 			break;
 		}
 
 		case RE::WEAPON_TYPE::kCrossbow:
 		{
-			weaponTypeName = "Crossbow";
+			weaponTypeName = GetTranslation("$WeaponTypeCrossbow");
 			break;
 		}
 	}
@@ -742,37 +743,37 @@ std::string GetEquipTypeName(int formID)
 	{
 	case 0x00013F42:
 	{
-		equipTypeName = "Right Hand";
+		equipTypeName = GetTranslation("$EquipTypeRightHand");
 		break;
 	}
 	case 0x00013F43:
 	{
-		equipTypeName = "Left Hand";
+		equipTypeName = GetTranslation("$EquipTypeLeftHand");
 		break;
 	}
 	case 0x00013F44:
 	{
-		equipTypeName = "Either Hand";
+		equipTypeName = GetTranslation("$EquipTypeEitherHand");
 		break;
 	}
 	case 0x00013F45:
 	{
-		equipTypeName = "Both Hands";
+		equipTypeName = GetTranslation("$EquipTypeBothHand");
 		break;
 	}
 	case 0x000141E8:
 	{
-		equipTypeName = "Shield";
+		equipTypeName = GetTranslation("$EquipTypeShield");
 		break;
 	}
 	case 0x00025BEE:
 	{
-		equipTypeName = "Voice";
+		equipTypeName = GetTranslation("$EquipTypeVoice");
 		break;
 	}
 	case 0x00035698:
 	{
-		equipTypeName = "Potion";
+		equipTypeName = GetTranslation("$EquipTypePotion");
 		break;
 	}
 	}
@@ -809,7 +810,7 @@ std::string GetLockLevelName(RE::LOCK_LEVEL lockLevel)
 		lockLevelString = "Requires Key";
 		break;
 	default: 
-		lockLevelString = "Unkown";
+		lockLevelString = GetTranslation("$Unknown");
 		break;
 	}
 

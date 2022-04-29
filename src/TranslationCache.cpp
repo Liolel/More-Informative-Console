@@ -30,8 +30,6 @@ void TranslationCache::CacheTranslations()
 		{
 			std::string section = itrSection->pItem;
 
-			logger::info("Section: " + section );
-
 			CSimpleIniA::TNamesDepend keys;
 			ini.GetAllKeys(section.c_str(), keys);
 
@@ -39,30 +37,26 @@ void TranslationCache::CacheTranslations()
 			{
 				std::string key = itrKey->pItem;
 
-				logger::info("Key: " + key);
-
 				std::string translation = ini.GetValue(section.c_str(), key.c_str() );
-
-				logger::info("Translation: " + translation);
 
 				this->keyToTranslationMap.emplace(key, translation);
 
-				logger::info("Post Emplace");
 			}
 		}
 	}
 
-	logger::info("Pre Reset");
-
 	ini.Reset();
-
-	logger::info("Post Reset");
 }
 
 std::string TranslationCache::GetTranslation(std::string key)
 {
 	auto translationItr = keyToTranslationMap.find(key);
 	std::string translation = translationItr != keyToTranslationMap.end() ? translationItr->second : "";
+
+	if (translation == "")
+	{
+		logger::info("Translation Key " + key + " not found");
+	}
 
 	return translation;
 }

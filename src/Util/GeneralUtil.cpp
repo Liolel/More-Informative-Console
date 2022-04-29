@@ -1,52 +1,18 @@
 #pragma once
 
 #include "GeneralUtil.h"
+#include "TranslationCache.h"
 #include "SKSE/Logger.h"
 #include <memory>
 #include <sstream>
 #include <vector>
 
+//4-29-2022: Checked for translations needed
+
 //MIC options
 
 //const char deliminator = '\\';
 
-/*
-
-//returns the total amount the given item stored in the given container
-int NumberOfItemInContainer(TESForm * item, TESContainer * container)
-{
-	int numberOfItemInContainer = 0;
-
-	for (int i = 0; i < container->numEntries; i++)
-	{
-		TESForm *itemForm = container->entries[i]->form;
-
-		if (itemForm == item)
-		{
-			numberOfItemInContainer += container->entries[i]->count;
-		}
-	}
-
-	return numberOfItemInContainer;
-}
-
-//returns true if the given item is present in the EntryDataList
-bool HasItem(EntryDataList * inventory, TESForm * item)
-{
-	bool hasItem = false;
-
-	for (EntryDataList::Iterator it = inventory->Begin(); !it.End(); ++it)
-	{
-		InventoryEntryData * e = it.Get();
-		if (e && e->type == item)
-		{
-			hasItem = true;
-		}
-	}
-
-	return hasItem;
-}
-*/
 std::string IntToString(int number)
 {
 	std::ostringstream ss;
@@ -88,38 +54,15 @@ std::string BooleanToYesNoString(bool boolean)
 	std::string output = "";
 
 	if (boolean) {
-		output = "Yes";
+		output = GetTranslation("$Yes");
 	}
 
 	else {
-		output = "No";
+		output = GetTranslation("$No");
 	}
 
 	return output;
 }
-/*
-//get the smallest bit that is 1 in the flags passed
-int GetSmallestBitFlag(int flags)
-{
-	int smallestFlag = -1;
-
-	int i = 0;
-
-	while (i < 32 && smallestFlag == -1)
-	{
-		int mask = 1 << i;
-
-		if ( (flags & mask) == mask )
-		{
-			smallestFlag = i;
-		}
-
-		i++;
-	}
-
-	return smallestFlag;
-}
-*/
 
 bool HasFlag(int Flags, int flag)
 {
