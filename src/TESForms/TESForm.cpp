@@ -20,6 +20,8 @@
 #include "FormExtraInfoCache.h"
 #include "TranslationCache.h"
 
+//4-30-2022: Checked for translations needed
+
 bool GetHasSourceFileArray(RE::TESForm* form)
 {
 	return form->sourceFiles.array;  //Check if the source files array exists
@@ -27,7 +29,7 @@ bool GetHasSourceFileArray(RE::TESForm* form)
 
 std::string GetNthFormLocationName(RE::TESForm* form, uint32_t n)
 {
-	std::string formName = GetTranslation("$UnknownMod");
+	std::string formName = GetTranslation("$Unknown");
 
 	if (GetHasSourceFileArray(form) && form->sourceFiles.array->size() > n) {
 		RE::TESFile** sourceFiles = form->sourceFiles.array->data();
@@ -44,7 +46,7 @@ std::string GetFirstFormLocationName(RE::TESForm* form)
 
 std::string GetLastFormLocationName(RE::TESForm* form)
 {
-	std::string formName = GetTranslation("$UnknownMod");;
+	std::string formName = GetTranslation("$Unknown");;
 	int lastFileIndex = GetNumberOfSourceFiles(form) - 1;
 	formName = GetNthFormLocationName(form, lastFileIndex);
 
@@ -203,7 +205,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	if (editorID != "")
 	{
 		ExtraInfoEntry* editorIDEntry;
-		CreateExtraInfoEntry(editorIDEntry, "Editor ID", editorID, priority_EditorID);
+		CreateExtraInfoEntry(editorIDEntry, GetTranslation("$EditorID"), editorID, priority_EditorID);
 		resultArray->PushBack(editorIDEntry);
 	}
 
@@ -211,14 +213,14 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	std::string formID = FormIDToString(baseForm->formID);
 
 	ExtraInfoEntry* formIDArray;
-	CreateExtraInfoEntry(formIDArray, "Base form ID", formID, priority_FormID);
+	CreateExtraInfoEntry(formIDArray, GetTranslation("$BaseFormID"), formID, priority_FormID);
 	resultArray->PushBack(formIDArray);
 
 	//base form type
 	std::string baseFormType = GetFormTypeName((int)baseForm->formType.underlying());
 
 	ExtraInfoEntry* formTypeEntry;
-	CreateExtraInfoEntry(formTypeEntry, "Base Type", baseFormType, priority_FormType);
+	CreateExtraInfoEntry(formTypeEntry, GetTranslation("$BaseType"), baseFormType, priority_FormType);
 	resultArray->PushBack(formTypeEntry);
 
 	//ref formid
@@ -226,7 +228,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 		std::string refFormID = FormIDToString(refForm->formID);
 
 		ExtraInfoEntry* formIDArrayReference;
-		CreateExtraInfoEntry(formIDArrayReference, "Ref form ID", refFormID, priority_FormID);
+		CreateExtraInfoEntry(formIDArrayReference, GetTranslation("$RefFormID"), refFormID, priority_FormID);
 		resultArray->PushBack(formIDArrayReference);
 	}
 
@@ -236,24 +238,21 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	//Model information
 	GetModelTextures(resultArray, baseForm );
 
-	if (MICOptions::ExperimentalFeatures) {
+	if (!MICGlobals::minimizeFormDataRead)
+	{
+		//Get scripts
+		ExtraInfoEntry* scriptsEntry;
+		CreateExtraInfoEntry(scriptsEntry, GetTranslation("$Scripts"), "", priority_Scripts_Scripts);
 
-		if (!MICGlobals::minimizeFormDataRead)
-		{
-			//Get scripts
-			ExtraInfoEntry* scriptsEntry;
-			CreateExtraInfoEntry(scriptsEntry, "Scripts", "", priority_Scripts_Scripts);
+		GetScripts(scriptsEntry, baseForm, refForm);
 
-			GetScripts(scriptsEntry, baseForm, refForm);
+		//There's no point showing an empty script entry as having no scripts is the standard and some formtypes can't even have scripts. So check if we found anything
+		if (scriptsEntry->HasChildren()) {
+			resultArray->PushBack(scriptsEntry);
+		}
 
-			//There's no point showing an empty script entry as having no scripts is the standard and some formtypes can't even have scripts. So check if we found anything
-			if (scriptsEntry->HasChildren()) {
-				resultArray->PushBack(scriptsEntry);
-			}
-
-			else {
-				delete (scriptsEntry);  //Free up the memory
-			}
+		else {
+			delete (scriptsEntry);  //Free up the memory
 		}
 	}
 
@@ -268,7 +267,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 		ExtraInfoEntry* enchantmentEntry;
 		std::string enchantmentName = GetName(enchantmentForm);
 
-		CreateExtraInfoEntry(enchantmentEntry, "Enchantment", enchantmentName, priority_Enchantment);
+		CreateExtraInfoEntry(enchantmentEntry, GetTranslation("$Enchantment"), enchantmentName, priority_Enchantment);
 		GetFormData(enchantmentEntry, enchantmentForm, nullptr);
 
 		if (refForm)
@@ -302,7 +301,7 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 	logger::debug("GetExtraData: GetFormLocationData Start");
 
 	ExtraInfoEntry* formLocationHolder;
-	CreateExtraInfoEntry(formLocationHolder, "Form location information", "", priority_FormLocation);
+	CreateExtraInfoEntry(formLocationHolder, GetTranslation("$FormLocation"), "", priority_FormLocation);
 
 	//this method may be called at a time we only have a base form, and in that case skip anything related to the reform
 	if (refForm != nullptr && GetHasSourceFileArray(refForm)) {
@@ -320,19 +319,19 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		}
 
 		ExtraInfoEntry* referenceDefinedIn;
-		CreateExtraInfoEntry(referenceDefinedIn, "Reference defined in", refFirstDefinedIn, priority_FormLocation_ReferenceDefined);
+		CreateExtraInfoEntry(referenceDefinedIn, GetTranslation("$RefDefinedIn"), refFirstDefinedIn, priority_FormLocation_ReferenceDefined);
 
 		formLocationHolder->PushBack(referenceDefinedIn);
 
 		std::string refLastDefinedIn = GetLastFormLocationName(refForm);
 
 		ExtraInfoEntry* referenceLastChangedBy;
-		CreateExtraInfoEntry(referenceLastChangedBy, "Reference last modified by", refLastDefinedIn, priority_FormLocation_ReferenceLastChanged);
+		CreateExtraInfoEntry(referenceLastChangedBy, GetTranslation("$RefLastModified"), refLastDefinedIn, priority_FormLocation_ReferenceLastChanged);
 
 		formLocationHolder->PushBack(referenceLastChangedBy);
 
 		ExtraInfoEntry* allModsTouchingReferenceHolder;
-		CreateExtraInfoEntry(allModsTouchingReferenceHolder, "Reference found in", "", priority_FormLocation_ReferenceInMods);
+		CreateExtraInfoEntry(allModsTouchingReferenceHolder, GetTranslation("$RefFoundIn"), "", priority_FormLocation_ReferenceInMods);
 
 		GetModInfoData(allModsTouchingReferenceHolder, refForm, SkyrimESMNotDetectedBug);
 
@@ -350,19 +349,19 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 		std::string baseFirstDefinedIn = GetFirstFormLocationName(baseForm);
 
 		ExtraInfoEntry* baseDefinedIn;
-		CreateExtraInfoEntry(baseDefinedIn, "Base defined in", baseFirstDefinedIn, priority_FormLocation_BaseDefined);
+		CreateExtraInfoEntry(baseDefinedIn, GetTranslation("$BaseDefinedIn"), baseFirstDefinedIn, priority_FormLocation_BaseDefined);
 
 		formLocationHolder->PushBack(baseDefinedIn);
 
 		std::string baseLastDefinedIn = GetLastFormLocationName(baseForm);
 
 		ExtraInfoEntry* baseLastChangedBy;
-		CreateExtraInfoEntry(baseLastChangedBy, "Base last modified by", baseLastDefinedIn, priority_FormLocation_BaseLastChanged);
+		CreateExtraInfoEntry(baseLastChangedBy, GetTranslation("$BaseLastModified"), baseLastDefinedIn, priority_FormLocation_BaseLastChanged);
 
 		formLocationHolder->PushBack(baseLastChangedBy);
 
 		ExtraInfoEntry* allModsTouchingBaseHolder;
-		CreateExtraInfoEntry(allModsTouchingBaseHolder, "Base found in", "", priority_FormLocation_BaseInMods);
+		CreateExtraInfoEntry(allModsTouchingBaseHolder, GetTranslation("$BaseFoundIn"), "", priority_FormLocation_BaseInMods);
 
 		GetModInfoData(allModsTouchingBaseHolder, baseForm, false);
 
@@ -385,7 +384,7 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm* form, bool Skyrim
 	if (SkyrimESMNotDetectedBug) {
 		ExtraInfoEntry* modEntry;
 
-		CreateExtraInfoEntry(modEntry, "Mod", "Skyrim.esm", priority_Default);
+		CreateExtraInfoEntry(modEntry, GetTranslation("$Mod"), "Skyrim.esm", priority_Default);
 		resultArray->PushBack(modEntry);
 	}
 
@@ -394,7 +393,7 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm* form, bool Skyrim
 
 		std::string modName = GetNthFormLocationName(form, i);
 
-		CreateExtraInfoEntry(modEntry, "Mod", modName, priority_Default);
+		CreateExtraInfoEntry(modEntry, GetTranslation("$Mod"), modName, priority_Default);
 		resultArray->PushBack(modEntry);
 	}
 
@@ -498,7 +497,7 @@ void GetScriptsForHandle(ExtraInfoEntry*& resultArray, RE::BSScript::Internal::V
 				{
 					ExtraInfoEntry* sourceEntry;
 					std::string sourceName = GetName(sourceForm);
-					CreateExtraInfoEntry(sourceEntry, "Source", sourceName, priority_Scripts_Source);
+					CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), sourceName, priority_Scripts_Source);
 
 					GetFormData(sourceEntry, sourceForm, nullptr);
 
@@ -521,7 +520,7 @@ void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
 	if (keywordForm) {
 		ExtraInfoEntry* keywordsEntry;
 
-		CreateExtraInfoEntry(keywordsEntry, "Keywords", "", priority_Keywords);
+		CreateExtraInfoEntry(keywordsEntry, GetTranslation("$Keywords"), "", priority_Keywords);
 
 		logger::debug("GetKeywords Before crash");
 

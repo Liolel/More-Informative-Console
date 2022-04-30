@@ -1,9 +1,11 @@
 #include "MagicItem.h"
 #include "TESForm.h"
 #include "Util/NameUtil.h"
+#include "TranslationCache.h"
 #include "globals.h"
 
-//
+//4-29-2022: Checked for translations needed
+
 void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
 	logger::debug("GetMagicItemData: Start");
@@ -13,7 +15,7 @@ void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	if (magicItem) {
 		ExtraInfoEntry* magicEffectsEntry;
 
-		CreateExtraInfoEntry(magicEffectsEntry, "Magic Effects", "", priority_MagicItem_MagicEffects);
+		CreateExtraInfoEntry(magicEffectsEntry, GetTranslation("$MagicEffects"), "", priority_MagicItem_MagicEffects);
 
 		int numEffects = magicItem->effects.size();
 
@@ -26,7 +28,7 @@ void GetMagicItemData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 			else {
 				ExtraInfoEntry* effectEntry;
-				CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
+				CreateExtraInfoEntry(effectEntry, GetTranslation("$UnknownEffect"), "", priority_MagicItem_Effect);
 				magicEffectsEntry->PushBack(effectEntry);
 			}
 
@@ -57,7 +59,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 	ExtraInfoEntry* magnitudeEntry;
 
 	float magnitude = effect->effectItem.magnitude;
-	CreateExtraInfoEntry(magnitudeEntry, "Magnitude", FloatToString(magnitude), priority_Effect_Magnitude);
+	CreateExtraInfoEntry(magnitudeEntry, GetTranslation("$Magnitude"), FloatToString(magnitude), priority_Effect_Magnitude);
 	magnitudeEntry->SetMayCopy(false);
 	effectEntry->PushBack(magnitudeEntry);
 
@@ -65,7 +67,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 	ExtraInfoEntry* durationEntry;
 
 	int duration = effect->effectItem.duration;
-	CreateExtraInfoEntry(durationEntry, "Duration", IntToString(duration), priority_Effect_Duration);
+	CreateExtraInfoEntry(durationEntry, GetTranslation("$Duration"), IntToString(duration), priority_Effect_Duration);
 	durationEntry->SetMayCopy(false);
 	effectEntry->PushBack(durationEntry);
 
@@ -73,7 +75,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 	ExtraInfoEntry* areaEntry;
 
 	int area = effect->effectItem.area;
-	CreateExtraInfoEntry(areaEntry, "Area", IntToString(area), priority_Effect_Area);
+	CreateExtraInfoEntry(areaEntry, GetTranslation("$Area"), IntToString(area), priority_Effect_Area);
 	areaEntry->SetMayCopy(false);
 	effectEntry->PushBack(areaEntry);
 
@@ -89,7 +91,7 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, std::string 
 				MICGlobals::minimizeFormDataRead = true;
 				ExtraInfoEntry* casterEntry;
 				std::string casterName = GetName(baseFormCaster);
-				CreateExtraInfoEntry(casterEntry, "Caster", casterName, priority_Effect_Caster);
+				CreateExtraInfoEntry(casterEntry, GetTranslation("$Caster"), casterName, priority_Effect_Caster);
 				GetFormData(casterEntry, baseFormCaster, caster);
 				effectEntry->PushBack(casterEntry);
 				MICGlobals::minimizeFormDataRead = false;

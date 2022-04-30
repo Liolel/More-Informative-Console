@@ -1,5 +1,8 @@
 #include "TESModel.h"
 #include "Util/FilePathUtil.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESModel* model, priority priority)
 {
@@ -22,7 +25,7 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 			logger::debug("Splitting Model Path");
 			
 			ExtraInfoEntry* modelPathEntry;
-			CreateExtraInfoEntry(modelPathEntry, "Model Path", "", priority_Model);
+			CreateExtraInfoEntry(modelPathEntry, GetTranslation("$ModelPath"), "", priority_Model);
 
 
 			CreateFilePathSubarray(modelPathEntry, modelPath);
