@@ -2,6 +2,9 @@
 #include "TESForm.h"
 #include "globals.h"
 #include "Util/NameUtil.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -18,7 +21,7 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		if (maleSkin)
 		{
 			ExtraInfoEntry* maleSkinEntry;
-			CreateExtraInfoEntry(maleSkinEntry, "Male skin", "", priority_Arma_SkinMale);
+			CreateExtraInfoEntry(maleSkinEntry, GetTranslation("$ArmaMaleSkin"), "", priority_Arma_SkinMale);
 
 			GetFormData(maleSkinEntry, maleSkin, nullptr);
 
@@ -30,7 +33,7 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		if (femaleSkin)
 		{
 			ExtraInfoEntry* femaleSkinEntry;
-			CreateExtraInfoEntry(femaleSkinEntry, "Female skin", "", priority_Arma_SkinFemale);
+			CreateExtraInfoEntry(femaleSkinEntry, GetTranslation("$ArmaFemaleSkin"), "", priority_Arma_SkinFemale);
 
 			GetFormData(femaleSkinEntry, femaleSkin, nullptr);
 
@@ -50,7 +53,7 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 			ExtraInfoEntry* defaultRacesEntry;
 
-			CreateExtraInfoEntry(defaultRacesEntry, "Primary Race", defaultRaceName, priority_Arma_PrimaryRace);
+			CreateExtraInfoEntry(defaultRacesEntry, GetTranslation("$ArmaPrimaryRace"), defaultRaceName, priority_Arma_PrimaryRace);
 
 			GetFormData(defaultRacesEntry, defaultRace, nullptr);
 
@@ -64,7 +67,7 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		{
 			ExtraInfoEntry* additionalRacesEntry;
 
-			CreateExtraInfoEntry(additionalRacesEntry, "Additional Races", "", priority_Arma_AddtionalRaces);
+			CreateExtraInfoEntry(additionalRacesEntry, GetTranslation("$ArmaAdditonalRaces"), "", priority_Arma_AddtionalRaces);
 
 			for (int i = 0; i < numberOfAdditionalRaces; i++)
 			{

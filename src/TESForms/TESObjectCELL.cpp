@@ -2,6 +2,9 @@
 #include "TESForm.h"
 #include "BSExtraData/BSExtraData.h"
 #include "Util/NameUtil.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void GetCellEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -15,7 +18,7 @@ void GetCellEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			//Get the coordinates of the cell
 			std::string coordinateString = GetCoordinateString(cell);
 			ExtraInfoEntry* coordinateEntry;
-			CreateExtraInfoEntry(coordinateEntry, "Coordinates", coordinateString, priority_Cell_Coordinate);
+			CreateExtraInfoEntry(coordinateEntry, GetTranslation("$Coordinates"), coordinateString, priority_Cell_Coordinate);
 			resultArray->PushBack(coordinateEntry);
 		}
 
@@ -30,7 +33,7 @@ void GetCellEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			{
 				std::string factionName = GetName(ownerFaction);
 				ExtraInfoEntry* factionOwnerEntry;
-				CreateExtraInfoEntry(factionOwnerEntry, "Owner", factionName, priority_Cell_Owner);
+				CreateExtraInfoEntry(factionOwnerEntry, GetTranslation("$Owner"), factionName, priority_Cell_Owner);
 				GetFormData(factionOwnerEntry, ownerFaction, nullptr);
 
 				resultArray->PushBack(factionOwnerEntry);
@@ -43,7 +46,7 @@ void GetCellEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 				{
 					std::string actorName = GetName(ownerActor);
 					ExtraInfoEntry* ownerActorEntry;
-					CreateExtraInfoEntry(ownerActorEntry, "Owner", actorName, priority_Cell_Owner);
+					CreateExtraInfoEntry(ownerActorEntry, GetTranslation("$Owner"), actorName, priority_Cell_Owner);
 					GetFormData(ownerActorEntry, ownerActor, nullptr);
 					resultArray->PushBack(ownerActorEntry);
 				}
@@ -89,7 +92,7 @@ void GetCurrentCellForWorldData(ExtraInfoEntry* resultArray, RE::PlayerCharacter
 			cellName = GetCoordinateString(currentCell);
 		}
 		ExtraInfoEntry* cellEntry;
-		CreateExtraInfoEntry(cellEntry, "Cell", cellName, priority_WorldData_Cell);
+		CreateExtraInfoEntry(cellEntry, GetTranslation("$Cell"), cellName, priority_WorldData_Cell);
 
 		GetFormData(cellEntry, currentCell, nullptr);
 

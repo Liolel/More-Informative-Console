@@ -1,6 +1,9 @@
 #include "ExtraRegionList.h"
 #include "Util/NameUtil.h"
 #include "TESForms/TESForm.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void ProcessRegionList(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 {
@@ -11,7 +14,7 @@ void ProcessRegionList(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 	{
 		ExtraInfoEntry* regionsEntry;
 
-		CreateExtraInfoEntry(regionsEntry, "Regions", "", priority_ExtraData_RegionList);
+		CreateExtraInfoEntry(regionsEntry, GetTranslation("$Regions"), "", priority_ExtraData_RegionList);
 
 		auto itrEnd = extraRegionList->list->end();
 

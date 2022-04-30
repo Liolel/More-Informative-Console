@@ -1,6 +1,9 @@
 #include "ExtraLocation.h"
 #include "Util/NameUtil.h"
 #include "TESForms/TESForm.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void ProcessLocationData(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 {
@@ -18,7 +21,7 @@ void ProcessLocationData(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 			//Placeholder for seeing what has editor IDs
 			ExtraInfoEntry* locationEntry;
 
-			CreateExtraInfoEntry(locationEntry, "Location", locationName, priority_ExtraData_Location);
+			CreateExtraInfoEntry(locationEntry, GetTranslation("$Location"), locationName, priority_ExtraData_Location);
 
 			GetFormData(locationEntry, bgsLocation, nullptr);
 

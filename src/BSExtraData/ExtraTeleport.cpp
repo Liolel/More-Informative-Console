@@ -1,6 +1,8 @@
 #include "ExtraTeleport.h"
 #include "ExtraLock.h"
 
+//4-30-2022: Checked for translations needed
+
 void ProcessTeleportData(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 {
 	logger::debug("ProcessTeleportData Start");
@@ -12,8 +14,6 @@ void ProcessTeleportData(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 		
 		if( destination )
 		{
-			
-
 			//Check specifically for lock data. Don't put code getting the full form data without adding code to prevent finding the extra Teleport information of the destination and creating an infinite loop
 
 			RE::ExtraDataList* extraList = &destination->extraList;

@@ -2,7 +2,10 @@
 #include "BSExtraData/BSExtraData.h"
 #include "Util/GeneralUtil.h"
 #include "EditorIDCache.h"
-#include  "Util/FilePathUtil.h"
+#include "Util/FilePathUtil.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 {
@@ -15,7 +18,7 @@ void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refFor
 	if (editorID != "" )
 	{
 		ExtraInfoEntry* referenceEditorIDEntry;
-		CreateExtraInfoEntry(referenceEditorIDEntry, "Reference editor ID", editorID, priority_EditorIDReference);
+		CreateExtraInfoEntry(referenceEditorIDEntry, GetTranslation("$ReferenceEditorID"), editorID, priority_EditorIDReference);
 		resultArray->PushBack(referenceEditorIDEntry);
 	}
 
@@ -27,7 +30,7 @@ void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refFor
 
 	ExtraInfoEntry* enabledStatusEntry;
 	std::string enabledStatus = BooleanToYesNoString(!isDisabled);
-	CreateExtraInfoEntry(enabledStatusEntry, "Is Enabled", enabledStatus, priority_Reference_Enabled);
+	CreateExtraInfoEntry(enabledStatusEntry, GetTranslation("$ReferenceIsEnabled"), enabledStatus, priority_Reference_Enabled);
 
 	resultArray->PushBack(enabledStatusEntry);
 
@@ -39,38 +42,38 @@ void GetPositionData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 	logger::debug("Starting GetPositionData");
 
 	ExtraInfoEntry* positionEntry;
-	CreateExtraInfoEntry(positionEntry, "Position", "", priority_Reference_Location);
+	CreateExtraInfoEntry(positionEntry, GetTranslation("$ReferencePosition"), "", priority_Reference_Location);
 
 	//position
 	float xPos = refForm->data.location.x;
 	ExtraInfoEntry* xPositionEntry;
-	CreateExtraInfoEntry(xPositionEntry, "X Position", FloatToString(xPos), priority_Position_XCoordinate);
+	CreateExtraInfoEntry(xPositionEntry, GetTranslation("$ReferencePositionX"), FloatToString(xPos), priority_Position_XCoordinate);
 	positionEntry->PushBack(xPositionEntry);
 
 	float yPos = refForm->data.location.y;
 	ExtraInfoEntry* yPositionEntry;
-	CreateExtraInfoEntry(yPositionEntry, "Y Position", FloatToString(yPos), priority_Position_YCoordinate);
+	CreateExtraInfoEntry(yPositionEntry, GetTranslation("$ReferencePositionY"), FloatToString(yPos), priority_Position_YCoordinate);
 	positionEntry->PushBack(yPositionEntry);
 
 	float zPos = refForm->data.location.z;
 	ExtraInfoEntry* zPositionEntry;
-	CreateExtraInfoEntry(zPositionEntry, "Z Position", FloatToString(zPos), priority_Position_ZCoordinate);
+	CreateExtraInfoEntry(zPositionEntry, GetTranslation("$ReferencePositionZ"), FloatToString(zPos), priority_Position_ZCoordinate);
 	positionEntry->PushBack(zPositionEntry);
 
 	//rotation
 	float xRot = refForm->data.angle.x;
 	ExtraInfoEntry* xRotationEntry;
-	CreateExtraInfoEntry(xRotationEntry, "X Rotation", FloatToString(xRot), priority_Position_XRotation);
+	CreateExtraInfoEntry(xRotationEntry, GetTranslation("$ReferenceRotationX"), FloatToString(xRot), priority_Position_XRotation);
 	positionEntry->PushBack(xRotationEntry);
 
 	float yRot = refForm->data.angle.y;
 	ExtraInfoEntry* yRotationEntry;
-	CreateExtraInfoEntry(yRotationEntry, "Y Rotation", FloatToString(yRot), priority_Position_YRotation);
+	CreateExtraInfoEntry(yRotationEntry, GetTranslation("$ReferenceRotationY"), FloatToString(yRot), priority_Position_YRotation);
 	positionEntry->PushBack(yRotationEntry);
 
 	float zRot = refForm->data.angle.z;
 	ExtraInfoEntry* zRotationEntry;
-	CreateExtraInfoEntry(zRotationEntry, "Z Rotation", FloatToString(zRot), priority_Position_ZRotation);
+	CreateExtraInfoEntry(zRotationEntry, GetTranslation("$ReferenceRotationZ"), FloatToString(zRot), priority_Position_ZRotation);
 	positionEntry->PushBack(zRotationEntry);
 
 	resultArray->PushBack(positionEntry);
@@ -120,7 +123,7 @@ void GetTextures(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 		if (!uniqueFilePaths.empty())
 		{
 			ExtraInfoEntry* texturesEntry;
-			CreateExtraInfoEntry(texturesEntry, "Textures", "", priority_TextureSet);
+			CreateExtraInfoEntry(texturesEntry, GetTranslation("$Textures"), "", priority_TextureSet);
 
 			for (auto itr = uniqueFilePaths.begin(); itr != uniqueFilePaths.end(); itr++)
 			{

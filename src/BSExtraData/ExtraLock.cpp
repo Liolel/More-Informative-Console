@@ -1,6 +1,9 @@
 #include "ExtraLock.h"
 #include "Util/NameUtil.h"
 #include "TESForms/TESForm.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TESObjectREFR* refForm)
 {
@@ -15,7 +18,7 @@ void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TES
 
 		ExtraInfoEntry* lockEntry;
 
-		CreateExtraInfoEntry(lockEntry, "Lock", "", priority_ExtraLock_Lock);
+		CreateExtraInfoEntry(lockEntry, GetTranslation("$Lock"), "", priority_ExtraLock_Lock);
 
 		/*
 		bool isLocked = HasFlag((int)lock->flags, (int)RE::REFR_LOCK::Flag::kLocked);
@@ -27,7 +30,7 @@ void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TES
 		std::string lockLevelName = GetLockLevelName(lockLevel);
 
 		ExtraInfoEntry* lockLevelEntry;
-		CreateExtraInfoEntry(lockLevelEntry, "Lock level", lockLevelName, priority_ExtraLock_LockLevel);
+		CreateExtraInfoEntry(lockLevelEntry, GetTranslation("$LockLevel"), lockLevelName, priority_ExtraLock_LockLevel);
 		lockEntry->PushBack(lockLevelEntry);
 
 		RE::TESForm* key = lock->key;
@@ -37,7 +40,7 @@ void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TES
 		{
 			std::string keyName = GetName(key);
 
-			CreateExtraInfoEntry(keyEntry, "Key", keyName, priority_ExtraLock_Key);
+			CreateExtraInfoEntry(keyEntry, GetTranslation("$LockKey"), keyName, priority_ExtraLock_Key);
 
 			GetFormData(keyEntry, key, nullptr);
 
@@ -46,7 +49,7 @@ void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TES
 
 		else
 		{
-			CreateExtraInfoEntry(keyEntry, "Key", "None", priority_ExtraLock_Key);
+			CreateExtraInfoEntry(keyEntry, GetTranslation("$LockKey"), GetTranslation("None"), priority_ExtraLock_Key);
 			lockEntry->PushBack(keyEntry);
 		}
 

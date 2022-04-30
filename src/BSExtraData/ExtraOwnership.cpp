@@ -1,6 +1,9 @@
 #include "ExtraOwnership.h"
 #include "Util/NameUtil.h"
 #include "TESForms/TESForm.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void ProcessOwnership(ExtraInfoEntry* resultArray, RE::BSExtraData* data )
 {
@@ -16,7 +19,7 @@ void ProcessOwnership(ExtraInfoEntry* resultArray, RE::BSExtraData* data )
 		//Placeholder for seeing what has editor IDs
 		ExtraInfoEntry* ownershipEntry;
 
-		CreateExtraInfoEntry(ownershipEntry, "Owner", ownerName, priority_ExtraData_Ownership);
+		CreateExtraInfoEntry(ownershipEntry, GetTranslation("$Owner"), ownerName, priority_ExtraData_Ownership);
 
 		GetFormData(ownershipEntry, owner, nullptr);
 

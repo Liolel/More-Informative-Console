@@ -2,7 +2,10 @@
 #include "TESForms/EnchantmentItem.h"
 #include "Util/NameUtil.h"
 #include "Util/GeneralUtil.h"
+#include "TranslationCache.h"
 #include "TESForms/TESForm.h"
+
+//4-30-2022: Checked for translations needed
 
 void ProcessContainerChanges(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TESObjectREFR* refForm)
 {
@@ -45,7 +48,7 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 
 	ExtraInfoEntry* equipmentEntry;
 
-	CreateExtraInfoEntry(equipmentEntry, "Equipment", "", priority_ExtraContainerChanges_Equipment);
+	CreateExtraInfoEntry(equipmentEntry, GetTranslation("$Equipment"), "", priority_ExtraContainerChanges_Equipment);
 
 	//weapons and shouts
 
@@ -66,7 +69,7 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 		ExtraInfoEntry* leftHandEntry;
 		std::string name = GetName(leftHand);
 
-		CreateExtraInfoEntry(leftHandEntry, "Left Hand:", name, priority_ExtraContainerChanges_Item);
+		CreateExtraInfoEntry(leftHandEntry, GetTranslation("$EquipTypeLeftHand"), name, priority_ExtraContainerChanges_Item);
 
 		GetFormData(leftHandEntry, leftHand, nullptr);
 		
@@ -97,7 +100,7 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 		ExtraInfoEntry* rightHandEntry;
 		std::string name = GetName(rightHand);
 
-		CreateExtraInfoEntry(rightHandEntry, "Right Hand:", name, priority_ExtraContainerChanges_Item);
+		CreateExtraInfoEntry(rightHandEntry, GetTranslation("$EquipTypeRightHand"), name, priority_ExtraContainerChanges_Item);
 
 		if (inventoryEntryData)
 		{
@@ -116,7 +119,7 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 		ExtraInfoEntry* ShoutEntry;
 		std::string name = GetName(shout);
 
-		CreateExtraInfoEntry(ShoutEntry, "Power/Shout:", name, priority_ExtraContainerChanges_Item);
+		CreateExtraInfoEntry(ShoutEntry, GetTranslation("$EquipTypeVoice"), name, priority_ExtraContainerChanges_Item);
 
 		GetFormData(ShoutEntry, shout, nullptr);
 		equipmentEntry->PushBack(ShoutEntry);
@@ -238,7 +241,7 @@ void GetInventory(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 	logger::debug("GetInventory: Start");
 
 	ExtraInfoEntry* inventoryEntry;
-	CreateExtraInfoEntry(inventoryEntry, "Inventory", "", priority_ExtraContainerChanges_Inventory);
+	CreateExtraInfoEntry(inventoryEntry, GetTranslation("$Inventory"), "", priority_ExtraContainerChanges_Inventory);
 
 	RE::InventoryChanges* inventoryChanges = containerChanges->changes;
 

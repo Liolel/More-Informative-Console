@@ -9,7 +9,11 @@
 #include "TESForms/TESForm.h"
 #include "TESForms/EnchantmentItem.h"
 #include "globals.h"
+#include "TranslationCache.h"
 #include "Util/NameUtil.h"
+
+
+//4-30-2022: Checked for translations needed
 
 const int numberOfExtraDataTypes = 0xBF + 1; //The plus 1 is because there are extra data types from 0 up to and including BF
 
@@ -86,7 +90,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 					ExtraInfoEntry* enchantmentEntry;
 					std::string enchantmentName = GetName(enchantmentForm);
 
-					CreateExtraInfoEntry(enchantmentEntry, "Enchantment", enchantmentName, priority_Enchantment);
+					CreateExtraInfoEntry(enchantmentEntry, GetTranslation("$Enchantment"), enchantmentName, priority_Enchantment);
 					GetFormData(enchantmentEntry, enchantmentForm, nullptr);
 					GetCharge(enchantmentEntry, &(refForm->extraList), nullptr, enchantmentExtra);
 
@@ -96,7 +100,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			}
 		}
 
-		if ( true /*MICOptions::MICDebugMode*/)
+		if ( MICOptions::MICDebugMode )
 		{
 				
 			ExtraInfoEntry* extraDataTypes;
