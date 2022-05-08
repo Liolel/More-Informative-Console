@@ -24,3 +24,4 @@ std::string BooleanToYesNoString(bool boolean);
 int GetSmallestBitFlag(int flags);*/
 
 bool HasFlag(int Flags, int flag);
+bool GetShouldDisplayScript(std::string scriptName);

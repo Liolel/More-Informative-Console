@@ -1,6 +1,7 @@
 #include "ExtraInfoEntry.h"
 #include "RE/Skyrim.h"
 #include "SKSE/API.h"
+#include <algorithm>
 
 ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2, int priority)
 {
@@ -59,7 +60,7 @@ bool ExtraInfoEntry::HasChildren()
 
 ExtraInfoEntry* ExtraInfoEntry::GetChild(int index)
 {
-	return subarray[index];
+	return index < subarray.size() ? subarray[index] : nullptr;
 }
 
 void ExtraInfoEntry::SetMayCopy(bool valueToSet )
@@ -70,7 +71,7 @@ void ExtraInfoEntry::SetMayCopy(bool valueToSet )
 
 void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue* mainScaleFormArray, RE::GFxMovie* root)
 {
-	logger::debug("Creating scaleform array");
+	logger::debug("Creating scaleform array " + IntToString( (int)subarray.size() ) );
 
 	root->CreateArray(mainScaleFormArray);
 

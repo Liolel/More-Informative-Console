@@ -13,6 +13,72 @@
 
 //const char deliminator = '\\';
 
+std::vector<std::string> ScriptsToSkip =
+{
+"activemagiceffect",
+"actor",
+"actorbase",
+"actorvalueinfo",
+"alias",
+"ammo",
+"apparatus",
+"armor",
+"armoraddon",
+"art",
+"book",
+"camera",
+"cell",
+"colorcomponent",
+"colorform",
+"combatstyle",
+"constructibleobject",
+"defaultobjectmanager",
+"enchantment",
+"equipslot",
+"faction",
+"flora",
+"form",
+"formlist",
+"formtype",
+"game",
+"gamedata",
+"headpart",
+"ingredient",
+"input",
+"keyword",
+"leveledactor",
+"leveleditem",
+"leveledspell",
+"Location",
+"magiceffect",
+"math",
+"modevent",
+"netimmerse",
+"objectreference",
+"outfit",
+"perk",
+"potion",
+"quest",
+"race",
+"scroll",
+"shout",
+"skse",
+"soulgem",
+"sound",
+"sounddescriptor",
+"spawnertask",
+"spell",
+"stringutil",
+"textureset",
+"treeobject",
+"ui",
+"uicallback",
+"utility",
+"weapon",
+"weather",
+"wornobject",
+};
+
 std::string IntToString(int number)
 {
 	std::ostringstream ss;
@@ -67,4 +133,13 @@ std::string BooleanToYesNoString(bool boolean)
 bool HasFlag(int Flags, int flag)
 {
 	return (Flags & flag) == flag;
+}
+
+bool GetShouldDisplayScript( std::string scriptName )
+{
+	std::for_each(scriptName.begin(), scriptName.end(), [](char& c) {
+		c = (char)::tolower(c);
+	});
+
+	return std::find(ScriptsToSkip.begin(), ScriptsToSkip.end(), scriptName) == ScriptsToSkip.end();
 }

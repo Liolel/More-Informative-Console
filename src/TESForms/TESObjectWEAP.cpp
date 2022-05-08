@@ -84,8 +84,6 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		CreateExtraInfoEntry(weightEntry, GetTranslation("$Weight"), FloatToString(weight), priority_Weapon_Weight);
 		resultArray->PushBack(weightEntry);
-
-		GetKeywords(resultArray, weapon);
 	}
 
 	logger::debug("GetWeaponData End");

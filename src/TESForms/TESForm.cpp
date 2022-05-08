@@ -72,7 +72,7 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
 	auto extraInfoEntryCached = formExtraInfoCache->GetExtraInfoEntry(baseForm);
 
-	if (extraInfoEntryCached == nullptr)
+	if (extraInfoEntryCached == nullptr )
 	{
 		GetCommonFormData(resultArray, baseForm, refForm);
 
@@ -190,17 +190,9 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	resultArray->PushBack(nameArray);
 
-	
-	//highly experimental code. This has a noticable hitch when selecting player character.
-	//Requires Power of 3 tweaks to actually store all of this information
 	auto editorIDCache = EditorIDCache::GetSingleton();
 
 	std::string editorID = editorIDCache->GetEditorID(baseForm);
-
-	if (editorID == "")
-	{
-		editorID = baseForm->GetFormEditorID();
-	}
 
 	if (editorID != "")
 	{
@@ -296,7 +288,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 }
 
 //get information related to where mods the form is found in
-void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
+void GetFormLocationData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
 {
 	logger::debug("GetExtraData: GetFormLocationData Start");
 
@@ -375,7 +367,7 @@ void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE
 	logger::debug("GetExtraData: GetFormLocationData End");
 }
 
-void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm* form, bool SkyrimESMNotDetectedBug)
+void GetModInfoData(ExtraInfoEntry* resultArray, RE::TESForm* form, bool SkyrimESMNotDetectedBug)
 {
 	logger::debug("GetExtraData: GetModInfoData start");
 
@@ -400,7 +392,7 @@ void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm* form, bool Skyrim
 	logger::debug("GetExtraData: GetModInfoData end");
 }
 
-void GetScripts(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
+void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
 {
 	logger::debug("GetScript start");
 
@@ -459,7 +451,7 @@ void GetScripts(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm
 	logger::debug("GetScript End");
 }
 
-void GetScriptsForHandle(ExtraInfoEntry*& resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect)
+void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect)
 {
 	//if (handle != policy->EmptyHandle())
 	while (handle != policy->EmptyHandle()) 
@@ -478,33 +470,36 @@ void GetScriptsForHandle(ExtraInfoEntry*& resultArray, RE::BSScript::Internal::V
 				std::string scriptName = script->type->name.c_str();
 				//std::string scriptName = script->type->G
 
-				ExtraInfoEntry* scriptEntry;
-
-				CreateExtraInfoEntry(scriptEntry, scriptName, "", priority_Scripts_Script);
-
-				RE::TESForm* sourceForm = nullptr;
-
-				if (form)
+				if (GetShouldDisplayScript(scriptName))
 				{
-					sourceForm = form;
+					ExtraInfoEntry* scriptEntry;
+
+					CreateExtraInfoEntry(scriptEntry, scriptName, "", priority_Scripts_Script);
+
+					RE::TESForm* sourceForm = nullptr;
+
+					if (form)
+					{
+						sourceForm = form;
+					}
+					else if (activeEffect)
+					{
+						sourceForm = activeEffect->GetBaseObject();
+					}
+
+					if (sourceForm)
+					{
+						ExtraInfoEntry* sourceEntry;
+						std::string sourceName = GetName(sourceForm);
+						CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), sourceName, priority_Scripts_Source);
+
+						GetFormData(sourceEntry, sourceForm, nullptr);
+
+						scriptEntry->PushBack(sourceEntry);
+					}
+
+					resultArray->PushBack(scriptEntry);
 				}
-				else if( activeEffect )
-				{
-					sourceForm = activeEffect->GetBaseObject();
-				}
-
-				if (sourceForm)
-				{
-					ExtraInfoEntry* sourceEntry;
-					std::string sourceName = GetName(sourceForm);
-					CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), sourceName, priority_Scripts_Source);
-
-					GetFormData(sourceEntry, sourceForm, nullptr);
-
-					scriptEntry->PushBack(sourceEntry);
-				}
-
-				resultArray->PushBack(scriptEntry);
 			}
 		}
 
@@ -513,7 +508,7 @@ void GetScriptsForHandle(ExtraInfoEntry*& resultArray, RE::BSScript::Internal::V
 }
 
 //Get all keywords for forms that store keywords in the normal location
-void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
+void GetKeywords(ExtraInfoEntry* resultArray, RE::BGSKeywordForm* keywordForm)
 {
 	logger::debug("GetKeywords Start");
 
@@ -527,9 +522,9 @@ void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
 		for (uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 			RE::BGSKeyword* keyword = *(keywordForm->GetKeywordAt(i));
 
-			if (keyword && ((keyword->formID & 0xFF000000) != 0xFF000000))  //There was a strange Keyword with a formid starting with FF that is causing a crash. There must be some skse plugin reponsible for this
-																			//as it can't be created by normal methods. For now I want to filter those keywords out
-			{
+			//if (keyword && ((keyword->formID & 0xFF000000) != 0xFF000000))  //There was a strange Keyword with a formid starting with FF that is causing a crash. There must be some skse plugin reponsible for this
+			//																//as it can't be created by normal methods. For now I want to filter those keywords out
+			//{
 				ExtraInfoEntry* keywordEntry;
 				std::string keywordName = GetName(keyword);
 
@@ -538,7 +533,7 @@ void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm)
 				GetFormData(keywordEntry, keyword, nullptr);
 
 				keywordsEntry->PushBack(keywordEntry);
-			}
+			//}
 		}
 
 		resultArray->PushBack(keywordsEntry);

@@ -5,6 +5,7 @@
 #include "Util/NameUtil.h"
 #include "Util/ScaleformUtil.h"
 #include <RE/T/TESForm.h>
+#include "TranslationCache.h"
 
 void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 {
@@ -36,6 +37,9 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 			}
 
 			//get the form ids
+
+			RegisterString(results, movie, "refFormIDLabel", GetTranslation("$ReferenceInformationRefForm"));
+			RegisterString(results, movie, "baseFormIDLabel", GetTranslation("$ReferenceInformationBaseForm"));
 			RegisterString(results, movie, "refFormID", FormIDToString(ref->formID));
 			RegisterString(results, movie, "baseFormID", FormIDToString(baseForm->formID));
 
@@ -55,6 +59,8 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 				refDefinedIn = "Skyrim.esm";
 			}
 
+			RegisterString(results, movie, "refFormDefinedInLabel", GetTranslation( "$ReferenceInformationRefDefinedIn" ) );
+			RegisterString(results, movie, "refFormLastChangedByLabel", GetTranslation("$ReferenceInformationRefLastModified"));
 			RegisterString(results, movie, "refFormDefinedIn", refDefinedIn);
 			RegisterString(results, movie, "refFormLastChangedBy", refFormLastChangedBy);
 
@@ -63,11 +69,14 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 			std::string baseDefinedIn = GetFirstFormLocationName(baseForm);
 			std::string baseFormLastChangedBy = GetLastFormLocationName(baseForm);
 
+			RegisterString(results, movie, "baseFormDefinedInLabel", GetTranslation("$ReferenceInformationBaseDefinedIn") );
+			RegisterString(results, movie, "baseFormLastChangedByLabel", GetTranslation("$ReferenceInformationBaseLastModified"));
 			RegisterString(results, movie, "baseFormDefinedIn", baseDefinedIn);
 			RegisterString(results, movie, "baseFormLastChangedBy", baseFormLastChangedBy);
 
 			//Get the form type
 			std::string baseFormTypeName = GetFormTypeName(baseForm->formType.underlying());
+			RegisterString(results, movie, "baseFormTypeLabel", GetTranslation("$ReferenceInformationBaseType"));
 			RegisterString(results, movie, "baseFormType", baseFormTypeName);
 		}
 	}

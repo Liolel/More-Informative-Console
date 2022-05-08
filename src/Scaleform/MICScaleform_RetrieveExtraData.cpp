@@ -15,15 +15,23 @@ void MICScaleform_RetrieveExtraData::Call(Params& a_params)
 
 	ExtraInfoEntry* extrainfoEntryToRetrieve = TraverseExtraInfoEntries(&MICGlobals::rootEntry, indexArray, 0);
 
-	RE::GFxValue resultArray;
-	extrainfoEntryToRetrieve->CreatePrimaryScaleformArray(&resultArray, movie);
+	if (extrainfoEntryToRetrieve)
+	{
 
-	//Returning the desired results can crash the game if the method called takes too long to return the value. Invoking an method in the console.swf when we've finished running our code
-	//Seems to prevent this crash
-	RE::GFxValue root;
-	movie->GetVariable(&root, "_root.consoleFader_mc.Console_mc");
+		RE::GFxValue resultArray;
+		extrainfoEntryToRetrieve->CreatePrimaryScaleformArray(&resultArray, movie);
 
-	root.Invoke("AddExtraInfo", 0, &resultArray, 1);
+		//Returning the desired results can crash the game if the method called takes too long to return the value. Invoking an method in the console.swf when we've finished running our code
+		//Seems to prevent this crash
+		RE::GFxValue root;
+		movie->GetVariable(&root, "_root.consoleFader_mc.Console_mc");
+
+		root.Invoke("AddExtraInfo", 0, &resultArray, 1);
+	}
+	else
+	{
+		logger::info("Retrieve extra data failed");
+	}
 
 	logger::debug("RetrieveExtraData: End");
 }
