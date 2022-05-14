@@ -46,6 +46,8 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_message)
 	}
 }
 
+extern "C"
+{
 	DLLEXPORT auto SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_skse) -> bool
 	{	
 #ifndef NDEBUG
