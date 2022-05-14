@@ -30,10 +30,12 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 
 			//If we found both the base form and the reference form we can start retrieving the necessary information.
 
+			auto baseFormID = baseForm->formID;
+
 			// if the base form is a npc with mod index FF try and get the root template for the npc as that contains more useful information
-			// TODO: Do I want to actually get the root template or do I want to just go up to the first non FF level?
 			if (baseForm->formType == RE::FormType::NPC && baseForm->formID >= 0xFF000000) {
-				baseForm = GetRootTemplate(baseForm);
+				auto baseFormNonFF = GetRootTemplate(baseForm);
+				baseFormID = baseFormNonFF->formID;
 			}
 
 			//get the form ids
@@ -41,10 +43,10 @@ void MICScaleform_GetReferenceInfo::Call(Params& a_params)
 			RegisterString(results, movie, "refFormIDLabel", GetTranslation("$ReferenceInformationRefForm"));
 			RegisterString(results, movie, "baseFormIDLabel", GetTranslation("$ReferenceInformationBaseForm"));
 			RegisterString(results, movie, "refFormID", FormIDToString(ref->formID));
-			RegisterString(results, movie, "baseFormID", FormIDToString(baseForm->formID));
+			RegisterString(results, movie, "baseFormID", FormIDToString(baseFormID));
 
 			//Get the reference name
-			const char* referenceName = ref->GetName();
+			std::string referenceName = GetName(baseForm, ref);
 			RegisterString(results, movie, "referenceName", referenceName);
 
 			//Get the location info  the reference was defined in

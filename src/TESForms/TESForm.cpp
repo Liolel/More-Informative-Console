@@ -161,12 +161,6 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 {
 	logger::debug("GetCommonFormData Start");
 
-	//If the base form was found in FF, get the template for that form which is going to be more relevant
-	if (baseForm->formType == RE::FormType::NPC && baseForm->formID >= 0xFF000000) {
-		logger::debug("Found actor with FF base form");
-		baseForm = GetRootTemplate(baseForm);
-	}
-
 	std::string name = "";
 
 	//The getName function returns the editor ID for race as that is more useful in identifying the actual race
@@ -180,7 +174,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	else {
 		//name
-		name = GetName(baseForm);
+		name = GetName(baseForm, refForm);
 	}
 
 	ExtraInfoEntry* nameArray;
@@ -203,6 +197,13 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	//base formid
 	std::string formID = FormIDToString(baseForm->formID);
+
+	//If the base form was found in FF, get the template for that form which is going to be more relevant
+	if (baseForm->formType == RE::FormType::NPC && baseForm->formID >= 0xFF000000) {
+		logger::debug("Found actor with FF base form");
+		auto baseFormNonFF = GetRootTemplate(baseForm);
+		formID = FormIDToString(baseFormNonFF->formID);
+	}
 
 	ExtraInfoEntry* formIDArray;
 	CreateExtraInfoEntry(formIDArray, GetTranslation("$BaseFormID"), formID, priority_FormID);
@@ -335,17 +336,24 @@ void GetFormLocationData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE:
 
 	logger::debug("GetExtraData: GetFormLocationData at pBaseSection section");
 
-	if (GetHasSourceFileArray(baseForm)) {
+	auto baseFormToCheck = baseForm;
+
+	//If the base form was found in FF, get the template for that form which is going to be more relevant
+	if (baseForm->formType == RE::FormType::NPC && baseForm->formID >= 0xFF000000) {
+		baseFormToCheck = GetRootTemplate(baseForm);
+	}
+
+	if (GetHasSourceFileArray(baseFormToCheck)) {
 		logger::debug("GetExtraData: GetFormLocationData baseFormModInfo found");
 
-		std::string baseFirstDefinedIn = GetFirstFormLocationName(baseForm);
+		std::string baseFirstDefinedIn = GetFirstFormLocationName(baseFormToCheck);
 
 		ExtraInfoEntry* baseDefinedIn;
 		CreateExtraInfoEntry(baseDefinedIn, GetTranslation("$BaseDefinedIn"), baseFirstDefinedIn, priority_FormLocation_BaseDefined);
 
 		formLocationHolder->PushBack(baseDefinedIn);
 
-		std::string baseLastDefinedIn = GetLastFormLocationName(baseForm);
+		std::string baseLastDefinedIn = GetLastFormLocationName(baseFormToCheck);
 
 		ExtraInfoEntry* baseLastChangedBy;
 		CreateExtraInfoEntry(baseLastChangedBy, GetTranslation("$BaseLastModified"), baseLastDefinedIn, priority_FormLocation_BaseLastChanged);
@@ -355,7 +363,7 @@ void GetFormLocationData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE:
 		ExtraInfoEntry* allModsTouchingBaseHolder;
 		CreateExtraInfoEntry(allModsTouchingBaseHolder, GetTranslation("$BaseFoundIn"), "", priority_FormLocation_BaseInMods);
 
-		GetModInfoData(allModsTouchingBaseHolder, baseForm, false);
+		GetModInfoData(allModsTouchingBaseHolder, baseFormToCheck, false);
 
 		logger::debug("GetExtraData: Base Last Modified By " + baseLastDefinedIn);
 

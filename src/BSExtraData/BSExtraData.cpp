@@ -100,7 +100,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			}
 		}
 
-		if ( MICOptions::MICDebugMode )
+		if ( MICOptions::ExperimentalFeatures )
 		{
 				
 			ExtraInfoEntry* extraDataTypes;

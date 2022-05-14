@@ -13,9 +13,14 @@
 RE::TESBoundObject* GetRootTemplate(RE::TESForm* baseForm)
 {
 	RE::TESNPC* npc = static_cast<RE::TESNPC*>(baseForm);
-	RE::TESNPC* rootNPC = npc->GetRootFaceNPC();
+	auto npcRoot = npc;
+	while (npcRoot->faceNPC
+		   && npcRoot->formID >= 0xFF000000)
+	{
+		npcRoot = npcRoot->faceNPC;
+	}
 
-	return rootNPC;
+	return npcRoot;
 }
 
 void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TESForm* baseForm)

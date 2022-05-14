@@ -210,287 +210,88 @@ std::string GetFormTypeName(int formType)
 }
 
 
-std::string GetName(RE::TESForm* baseForm)
+std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 {
 	logger::debug("GetExtraData: GetName Start");
 
 	std::string name = "";
 
-	switch (baseForm->GetFormType())
+	if (refForm
+		&& refForm->extraList.HasType(RE::ExtraDataType::kTextDisplayData) )
 	{
-		case RE::FormType::NPC:
+		auto displayData = static_cast<RE::ExtraTextDisplayData*> (refForm->extraList.GetByType(RE::ExtraDataType::kTextDisplayData) );
+
+		if (displayData->displayNameText)
 		{
-			logger::debug("GetExtraData: GetName NPC");
-
-			RE::TESNPC* pNPC = static_cast<RE::TESNPC*>(baseForm);
-			if (pNPC)
-			{
-				name = pNPC->fullName.c_str();
-			}
-
-			break;
+			name = displayData->displayNameText->fullName.c_str();
 		}
-
-	
-		case RE::FormType::MagicEffect:
+		else
 		{
-			logger::debug("GetExtraData: GetName Magic Effect");
-
-			RE::EffectSetting* effectSetting = static_cast<RE::EffectSetting*>(baseForm);
-			if (effectSetting)
-			{			
-				name = effectSetting->fullName.c_str();
-			}
-
-			break;
+			name = displayData->displayName;
 		}
-
-		case RE::FormType::Spell:
-		case RE::FormType::Scroll:
-		case RE::FormType::Ingredient:
-		case RE::FormType::AlchemyItem:
-		case RE::FormType::Enchantment:
-	{
-		logger::debug("GetExtraData: GetName MagicItem");
-
-		RE::MagicItem* magicItem = static_cast<RE::MagicItem*>(baseForm);
-		if (magicItem)
-		{
-			name = magicItem->fullName.c_str();
-		}
-
-
-		break;
 	}
-	
-		case RE::FormType::Armor:
+	else
+	{
+		auto fullName = baseForm ? baseForm->As<RE::TESFullName>() : nullptr;
+		if (fullName)
 		{
-			logger::debug("GetExtraData: GetName Armor");
-			RE::TESObjectARMO* armor = static_cast<RE::TESObjectARMO*>(baseForm);
-
-			if (armor)
+			name = fullName->fullName.c_str();
+		}
+		else
+		{
+			//Handle special cases
+			switch (baseForm->GetFormType())
 			{
-				name = armor->fullName.c_str();
-			}
-			break;
+				case RE::FormType::Race:
+				{
+					logger::debug("GetExtraData: GetName Race");
+					RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
+					if (race)
+					{
+						name = race->GetFormEditorID();
+					}
+
+					break;
+				}
+
+				case RE::FormType::Armature:
+				{
+					logger::debug("GetExtraData: GetName Arma");
+					RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
+					if (arma && arma->race)
+					{
+						name = GetName(arma->race);
+					}
+
+					break;
+				}
+
+				case RE::FormType::MusicType:
+				{
+					logger::debug("GetExtraData: GetName MusicTrack");
+					RE::BGSMusicType* musicType = static_cast<RE::BGSMusicType*>(baseForm);
+					if (musicType)
+					{
+						name = musicType->formEditorID.c_str();
+					}
+
+					break;
+				}
+
+				case RE::FormType::Keyword:
+				{
+					logger::debug("GetExtraData: GetName Keyword");
+					RE::BGSKeyword* keyword = static_cast<RE::BGSKeyword*>(baseForm);
+					if (keyword)
+					{
+						name = keyword->formEditorID.c_str();
+					}
+
+					break;
+				}
 		}
 
-		case RE::FormType::Ammo:
-		{
-			logger::debug("GetExtraData: GetName Ammo");
-			RE::TESAmmo* ammo = static_cast<RE::TESAmmo*>(baseForm);
-
-			if (ammo)
-			{
-				name = ammo->fullName.c_str();
-			}
-			break;
 		}
-
-		case RE::FormType::Weapon:
-		{
-			logger::debug("GetExtraData: GetName Weapon");
-			RE::TESObjectWEAP* weapon = static_cast<RE::TESObjectWEAP*>(baseForm);
-
-			if (weapon)
-			{
-				name = weapon->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::SoulGem:
-		{
-			logger::debug("GetExtraData: GetName Soul gem");
-			RE::TESSoulGem* soulgem = static_cast<RE::TESSoulGem*>(baseForm);
-
-			if (soulgem)
-			{
-				name = soulgem->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Book:
-		{
-			logger::debug("GetExtraData: GetName Book");
-			RE::TESObjectBOOK* book = static_cast<RE::TESObjectBOOK*>(baseForm);
-
-			if (book)
-			{
-				name = book->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Misc:
-		{
-			logger::debug("GetExtraData: GetName Misc");
-			RE::TESObjectMISC* misc = static_cast<RE::TESObjectMISC*>(baseForm);
-
-			if (misc)
-			{
-				name = misc->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::KeyMaster:
-		{
-			logger::debug("GetExtraData: GetName Key");
-			RE::TESKey* key = static_cast<RE::TESKey*>(baseForm);
-
-			if (key)
-			{
-				name = key->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Container:
-		{
-			logger::debug("GetExtraData: GetName Container");
-			RE::TESObjectCONT* container = static_cast<RE::TESObjectCONT*>(baseForm);
-
-			if (container)
-			{
-				name = container->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Light:
-		{
-			logger::debug("GetExtraData: GetName Light");
-			RE::TESObjectLIGH* light = static_cast<RE::TESObjectLIGH*>(baseForm);
-
-			if (light)
-			{
-				name = light->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Shout:
-		{
-			logger::debug("GetExtraData: GetName Shout");
-			RE::TESShout* shout = static_cast<RE::TESShout*>(baseForm);
-
-			if (shout)
-			{
-				name = shout->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Perk:
-		{
-			logger::debug("GetExtraData: GetName Perk");
-			RE::BGSPerk* perk = static_cast<RE::BGSPerk*>(baseForm);
-
-			if (perk)
-			{
-				name = perk->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Faction:
-		{
-			logger::debug("GetExtraData: GetName Faction");
-			RE::TESFaction* faction = static_cast<RE::TESFaction*>(baseForm);
-
-			if (faction)
-			{
-				name = faction->fullName.c_str();
-			}
-			break;
-		}
-
-		case RE::FormType::Race:
-		{
-			logger::debug("GetExtraData: GetName Race");
-			RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
-			if (race)
-			{
-				name = race->GetFormEditorID();
-			}
-
-			break;
-		}
-	
-		case RE::FormType::Armature:
-		{
-			logger::debug("GetExtraData: GetName Arma");
-			RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
-			if (arma && arma->race)
-			{
-				name = GetName(arma->race);
-			}
-
-			break;
-		}
-
-		case RE::FormType::WorldSpace:
-		{
-			logger::debug("GetExtraData: GetName Worldspace");
-			RE::TESWorldSpace* worldspace = static_cast<RE::TESWorldSpace*>(baseForm);
-			if (worldspace)
-			{
-				name = worldspace->fullName.c_str();
-			}
-
-			break;
-		}
-
-		case RE::FormType::Cell:
-		{
-			logger::debug("GetExtraData: GetName Cell");
-			RE::TESObjectCELL* cell = static_cast<RE::TESObjectCELL*>(baseForm);
-			if (cell)
-			{
-				name = cell->fullName.c_str();
-			}
-
-			break;
-		}
-
-		case RE::FormType::MusicType:
-		{
-			logger::debug("GetExtraData: GetName MusicTrack");
-			RE::BGSMusicType* musicType = static_cast<RE::BGSMusicType*>(baseForm);
-			if (musicType)
-			{
-				name = musicType->formEditorID.c_str();
-			}
-
-			break;
-		}
-
-		case RE::FormType::Keyword:
-		{
-			logger::debug("GetExtraData: GetName Keyword");
-			RE::BGSKeyword* keyword = static_cast<RE::BGSKeyword*>(baseForm);
-			if (keyword)
-			{
-				name = keyword->formEditorID.c_str();
-			}
-
-			break;
-		}	
-
-		case RE::FormType::Location:
-		{
-			logger::debug("GetExtraData: GetName Location");
-			RE::BGSLocation* location = static_cast<RE::BGSLocation*>(baseForm);
-
-			if (location)
-			{
-				name = location->fullName.c_str();
-			}
-			break;
-		}
-
 	}
 
 	//If the name is empty try getting the editor id
