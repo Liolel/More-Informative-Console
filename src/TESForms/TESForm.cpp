@@ -70,7 +70,7 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	logger::debug(("GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID)).c_str());
 
 	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
-	auto extraInfoEntryCached = formExtraInfoCache->GetExtraInfoEntry(baseForm);
+	auto extraInfoEntryCached = !MICGlobals::minimizeFormDataRead ? formExtraInfoCache->GetExtraInfoEntry(baseForm) : nullptr;
 
 	if (extraInfoEntryCached == nullptr )
 	{

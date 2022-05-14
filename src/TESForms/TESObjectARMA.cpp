@@ -42,8 +42,10 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		//get the races this Arma is valid for
 
-		MICGlobals::readRaceSkins = false; //disable reading race skin entries to avoid infinite loops
-		
+		auto minimizeFormDataReadCurrentState = MICGlobals::minimizeFormDataRead;
+
+		MICGlobals::minimizeFormDataRead = true;
+
 		//Get the primary race
 		RE::TESRace* defaultRace = arma->race;
 
@@ -90,8 +92,7 @@ void GetArmaData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			resultArray->PushBack(additionalRacesEntry);
 		}
 
-		//Now taht we are done with this armarture we no longer need to prevent reading additional race skins
-		MICGlobals::readRaceSkins = true;
+		MICGlobals::minimizeFormDataRead = minimizeFormDataReadCurrentState;
 	}
 
 	logger::debug("GetArmaData: GetArmaData End");

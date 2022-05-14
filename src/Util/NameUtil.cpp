@@ -254,18 +254,6 @@ std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 					break;
 				}
 
-				case RE::FormType::Armature:
-				{
-					logger::debug("GetExtraData: GetName Arma");
-					RE::TESObjectARMA* arma = static_cast<RE::TESObjectARMA*>(baseForm);
-					if (arma && arma->race)
-					{
-						name = GetName(arma->race);
-					}
-
-					break;
-				}
-
 				case RE::FormType::MusicType:
 				{
 					logger::debug("GetExtraData: GetName MusicTrack");

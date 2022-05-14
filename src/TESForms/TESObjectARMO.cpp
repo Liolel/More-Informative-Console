@@ -81,8 +81,14 @@ void GetArmorData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (addEntry) {
 				ExtraInfoEntry* armorAddonEntry;
 				std::string armorAddonName = GetName(arma);
+				std::string raceName = "";
+			
+				if ( arma->race )
+				{
+					raceName = GetName(arma->race);
+				}
 
-				CreateExtraInfoEntry(armorAddonEntry, armorAddonName, "", priority_Default);
+				CreateExtraInfoEntry(armorAddonEntry, armorAddonName, raceName, priority_Default);
 				GetFormData(armorAddonEntry, arma, nullptr);
 				armorAddonsEntry->PushBack(armorAddonEntry);
 			}

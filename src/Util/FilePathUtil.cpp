@@ -45,6 +45,7 @@ void CreateFilePathSubarray(ExtraInfoEntry* mainEntry, std::string filePath)
 	CreateExtraInfoEntry(pathEntry, filePath, "", priority_Default);
 
 	mainEntry->PushBack(pathEntry);
+	mainEntry->disableSortingByName = true;
 
 	logger::debug("Ending CreateFilePathSubarray");
 }
