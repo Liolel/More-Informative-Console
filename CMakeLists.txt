@@ -131,10 +131,16 @@ find_package(binary_io REQUIRED CONFIG)
 set(SOURCES
 	src/main.cpp
 	src/PCH.h
+	src/EditorIDCache.h
+	src/EditorIDCache.cpp
 	src/ExtraInfoEntry.cpp
 	src/ExtraInfoEntry.h
+	src/FormExtraInfoCache.cpp
+	src/FormExtraInfoCache.h
 	src/globals.cpp
 	src/globals.h
+	src/TranslationCache.cpp
+	src/TranslationCache.h
 	src/MIC_Scaleform.cpp
 	src/MIC_Scaleform.h
 	src/Scaleform/MICScaleform_GetExtraData.cpp
@@ -157,10 +163,14 @@ set(SOURCES
 	src/Util/ScaleFormUtil.cpp
 	src/TESForms/BGSMusicTrack.cpp
 	src/TESForms/BGSMusicTrack.h
+	src/TESForms/BGSLocation.cpp
+	src/TESForms/BGSLocation.h
 	src/TESForms/BGSTextureSet.cpp
 	src/TESForms/BGSTextureSet.h
 	src/TESForms/EffectSetting.cpp
 	src/TESForms/EffectSetting.h
+	src/TESForms/EnchantmentItem.h
+	src/TESForms/EnchantmentItem.cpp
 	src/TESForms/MagicItem.cpp
 	src/TESForms/MagicItem.h
 	src/TESForms/SpellItem.cpp
@@ -195,10 +205,14 @@ set(SOURCES
 	src/BSExtraData/ExtraContainerChanges.h
 	src/BSExtraData/ExtraEnableStateParent.cpp
 	src/BSExtraData/ExtraEnableStateParent.h
+	src/BSExtraData/ExtraLocation.cpp
+	src/BSExtraData/ExtraLocation.h
 	src/BSExtraData/ExtraLock.cpp
-	src/BSExtraData/ExtraLock.h
+	src/BSExtraData/ExtraLock.h	
 	src/BSExtraData/ExtraOwnership.cpp
 	src/BSExtraData/ExtraOwnership.h
+	src/BSExtraData/ExtraRegionList.cpp
+	src/BSExtraData/ExtraRegionList.h	
 	src/BSExtraData/ExtraTeleport.cpp
 	src/BSExtraData/ExtraTeleport.h
 )

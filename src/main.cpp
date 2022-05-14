@@ -4,6 +4,8 @@
 #include "SKSE/API.h"
 #include "Simpleini.h"
 #include "globals.h"
+#include "EditorIDCache.h"
+#include "TranslationCache.h"
 
 void readINI()
 {
@@ -34,17 +36,15 @@ void readINI()
 	}
 }
 
-extern "C"
+void MessageHandler(SKSE::MessagingInterface::Message* a_message)
 {
-	DLLEXPORT constinit auto SKSEPlugin_Version = []() {
-		SKSE::PluginVersionData v{};
-		v.pluginVersion = Version::ASINT;
-		v.PluginName("More Informative Console"sv);
-		v.AuthorName("Linthar"sv);
-		v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
-		v.UsesAddressLibrary(true);
-		return v;
-	}();
+	logger::info("Processed message");
+	if (a_message->type == SKSE::MessagingInterface::kDataLoaded) {
+		auto editorIDCache = EditorIDCache::GetSingleton();
+		editorIDCache->CacheEditorIDs();
+		logger::info("Cached editor ids");
+	}
+}
 
 	DLLEXPORT auto SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_skse) -> bool
 	{	

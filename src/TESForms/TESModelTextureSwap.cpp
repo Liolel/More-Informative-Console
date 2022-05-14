@@ -1,12 +1,16 @@
 #pragma once
 #include "TESModelTextureSwap.h"
 #include "Util/NameUtil.h"
+#include "Util/GeneralUtil.h"
 #include "Util/FilePathUtil.h"
+#include "TranslationCache.h"
 #include "TESForm.h"
 
-void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
+//4-30-2022: Checked for translations needed
+
+void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm )
 {
-	logger::debug( ("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType.underlying()) ).c_str() );
+	logger::debug(("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType.underlying())).c_str());
 	switch (baseForm->GetFormType())
 	{
 		case RE::FormType::Static:
@@ -16,7 +20,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (staticForm)
 			{
 				RE::TESModelTextureSwap* textSwap = staticForm->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -29,7 +33,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (movableStatic)
 			{
 				RE::TESModelTextureSwap* textSwap = movableStatic->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -42,9 +46,9 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (activator)
 			{
 				RE::TESModelTextureSwap* textSwap = activator->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
-		
+
 			break;
 		}
 
@@ -54,7 +58,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 			if (tree)
 			{
-				AddModelEntry(resultArray, "Model", tree); //For some reason trees don't have a ModelTextureSwap
+				AddModelEntry(resultArray, GetTranslation("$Model"), tree); //For some reason trees don't have a ModelTextureSwap
 			}
 
 			break;
@@ -67,7 +71,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (flora)
 			{
 				RE::TESModelTextureSwap* textSwap = flora->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -80,7 +84,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (funiture)
 			{
 				RE::TESModelTextureSwap* textSwap = funiture->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -93,7 +97,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (door)
 			{
 				RE::TESModelTextureSwap* textSwap = door->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -106,7 +110,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (container)
 			{
 				RE::TESModelTextureSwap* textSwap = container->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -119,7 +123,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (misc)
 			{
 				RE::TESModelTextureSwap* textSwap = misc->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -132,7 +136,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (book)
 			{
 				RE::TESModelTextureSwap* textSwap = book->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -145,7 +149,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (key)
 			{
 				RE::TESModelTextureSwap* textSwap = key->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -158,7 +162,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (soulgem)
 			{
 				RE::TESModelTextureSwap* textSwap = soulgem->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -171,7 +175,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (ingredient)
 			{
 				RE::TESModelTextureSwap* textSwap = ingredient->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -184,7 +188,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (alchemyItem)
 			{
 				RE::TESModelTextureSwap* textSwap = alchemyItem->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -197,7 +201,7 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (light)
 			{
 				RE::TESModelTextureSwap* textSwap = light->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwap);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwap);
 			}
 
 			break;
@@ -210,14 +214,14 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			if (weapon)
 			{
 				RE::TESModelTextureSwap* textSwapModel = weapon->GetAsModelTextureSwap();
-				AddModelEntry(resultArray, "Model", textSwapModel);
+				AddModelEntry(resultArray, GetTranslation("$Model"), textSwapModel);
 
 				//Get first person model
 				RE::TESObjectSTAT* firstPersonModel = weapon->firstPersonModelObject;
 				if (firstPersonModel)
 				{
 					RE::TESModelTextureSwap* textSwapFirstPersonModel = firstPersonModel->GetAsModelTextureSwap();
-					AddModelEntry(resultArray, "First Person Model", textSwapFirstPersonModel);
+					AddModelEntry(resultArray, GetTranslation("$ModelFirstPerson"), textSwapFirstPersonModel);
 				}
 
 			}
@@ -234,32 +238,31 @@ void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 				if (maleModel)
 				{
-					AddModelEntry(resultArray, "Model Male", maleModel);
+					AddModelEntry(resultArray, GetTranslation("$ModelMale"), maleModel);
 				}
 
 				RE::TESModelTextureSwap* femaleModel = &(arma->bipedModels[RE::SEXES::kFemale]);
 				if (femaleModel)
 				{
-					AddModelEntry(resultArray, "Model Female", femaleModel);
+					AddModelEntry(resultArray, GetTranslation("$ModelFemale"), femaleModel);
 				}
 
 				RE::TESModelTextureSwap* maleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kMale]);
 				if (maleFirstPerson)
 				{
-					AddModelEntry(resultArray, "Model Male 1st Person", maleFirstPerson);
+					AddModelEntry(resultArray, GetTranslation("$ModelMaleFirstPerson"), maleFirstPerson);
 				}
 
 				RE::TESModelTextureSwap* femaleFirstPerson = &(arma->bipedModel1stPersons[RE::SEXES::kFemale]);
 				if (femaleFirstPerson)
 				{
-					AddModelEntry(resultArray, "Model Female 1st Person", femaleFirstPerson);
+					AddModelEntry(resultArray, GetTranslation("$ModelFemaleFirstPerson"), femaleFirstPerson);
 				}
 			}
 
 			break;
 		}
 	}
-
 	logger::debug("Ending GetModelTextures");
 }
 
@@ -298,12 +301,12 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 			CreateExtraInfoEntry(modelTextureEntry, modelType, modelName, priority_Model);
 
-			AddModelEntry(modelTextureEntry, "Model", model);
+			AddModelEntry(modelTextureEntry, GetTranslation("$Model"), model);
 
 			logger::debug("Starting Texture Set Info");
 			ExtraInfoEntry* textureSetEntry;
 
-			CreateExtraInfoEntry(textureSetEntry, "Texture Set", "", priority_TextureSet);
+			CreateExtraInfoEntry(textureSetEntry, GetTranslation("$TextureSet"), "", priority_TextureSet);
 
 			GetFormData(textureSetEntry, textureSet, nullptr);
 

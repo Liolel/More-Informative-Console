@@ -8,6 +8,10 @@
 #include "Util/NameUtil.h"
 #include "Util/ScaleformUtil.h"
 #include "globals.h"
+#include "FormExtraInfoCache.h"
+#include "TranslationCache.h"
+
+//4-23-2022: Checked for translations needed
 
 void MICScaleform_GetExtraData::Call(Params& a_params)
 {
@@ -16,6 +20,8 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 	RE::GFxMovie* movie = a_params.movie;
 
 	bool skipUsualEndCode = false;
+
+	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
 
 	//Determine mode to use
 	RE::GFxValue* modeGFX = &a_params.args[0];
@@ -32,6 +38,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 				logger::debug("GetExtraData: BaseFound");
 
 				MICGlobals::rootEntry.Clear();
+				formExtraInfoCache->ClearCache();
 				GetFormData(&MICGlobals::rootEntry, baseForm, ref);
 
 				logger::debug("Get Form Information done");
@@ -41,11 +48,13 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 
 	else if (modeInt == Constant_ModeWorldInformation) {
 		MICGlobals::rootEntry.Clear();
+		formExtraInfoCache->ClearCache();
 		GetWorldData(&MICGlobals::rootEntry);
 	}
 
 	else if (modeInt == Constant_ModeMFG) {
 		MICGlobals::rootEntry.Clear();
+		formExtraInfoCache->ClearCache();
 
 		RE::TESObjectREFR* ref = RE::Console::GetSelectedRef().get();
 		if (ref != nullptr && ref->GetFormType() == RE::FormType::ActorCharacter) {
@@ -87,7 +96,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 
 		else {
 			ExtraInfoEntry* noNPCSelectedWarning;
-			CreateExtraInfoEntry(noNPCSelectedWarning, "There is no npc selected", "", priority_Warning);
+			CreateExtraInfoEntry(noNPCSelectedWarning, GetTranslation("$NoNPCSelected"), "", priority_Warning);
 			MICGlobals::rootEntry.PushBack(noNPCSelectedWarning);
 		}
 	}
@@ -127,7 +136,7 @@ void GetWorldData(ExtraInfoEntry* resultArray)
 			std::string worldSpaceName = GetName(currentWorldSpace);
 
 			ExtraInfoEntry* worldSpaceEntry;
-			CreateExtraInfoEntry(worldSpaceEntry, "World Space", worldSpaceName, priority_WorldData_WorldSpace);
+			CreateExtraInfoEntry(worldSpaceEntry, GetTranslation("$Worldspace"), worldSpaceName, priority_WorldData_WorldSpace);
 
 			GetFormData(worldSpaceEntry, currentWorldSpace, nullptr);
 			resultArray->PushBack(worldSpaceEntry);
@@ -147,7 +156,7 @@ void GetWorldData(ExtraInfoEntry* resultArray)
 		std::string weatherName = GetName(weather);
 
 		ExtraInfoEntry* weatherEntry;
-		CreateExtraInfoEntry(weatherEntry, "Weather", weatherName, priority_WorldData_Weather);
+		CreateExtraInfoEntry(weatherEntry, GetTranslation("$Weather"), weatherName, priority_WorldData_Weather);
 
 		GetFormData(weatherEntry, weather, nullptr);
 		resultArray->PushBack(weatherEntry);

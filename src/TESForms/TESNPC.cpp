@@ -3,16 +3,24 @@
 #include "TESForm.h"
 #include "Util/NameUtil.h"
 #include "globals.h"
+#include "TranslationCache.h"
 #include <Util/GeneralUtil.h>
 
 //Adapted from SKSE source code
 
+//4-30-2022: Checked for translations needed
+
 RE::TESBoundObject* GetRootTemplate(RE::TESForm* baseForm)
 {
 	RE::TESNPC* npc = static_cast<RE::TESNPC*>(baseForm);
-	RE::TESNPC* rootNPC = npc->GetRootFaceNPC();
+	auto npcRoot = npc;
+	while (npcRoot->faceNPC
+		   && npcRoot->formID >= 0xFF000000)
+	{
+		npcRoot = npcRoot->faceNPC;
+	}
 
-	return rootNPC;
+	return npcRoot;
 }
 
 void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TESForm* baseForm)
@@ -51,7 +59,7 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 
 			std::string raceName = GetName(pRace);
 
-			CreateExtraInfoEntry(raceEntry, "Race", raceName, priority_Actor_Race);
+			CreateExtraInfoEntry(raceEntry, GetTranslation("$Race"), raceName, priority_Actor_Race);
 
 			GetFormData(raceEntry, pRace, nullptr);
 
@@ -76,8 +84,6 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 			GetNPCAppearanceData(resultArray, npc);
 
 			GetFactionsForNPC(resultArray, actor, actorBase);
-
-			GetKeywords(resultArray, actorBase);
 		}
 	}
 
@@ -89,7 +95,7 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 	//Spells
 	ExtraInfoEntry* allSpellsEntry;
 
-	CreateExtraInfoEntry(allSpellsEntry, "Spells", "", priority_Actor_Spells);
+	CreateExtraInfoEntry(allSpellsEntry, GetTranslation("$Spells"), "", priority_Actor_Spells);
 
 	logger::debug("GetSpellsForNPC: Starting Added Spells");
 
@@ -101,13 +107,17 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 			ExtraInfoEntry* spellEntry;
 
 			RE::SpellItem* spell = actor->addedSpells[i];
-			std::string spellName = GetName(spell);
 
-			CreateExtraInfoEntry(spellEntry, spellName, "Added Spell", priority_Actor_Spells_AddedSpell);
+			if (spell)
+			{
+				std::string spellName = GetName(spell);
 
-			GetFormData(spellEntry, spell, nullptr);
+				CreateExtraInfoEntry(spellEntry, spellName, GetTranslation("$AddedSpell"), priority_Actor_Spells_AddedSpell);
 
-			allSpellsEntry->PushBack(spellEntry);
+				GetFormData(spellEntry, spell, nullptr);
+
+				allSpellsEntry->PushBack(spellEntry);
+			}
 		}
 	}
 
@@ -121,13 +131,17 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 			ExtraInfoEntry* spellEntry;
 
 			RE::SpellItem* spell = actorBase->actorEffects->spells[i];
-			std::string spellName = GetName(spell);
 
-			CreateExtraInfoEntry(spellEntry, spellName, "Base Spell", priority_Actor_Spells_BaseSpell);
+			if (spell)
+			{
+				std::string spellName = GetName(spell);
 
-			GetFormData(spellEntry, spell, nullptr);
+				CreateExtraInfoEntry(spellEntry, spellName, GetTranslation("$BaseSpell"), priority_Actor_Spells_BaseSpell);
 
-			allSpellsEntry->PushBack(spellEntry);
+				GetFormData(spellEntry, spell, nullptr);
+
+				allSpellsEntry->PushBack(spellEntry);
+			}
 		}
 	}
 
@@ -141,7 +155,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	//Create a subarray to hold all the active effects for an actor
 	ExtraInfoEntry* activeEffectsEntry;
 
-	CreateExtraInfoEntry(activeEffectsEntry, "Effects", "", priority_Actor_Effects);
+	CreateExtraInfoEntry(activeEffectsEntry, GetTranslation("$Effects"), "", priority_Actor_Effects);
 
 #ifndef SKYRIMVR
 	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
@@ -163,14 +177,20 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 				std::string effectActive;
 
 				RE::Effect* effect = activeEffect->effect;
+				priority priorityToUse;
 
-				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive)) {
-					effectActive = "Inactive";
+				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive)) 
+				{
+					effectActive = GetTranslation("$EffectInactive");
+					priorityToUse = priority_MagicItem_Effect_Inactive;
 				} else {
-					effectActive = "Active";
+					effectActive = GetTranslation("$EffectActive");
+					priorityToUse = priority_MagicItem_Effect_Active;
 				}
 
-				GetEffectData(activeEffectsEntry, effect, effectActive);
+				auto caster = activeEffect->GetCasterActor().get();
+
+				GetEffectData(activeEffectsEntry, effect, effectActive, priorityToUse, caster );				
 			}
 
 			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
@@ -227,7 +247,8 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 
 	//Get all actor values in a subarray
 	ExtraInfoEntry* actorValueArray;
-	CreateExtraInfoEntry(actorValueArray, "Actor Values", "", priority_Actor_ActorValues);
+	CreateExtraInfoEntry(actorValueArray, GetTranslation("$ActorValues"), "", priority_Actor_ActorValues);
+	actorValueArray->disableSortingByName = true; //for actor values specifically we want to keep the sorting of the index numbers
 
 	for (int i = 0; i < totalNumberOfActorValues; i++) {
 		GetActorValue(actorValueArray, actor, i, priority_Actor_ActorValues_ActorValue);
@@ -250,7 +271,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 			//Placeholder for seeing what has editor IDs
 			ExtraInfoEntry* packageEntry;
 
-			CreateExtraInfoEntry(packageEntry, "Current Package", packageName, priority_Actor_CurrentPackage);
+			CreateExtraInfoEntry(packageEntry, GetTranslation("$CurrentPackage"), packageName, priority_Actor_CurrentPackage);
 
 			GetFormData(packageEntry, currentPackage, nullptr);
 
@@ -263,17 +284,17 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	std::string protectionStatus;
 
 	if (HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kEssential)) {
-		protectionStatus = "Essential";
+		protectionStatus = GetTranslation("$ProtectionEssential");
 	}
 
 	else if (HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kProtected)) {
-		protectionStatus = "Protected";
+		protectionStatus = GetTranslation("$ProtectionProtected");
 	}
 
 	else {
-		protectionStatus = "None";
+		protectionStatus = GetTranslation("$ProtectionNone");
 	}
-	CreateExtraInfoEntry(protectionEntry, "Protection", protectionStatus, priority_Actor_Protection);
+	CreateExtraInfoEntry(protectionEntry, GetTranslation("$Protection"), protectionStatus, priority_Actor_Protection);
 
 	resultArray->PushBack(protectionEntry);
 
@@ -299,9 +320,9 @@ void GetActorValue(ExtraInfoEntry* resultArray, RE::Actor* actor, int id, priori
 
 		ExtraInfoEntry *baseValueEntry, *currentValueEntry, *maxValueEntry;
 
-		CreateExtraInfoEntry(baseValueEntry, "Base", FloatToString(baseValue), priority_ActorValue_Base);
-		CreateExtraInfoEntry(currentValueEntry, "Current", FloatToString(currentValue), priority_ActorValue_Current);
-		CreateExtraInfoEntry(maxValueEntry, "Max", FloatToString(maxValue), priority_ActorValue_Max);
+		CreateExtraInfoEntry(baseValueEntry, GetTranslation("$ActorValueBase"), FloatToString(baseValue), priority_ActorValue_Base);
+		CreateExtraInfoEntry(currentValueEntry, GetTranslation("$ActorValueCurrent"), FloatToString(currentValue), priority_ActorValue_Current);
+		CreateExtraInfoEntry(maxValueEntry, GetTranslation("$ActorValueMax"), FloatToString(maxValue), priority_ActorValue_Max);
 
 		actorValueEntry->PushBack(baseValueEntry);
 		actorValueEntry->PushBack(currentValueEntry);
@@ -323,14 +344,14 @@ void GetLevelData(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESNPC* npc
 
 		ExtraInfoEntry* levelEntry;
 
-		CreateExtraInfoEntry(levelEntry, "Level", IntToString(level), priority_Actor_Level);
+		CreateExtraInfoEntry(levelEntry, GetTranslation("$Level"), IntToString(level), priority_Actor_Level);
 		resultArray->PushBack(levelEntry);
 	}
 
 	ExtraInfoEntry* isPcLeveledEntry;
 
 	bool isLevelMult = HasFlag(npc->actorData.actorBaseFlags.underlying(), (int)RE::ACTOR_BASE_DATA::Flag::kPCLevelMult);
-	CreateExtraInfoEntry(isPcLeveledEntry, "Is PC Level Mult", BooleanToYesNoString(isLevelMult), priority_Actor_IsPCLeveleMult);
+	CreateExtraInfoEntry(isPcLeveledEntry, GetTranslation("$LevelIsPcLevelMult"), BooleanToYesNoString(isLevelMult), priority_Actor_IsPCLeveleMult);
 
 	if (isLevelMult) {
 		logger::debug("GetLevelData: GetCharacter pc level mult");
@@ -341,13 +362,13 @@ void GetLevelData(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESNPC* npc
 
 		ExtraInfoEntry *levelMultEntry, *minLevelEntry, *maxLevelEntry;
 
-		CreateExtraInfoEntry(levelMultEntry, "Level Mult", DoubleToString(levelMult), priority_Actor_IsPCLeveleMult_LevelMult);
+		CreateExtraInfoEntry(levelMultEntry, GetTranslation("$LevelMult"), DoubleToString(levelMult), priority_Actor_IsPCLeveleMult_LevelMult);
 		isPcLeveledEntry->PushBack(levelMultEntry);
 
-		CreateExtraInfoEntry(minLevelEntry, "Min level", IntToString(minLevel), priority_Actor_IsPCLeveleMult_LevelMin);
+		CreateExtraInfoEntry(minLevelEntry, GetTranslation("$LevelMin"), IntToString(minLevel), priority_Actor_IsPCLeveleMult_LevelMin);
 		isPcLeveledEntry->PushBack(minLevelEntry);
 
-		CreateExtraInfoEntry(maxLevelEntry, "Max Level", IntToString(maxLevel), priority_Actor_IsPCLeveleMult_LevelMax);
+		CreateExtraInfoEntry(maxLevelEntry, GetTranslation("$LevelMax"), IntToString(maxLevel), priority_Actor_IsPCLeveleMult_LevelMax);
 		isPcLeveledEntry->PushBack(maxLevelEntry);
 	}
 
@@ -362,7 +383,7 @@ void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE
 	int numPerks = actorBase->perkCount;
 
 	ExtraInfoEntry* perks;
-	CreateExtraInfoEntry(perks, "Perks", "", priority_Actor_Perks);
+	CreateExtraInfoEntry(perks, GetTranslation("$Perks"), "", priority_Actor_Perks);
 
 	for (int i = 0; i < numPerks; i++) {
 		RE::BGSPerk* perk = actorBase->perks[i].perk;
@@ -414,20 +435,20 @@ void GetNPCAppearanceData(ExtraInfoEntry* resultArray, RE::TESNPC* npc)
 	logger::debug("GetNPCAppearanceData Started");
 
 	ExtraInfoEntry* appearance;
-	CreateExtraInfoEntry(appearance, "Appearance", "", priority_Actor_Appearance);
+	CreateExtraInfoEntry(appearance, GetTranslation("$Appearance"), "", priority_Actor_Appearance);
 
 	float weight = npc->weight;
 
 	ExtraInfoEntry* weightEntry;
 
-	CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight), priority_Actor_Appearance_Weight);
+	CreateExtraInfoEntry(weightEntry, GetTranslation("$NPCWeight"), FloatToString(weight), priority_Actor_Appearance_Weight);
 	appearance->PushBack(weightEntry);
 
 	float height = npc->height;
 
 	ExtraInfoEntry* heightEntry;
 
-	CreateExtraInfoEntry(heightEntry, "Height", FloatToString(height), priority_Actor_Appearance_Height);
+	CreateExtraInfoEntry(heightEntry, GetTranslation("$Height"), FloatToString(height), priority_Actor_Appearance_Height);
 	appearance->PushBack(heightEntry);
 
 	resultArray->PushBack(appearance);
@@ -441,7 +462,7 @@ void GetFactionsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESAct
 
 	ExtraInfoEntry* factionsEntry;
 
-	CreateExtraInfoEntry(factionsEntry, "Factions", "", priority_Actor_Factions_Faction);
+	CreateExtraInfoEntry(factionsEntry, GetTranslation("$Factions"), "", priority_Actor_Factions_Faction);
 
 	//Check base factions
 	int numFactionsBase = actorBase->factions.size();
@@ -457,7 +478,7 @@ void GetFactionsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESAct
 				std::string factionName = GetName(faction);
 				int rank = factionInfo.rank;
 
-				CreateExtraInfoEntry(factionEntry, factionName, "Rank: " + IntToString(rank), priority_Actor_Factions_Faction);
+				CreateExtraInfoEntry(factionEntry, factionName, GetTranslation("$FactionRank") + IntToString(rank), priority_Actor_Factions_Faction);
 
 				GetFormData(factionEntry, faction, nullptr);
 
@@ -483,7 +504,7 @@ void GetFactionsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESAct
 						std::string factionName = GetName(faction);
 						int rank = factionInfo.rank;
 
-						CreateExtraInfoEntry(factionEntry, factionName, "Rank: " + IntToString(rank), priority_Actor_Factions_Faction);
+						CreateExtraInfoEntry(factionEntry, factionName, GetTranslation("$FactionRank") + IntToString(rank), priority_Actor_Factions_Faction);
 
 						GetFormData(factionEntry, faction, nullptr);
 
@@ -506,7 +527,7 @@ void GetMFGInformation(ExtraInfoEntry* expressionsRoot, ExtraInfoEntry* modifier
 
 		for (int i = 0; i < numberOfMFGExpressions; i++) {
 			ExtraInfoEntry* expressionEntry;
-			std::string expressionName = "Expression " + IntToString(i) + " " + GetMFGExpressionName(i);
+			std::string expressionName = GetTranslation("$mfgExpression") + IntToString(i) + " " + GetMFGExpressionName(i);
 			std::string value = FloatToString(expressions->values[i] * 100);
 
 			CreateExtraInfoEntry(expressionEntry, expressionName, value, priority_MFG_Expression);
@@ -517,7 +538,7 @@ void GetMFGInformation(ExtraInfoEntry* expressionsRoot, ExtraInfoEntry* modifier
 
 		for (int i = 0; i < numberOfMFGModifiers; i++) {
 			ExtraInfoEntry* modifierEntry;
-			std::string modifierName = "Modifier " + IntToString(i) + " " + GetMFGModiferName(i);
+			std::string modifierName = GetTranslation("$mfgModifier") + IntToString(i) + " " + GetMFGModiferName(i);
 			std::string value = FloatToString(modifiers->values[i] * 100);
 
 			CreateExtraInfoEntry(modifierEntry, modifierName, value, priority_MFG_Modifier);
@@ -528,7 +549,7 @@ void GetMFGInformation(ExtraInfoEntry* expressionsRoot, ExtraInfoEntry* modifier
 
 		for (int i = 0; i < numberOfMFGPhenomes; i++) {
 			ExtraInfoEntry* phenomeEntry;
-			std::string modifierName = "Phenome " + IntToString(i) + " " + GetMFGPhenomeName(i);
+			std::string modifierName = GetTranslation("$mfgPhoneme") + IntToString(i) + " " + GetMFGPhenomeName(i);
 			std::string value = FloatToString(phenomes->values[i] * 100);
 
 			CreateExtraInfoEntry(phenomeEntry, modifierName, value, priority_MFG_Phenome);

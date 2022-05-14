@@ -1,6 +1,9 @@
 #include "TESObjectWEAP.h"
 #include "TESForm.h"
 #include "Util/NameUtil.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -13,7 +16,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* antimationTypeEntry;
 
-		CreateExtraInfoEntry(antimationTypeEntry, "Animation type", GetWeaponAnimationTypeName(animationType), priority_Weapon_AnimationType);
+		CreateExtraInfoEntry(antimationTypeEntry, GetTranslation("$WeaponAnimationType"), GetWeaponAnimationTypeName(animationType), priority_Weapon_AnimationType);
 		resultArray->PushBack(antimationTypeEntry);
 
 		//damage
@@ -21,7 +24,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* damageEntry;
 
-		CreateExtraInfoEntry(damageEntry, "Damage", IntToString(damage), priority_Weapon_Damage);
+		CreateExtraInfoEntry(damageEntry, GetTranslation("$Damage"), IntToString(damage), priority_Weapon_Damage);
 		resultArray->PushBack(damageEntry);
 
 		//speed
@@ -29,7 +32,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* speedEntry;
 
-		CreateExtraInfoEntry(speedEntry, "Speed", FloatToString(speed), priority_Weapon_Speed);
+		CreateExtraInfoEntry(speedEntry, GetTranslation("$WeaponSpeed"), FloatToString(speed), priority_Weapon_Speed);
 		resultArray->PushBack(speedEntry);
 
 		//reach
@@ -37,7 +40,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* reachEntry;
 
-		CreateExtraInfoEntry(reachEntry, "Reach", FloatToString(reach), priority_Weapon_Reach );
+		CreateExtraInfoEntry(reachEntry, GetTranslation("$WeaponReach"), FloatToString(reach), priority_Weapon_Reach );
 		resultArray->PushBack(reachEntry);
 
 		//stagger
@@ -45,7 +48,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* staggerEntry;
 
-		CreateExtraInfoEntry(staggerEntry, "Stagger", FloatToString(stagger), priority_Weapon_Stagger);
+		CreateExtraInfoEntry(staggerEntry, GetTranslation("$WeaponStagger"), FloatToString(stagger), priority_Weapon_Stagger);
 		resultArray->PushBack(staggerEntry);
 
 		//crit damage
@@ -53,7 +56,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* critDamageEntry;
 
-		CreateExtraInfoEntry(critDamageEntry, "Crit damage", IntToString(critDamage), priority_Weapon_CritDamage);
+		CreateExtraInfoEntry(critDamageEntry, GetTranslation("$WeaponCrit"), IntToString(critDamage), priority_Weapon_CritDamage);
 		resultArray->PushBack(critDamageEntry);
 
 		RE::BGSEquipSlot* equipSlot = weapon->GetEquipSlot();
@@ -62,7 +65,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 			ExtraInfoEntry* equipSlotEntry;
 
-			CreateExtraInfoEntry(equipSlotEntry, "Equip slot", equipSlotName, priority_Weapon_EquipSlotName);
+			CreateExtraInfoEntry(equipSlotEntry, GetTranslation("$EquipSlot"), equipSlotName, priority_Weapon_EquipSlotName);
 			resultArray->PushBack(equipSlotEntry);
 		}
 
@@ -71,7 +74,7 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* valueEntry;
 
-		CreateExtraInfoEntry(valueEntry, "Value", IntToString(value), priority_Weapon_Value);
+		CreateExtraInfoEntry(valueEntry, GetTranslation("$Value"), IntToString(value), priority_Weapon_Value);
 		resultArray->PushBack(valueEntry);
 
 		//weight
@@ -79,10 +82,8 @@ void GetWeaponData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* weightEntry;
 
-		CreateExtraInfoEntry(weightEntry, "Weight", FloatToString(weight), priority_Weapon_Weight);
+		CreateExtraInfoEntry(weightEntry, GetTranslation("$Weight"), FloatToString(weight), priority_Weapon_Weight);
 		resultArray->PushBack(weightEntry);
-
-		GetKeywords(resultArray, weapon);
 	}
 
 	logger::debug("GetWeaponData End");

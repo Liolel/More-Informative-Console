@@ -2,10 +2,18 @@
 #include "ExtraOwnership.h"
 #include "ExtraEnableStateParent.h"
 #include "ExtraContainerChanges.h"
+#include "ExtraLocation.h"
 #include "ExtraLock.h"
+#include "ExtraRegionList.h"
 #include "ExtraTeleport.h"
+#include "TESForms/TESForm.h"
+#include "TESForms/EnchantmentItem.h"
 #include "globals.h"
+#include "TranslationCache.h"
 #include "Util/NameUtil.h"
+
+
+//4-30-2022: Checked for translations needed
 
 const int numberOfExtraDataTypes = 0xBF + 1; //The plus 1 is because there are extra data types from 0 up to and including BF
 
@@ -37,25 +45,62 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			ProcessOwnership(resultArray, data);
 		}
 
-		if (extraList->HasType(RE::ExtraDataType::kContainerChanges))
+		if (extraList->HasType( RE::ExtraDataType::kContainerChanges )
+			&& refForm != nullptr )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kContainerChanges);
 			ProcessContainerChanges(resultArray, data, refForm);
 		}
 		
-		if (extraList->HasType(RE::ExtraDataType::kLock))
+		if (extraList->HasType( RE::ExtraDataType::kLock )
+			&& refForm != nullptr )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kLock);
 			ProcessLockData(resultArray, data, refForm);
 		}
 
-		if (extraList->HasType(RE::ExtraDataType::kTeleport))
+		if (extraList->HasType( RE::ExtraDataType::kTeleport )
+			&& refForm != nullptr )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kTeleport);
 			ProcessTeleportData(resultArray, data);
 		}
 
-		if (MICOptions::MICDebugMode)
+		if (extraList->HasType(RE::ExtraDataType::kLocation) )
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kLocation);
+			ProcessLocationData(resultArray, data);
+		}
+
+		if (extraList->HasType(RE::ExtraDataType::kRegionList))
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kRegionList);
+			ProcessRegionList(resultArray, data);
+		}
+
+		if (extraList->HasType(RE::ExtraDataType::kEnchantment))
+		{
+			auto enchantmentExtra = extraList->GetByType<RE::ExtraEnchantment>();
+			if (enchantmentExtra)
+			{
+				auto enchantmentForm = enchantmentExtra->enchantment;
+
+				if (enchantmentForm)
+				{
+					ExtraInfoEntry* enchantmentEntry;
+					std::string enchantmentName = GetName(enchantmentForm);
+
+					CreateExtraInfoEntry(enchantmentEntry, GetTranslation("$Enchantment"), enchantmentName, priority_Enchantment);
+					GetFormData(enchantmentEntry, enchantmentForm, nullptr);
+					GetCharge(enchantmentEntry, &(refForm->extraList), nullptr, enchantmentExtra);
+
+					enchantmentEntry->SetMayCopy(false);
+					resultArray->PushBack(enchantmentEntry);
+				}
+			}
+		}
+
+		if ( MICOptions::ExperimentalFeatures )
 		{
 				
 			ExtraInfoEntry* extraDataTypes;

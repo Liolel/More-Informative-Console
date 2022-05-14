@@ -3,6 +3,7 @@
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 #include <Util/GeneralUtil.h>
+#include <robin_hood.h>
 
 #pragma warning(push)
 #ifdef NDEBUG

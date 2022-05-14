@@ -1,5 +1,8 @@
 #include "TESModel.h"
 #include "Util/FilePathUtil.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESModel* model, priority priority)
 {
@@ -20,33 +23,16 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 
 			//Create an entry for the model path
 			logger::debug("Splitting Model Path");
-
-			CreateFilePathSubarray(modelEntry, modelPath);
-
-			/*
+			
 			ExtraInfoEntry* modelPathEntry;
-			CreateExtraInfoEntry(modelPathEntry, "Model Path", "", priority_Model);
+			CreateExtraInfoEntry(modelPathEntry, GetTranslation("$ModelPath"), "", priority_Model);
 
 
 			CreateFilePathSubarray(modelPathEntry, modelPath);
 			modelEntry->PushBack(modelPathEntry);
 
 			logger::debug("Done Splitting Model Path");
-
-			//Add textures
-			int numberOfTextures = model->numTextures;
-
-			if (numberOfTextures > 0)
-			{
-				ExtraInfoEntry* modelPathEntry;
-				CreateExtraInfoEntry(modelPathEntry, "Model Path", "", priority_Texture);
-
-				for (int i = 0; i < numberOfTextures; i++)
-				{
-
-				}
-			}
-			*/
+			
 			resultArray->PushBack(modelEntry);
 
 			RE::TESDataHandler* handler = RE::TESDataHandler::GetSingleton();

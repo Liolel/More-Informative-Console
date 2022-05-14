@@ -4,3 +4,4 @@
 
 void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm);
 void GetPositionData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm);
+void GetTextures(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm);

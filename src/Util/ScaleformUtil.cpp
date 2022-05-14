@@ -1,5 +1,7 @@
 #include "ScaleformUtil.h"
 
+//4-29-2022: Checked for translations needed
+
 void RegisterString(RE::GFxValue* object, RE::GFxMovie* movie, std::string stringName, std::string stringContents)
 {
 	RE::GFxValue gfxString;

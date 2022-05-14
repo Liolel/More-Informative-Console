@@ -3,7 +3,7 @@
 
 //Methods for converting various form data into user readable strings
 
-std::string GetName(RE::TESForm* pBaseForm);
+std::string GetName(RE::TESForm* pBaseForm, RE::TESObjectREFR* refForm = nullptr);
 std::string GetFormTypeName(int formType);
 std::string GetTextureType(int textureType);
 

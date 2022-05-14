@@ -10,6 +10,9 @@ public:
 
 	void Clear();
 	void PushBack(ExtraInfoEntry* subArrayEntry);
+	void CopyChildren(ExtraInfoEntry* entryToCopyFrom);
+
+	void SetMayCopy(bool valueToSet );
 
 	bool HasChildren();
 
@@ -19,11 +22,17 @@ public:
 
 	void Finalize();
 
-	int priority;  //Priority for use in sorting. Higher Priority entires move to the top of the list
-
-private:
 	std::string entry1;
 	std::string entry2;
+
+	int priority;  //Priority for use in sorting. Higher Priority entires move to the top of the list
+	bool disableSortingByName;
+
+private:
+
+	int parents;
+	bool isFinalized;
+	bool mayCopy;
 
 	std::vector<ExtraInfoEntry*> subarray;
 };
@@ -34,6 +43,7 @@ enum priority
 	//General items at the type of any list
 	priority_Name,
 	priority_EditorID,
+	priority_EditorIDReference,
 	priority_FormID,
 	priority_FormType,
 	priority_FormLocation,  //Mods form is found in
@@ -83,6 +93,10 @@ enum priority
 	priority_Arma_SkinFemale,
 	priority_Arma_PrimaryRace,
 	priority_Arma_AddtionalRaces,
+	//Enchantments
+	priority_Enchantment,
+	priority_Enchantment_Charge,
+	priority_Enchantment_MaximumCharge,
 	//Armor
 	priority_Armor_ArmorType,
 	priority_Armor_ArmorRating,
@@ -95,6 +109,10 @@ enum priority
 	priority_Ammo_Value,
 	//Cell
 	priority_Cell_Coordinate,
+	priority_Cell_Owner,
+	//Location
+	priority_Location_ParentLocation,
+	priority_Location_Cleared,
 	//Race
 	priority_Race_Skin,
 	priority_Race_SkeletonMale,
@@ -112,11 +130,14 @@ enum priority
 	priority_Spell_DeliveryType,
 	//Magic Item (This is used in Spells and ... )
 	priority_MagicItem_MagicEffects,
+	priority_MagicItem_Effect_Active,
+	priority_MagicItem_Effect_Inactive,
 	priority_MagicItem_Effect,
 	//Effects - This is one half of magic effect data. This is the magnitude/duration/area part
 	priority_Effect_Magnitude,
 	priority_Effect_Duration,
 	priority_Effect_Area,
+	priority_Effect_Caster,
 	//EffectSetting
 	priority_EffectSetting_EffectType,
 	priority_EffectSetting_Skill,
@@ -148,12 +169,15 @@ enum priority
 	//Scripts
 	priority_Scripts_Scripts,
 	priority_Scripts_Script,
-	//Enable Parent Extra Data
+	priority_Scripts_Source,
+	//Extra Data
 	priority_ExtraData_EnableParent_ParentForm,
 	priority_ExtraData_EnableParent_StateOppositeParent,
 	priority_ExtraData_EnableParent_Popin,
-	//Enable Parent Ownership
 	priority_ExtraData_Ownership,
+	priority_ExtraData_Location,
+	priority_ExtraData_RegionList,
+	priority_ExtraData_Region,
 	//Form Location Information
 	priority_FormLocation_BaseDefined,
 	priority_FormLocation_BaseLastChanged,

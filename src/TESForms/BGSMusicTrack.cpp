@@ -1,6 +1,9 @@
 #include "BGSMusicTrack.h"
 #include "Util/NameUtil.h"
 #include "TESForm.h"
+#include "TranslationCache.h"
+
+//4-24-2022: Checked for translations needed
 
 void GetCurrentMusic(ExtraInfoEntry* resultArray)
 {
@@ -54,7 +57,7 @@ void GetCurrentMusic(ExtraInfoEntry* resultArray)
 		{
 			std::string musicTypeName = GetName(currentPriorityType);
 			ExtraInfoEntry* musicTypeEntry;
-			CreateExtraInfoEntry(musicTypeEntry, "Music Type", musicTypeName, priority_WorldData_MusicType);
+			CreateExtraInfoEntry(musicTypeEntry, GetTranslation("MusicType"), musicTypeName, priority_WorldData_MusicType);
 			GetFormData(musicTypeEntry, currentPriorityType, nullptr);
 			resultArray->PushBack(musicTypeEntry);
 
@@ -81,7 +84,7 @@ void GetCurrentMusic(ExtraInfoEntry* resultArray)
 						{
 							std::string musicTrackName = GetName(musicFormWrapper);
 							ExtraInfoEntry* musicTrackEntry;
-							CreateExtraInfoEntry(musicTrackEntry, "Music Track", musicTrackName, priority_WorldData_MusicTrack);
+							CreateExtraInfoEntry(musicTrackEntry, GetTranslation("$MusicTrack"), musicTrackName, priority_WorldData_MusicTrack);
 							GetFormData(musicTrackEntry, musicFormWrapper, nullptr);
 
 							resultArray->PushBack(musicTrackEntry);
@@ -95,33 +98,3 @@ void GetCurrentMusic(ExtraInfoEntry* resultArray)
 	}
 
 }
-
-/*
-
-		RE::BSTArray<RE::TESForm*>* musicTrackArray = &(dataHandler->GetFormArray(RE::FormType::MusicTrack));
-
-		RE::BSTArray<RE::TESForm*>::iterator itrEnd = musicTrackArray->end();
-
-		//loop through all music tracks to check their status
-		for (RE::BSTArray<RE::TESForm*>::iterator itr = musicTrackArray->begin(); itr != itrEnd; itr++)
-		{
-			RE::TESForm* musicForm = *itr;
-
-			if (musicForm)
-			{
-				RE::BGSMusicTrackFormWrapper* musicFormWrapper = static_cast<RE::BGSMusicTrackFormWrapper*>(musicForm);
-				RE::BSIMusicTrack::MUSIC_STATUS musicStatus = musicFormWrapper->GetMusicStatus();
-
-				if (musicStatus == RE::BSIMusicTrack::MUSIC_STATUS::kPlaying)
-				{
-					std::string musicName = GetName(musicFormWrapper);
-					ExtraInfoEntry* musicEntry;
-					CreateExtraInfoEntry(musicEntry, "Music", musicName, priority_WorldData_Music);
-					GetFormData(musicEntry, musicFormWrapper, nullptr);
-
-					resultArray->PushBack(musicEntry);
-				}
-
-			}
-		}
-*/

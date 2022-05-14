@@ -12,11 +12,12 @@ int GetNumberOfSourceFiles(RE::TESForm* form);
 
 //Methods for retrieving data common to all forms
 void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm);
-void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
+void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm);
 
-void GetFormLocationData(ExtraInfoEntry*& resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
-void GetModInfoData(ExtraInfoEntry*& resultArray, RE::TESForm* form, bool SkyrimESMNotDetectedBug);
+void GetFormLocationData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
+void GetModInfoData(ExtraInfoEntry* resultArray, RE::TESForm* form, bool SkyrimESMNotDetectedBug);
 
-void GetScripts(ExtraInfoEntry*& resultArray, RE::TESForm* form);
+void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
+void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect);
 
-void GetKeywords(ExtraInfoEntry*& resultArray, RE::BGSKeywordForm* keywordForm);
+void GetKeywords(ExtraInfoEntry* resultArray, RE::BGSKeywordForm* keywordForm);

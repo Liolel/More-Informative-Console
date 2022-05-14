@@ -1,6 +1,9 @@
 #include "BGSTextureSet.h"
 #include "Util/FilePathUtil.h"
 #include "Util/NameUtil.h"
+#include "TranslationCache.h"
+
+//4-24-2022: Checked for translations needed
 
 void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -10,7 +13,7 @@ void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 	if (textureSet) {
 		ExtraInfoEntry* textureSetEntry;
-		CreateExtraInfoEntry(textureSetEntry, "Texture Set", "", priority_TextureSet);
+		CreateExtraInfoEntry(textureSetEntry, GetTranslation("$TextureSet"), "", priority_TextureSet);
 
 #ifndef SKYRIMVR
 		int totalTextures = RE::BGSTextureSet::Textures::kTotal;

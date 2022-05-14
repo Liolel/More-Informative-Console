@@ -1,52 +1,84 @@
 #pragma once
 
 #include "GeneralUtil.h"
+#include "TranslationCache.h"
 #include "SKSE/Logger.h"
 #include <memory>
 #include <sstream>
 #include <vector>
 
+//4-29-2022: Checked for translations needed
+
 //MIC options
 
 //const char deliminator = '\\';
 
-/*
-
-//returns the total amount the given item stored in the given container
-int NumberOfItemInContainer(TESForm * item, TESContainer * container)
+std::vector<std::string> ScriptsToSkip =
 {
-	int numberOfItemInContainer = 0;
+"activemagiceffect",
+"actor",
+"actorbase",
+"actorvalueinfo",
+"alias",
+"ammo",
+"apparatus",
+"armor",
+"armoraddon",
+"art",
+"book",
+"camera",
+"cell",
+"colorcomponent",
+"colorform",
+"combatstyle",
+"constructibleobject",
+"defaultobjectmanager",
+"enchantment",
+"equipslot",
+"faction",
+"flora",
+"form",
+"formlist",
+"formtype",
+"game",
+"gamedata",
+"headpart",
+"ingredient",
+"input",
+"keyword",
+"leveledactor",
+"leveleditem",
+"leveledspell",
+"Location",
+"magiceffect",
+"math",
+"modevent",
+"netimmerse",
+"objectreference",
+"outfit",
+"perk",
+"potion",
+"quest",
+"race",
+"scroll",
+"shout",
+"skse",
+"soulgem",
+"sound",
+"sounddescriptor",
+"spawnertask",
+"spell",
+"stringutil",
+"textureset",
+"treeobject",
+"ui",
+"uicallback",
+"utility",
+"weapon",
+"weather",
+"wornobject",
+};
 
-	for (int i = 0; i < container->numEntries; i++)
-	{
-		TESForm *itemForm = container->entries[i]->form;
-
-		if (itemForm == item)
-		{
-			numberOfItemInContainer += container->entries[i]->count;
-		}
-	}
-
-	return numberOfItemInContainer;
-}
-
-//returns true if the given item is present in the EntryDataList
-bool HasItem(EntryDataList * inventory, TESForm * item)
-{
-	bool hasItem = false;
-
-	for (EntryDataList::Iterator it = inventory->Begin(); !it.End(); ++it)
-	{
-		InventoryEntryData * e = it.Get();
-		if (e && e->type == item)
-		{
-			hasItem = true;
-		}
-	}
-
-	return hasItem;
-}
-*/
 std::string IntToString(int number)
 {
 	std::ostringstream ss;
@@ -88,40 +120,26 @@ std::string BooleanToYesNoString(bool boolean)
 	std::string output = "";
 
 	if (boolean) {
-		output = "Yes";
+		output = GetTranslation("$Yes");
 	}
 
 	else {
-		output = "No";
+		output = GetTranslation("$No");
 	}
 
 	return output;
 }
-/*
-//get the smallest bit that is 1 in the flags passed
-int GetSmallestBitFlag(int flags)
-{
-	int smallestFlag = -1;
-
-	int i = 0;
-
-	while (i < 32 && smallestFlag == -1)
-	{
-		int mask = 1 << i;
-
-		if ( (flags & mask) == mask )
-		{
-			smallestFlag = i;
-		}
-
-		i++;
-	}
-
-	return smallestFlag;
-}
-*/
 
 bool HasFlag(int Flags, int flag)
 {
 	return (Flags & flag) == flag;
+}
+
+bool GetShouldDisplayScript( std::string scriptName )
+{
+	std::for_each(scriptName.begin(), scriptName.end(), [](char& c) {
+		c = (char)::tolower(c);
+	});
+
+	return std::find(ScriptsToSkip.begin(), ScriptsToSkip.end(), scriptName) == ScriptsToSkip.end();
 }

@@ -1,5 +1,8 @@
 #include "TESAmmo.h"
 #include "TESForm.h"
+#include "TranslationCache.h"
+
+//4-29-2022: Checked for translations needed
 
 void GetAmmoData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
@@ -10,7 +13,7 @@ void GetAmmoData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* damageEntry;
 
-		CreateExtraInfoEntry(damageEntry, "Damage", FloatToString(damage), priority_Ammo_Damage);
+		CreateExtraInfoEntry(damageEntry, GetTranslation("$Damage"), FloatToString(damage), priority_Ammo_Damage);
 		resultArray->PushBack(damageEntry);
 
 		//value
@@ -18,9 +21,7 @@ void GetAmmoData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* valueEntry;
 
-		CreateExtraInfoEntry(valueEntry, "Value", IntToString(value), priority_Ammo_Value);
+		CreateExtraInfoEntry(valueEntry, GetTranslation("$Value"), IntToString(value), priority_Ammo_Value);
 		resultArray->PushBack(valueEntry);
-
-		GetKeywords(resultArray, ammo);
 	}
 }

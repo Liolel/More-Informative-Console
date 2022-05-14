@@ -2,6 +2,9 @@
 #include "TESForms/TESForm.h"
 #include "Util/NameUtil.h"
 #include "Util/GeneralUtil.h"
+#include "TranslationCache.h"
+
+//4-30-2022: Checked for translations needed
 
 void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::BSExtraData* data)
 {
@@ -10,7 +13,7 @@ void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::BSExtraData
 	logger::debug("Starting ProcessEnableParentInformation");
 	ExtraInfoEntry* enableParentEntry;
 
-	CreateExtraInfoEntry(enableParentEntry, "Enable Parent", "", priority_Reference_ExtraData_EnableParent);
+	CreateExtraInfoEntry(enableParentEntry, GetTranslation("$ReferenceEnableParent"), "", priority_Reference_ExtraData_EnableParent);
 
 	if (enableParentInformation->parent.get())
 	{
@@ -20,7 +23,7 @@ void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::BSExtraData
 
 		ExtraInfoEntry* enableParentFormEntry;
 		
-		CreateExtraInfoEntry(enableParentFormEntry, "Parent Reference", parentFormName, priority_ExtraData_EnableParent_ParentForm);
+		CreateExtraInfoEntry(enableParentFormEntry, GetTranslation("$ReferenceEnableParentReference"), parentFormName, priority_ExtraData_EnableParent_ParentForm);
 		GetFormData(enableParentFormEntry, parentBaseForm, parentRefForm);
 
 		enableParentEntry->PushBack(enableParentFormEntry);
@@ -29,13 +32,13 @@ void ProcessEnableParentInformation(ExtraInfoEntry* resultArray, RE::BSExtraData
 	bool hasPopin = HasFlag(enableParentInformation->flags, flag_PopIn);
 	ExtraInfoEntry* popinEntry;
 	std::string popinString = BooleanToYesNoString(hasPopin);
-	CreateExtraInfoEntry(popinEntry, "Popin", popinString, priority_ExtraData_EnableParent_Popin);
+	CreateExtraInfoEntry(popinEntry, GetTranslation("$ReferenceEnableParentPopin"), popinString, priority_ExtraData_EnableParent_Popin);
 	enableParentEntry->PushBack(popinEntry);
 
 	bool enableStateOppositeParent = HasFlag(enableParentInformation->flags, flag_EnableStateOppositeParent);
 	ExtraInfoEntry* enableStateOppositeParentEntry;
 	std::string enableStateOppositeParentString = BooleanToYesNoString(enableStateOppositeParent);
-	CreateExtraInfoEntry(enableStateOppositeParentEntry, "State Opposite Parent", enableStateOppositeParentString, priority_ExtraData_EnableParent_StateOppositeParent);
+	CreateExtraInfoEntry(enableStateOppositeParentEntry, GetTranslation("$ReferenceEnableParentStateOppositeParent"), enableStateOppositeParentString, priority_ExtraData_EnableParent_StateOppositeParent);
 	enableParentEntry->PushBack(enableStateOppositeParentEntry);
 
 	resultArray->PushBack(enableParentEntry);
