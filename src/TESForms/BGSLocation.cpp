@@ -30,7 +30,5 @@ void GetLocationEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 			GetFormData(parentLocEntry, bgsLocationParent, nullptr);
 			resultArray->PushBack(parentLocEntry);
 		}
-
-		GetKeywords(resultArray, bgsLocation);
 	}
 }

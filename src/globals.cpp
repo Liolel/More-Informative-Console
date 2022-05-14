@@ -5,7 +5,6 @@ namespace MICGlobals
 	bool readRaceSkins = true;                //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
 	bool minimizeFormDataRead = false;         //Enable/Disabling reading full form data in, for situations where the only important information is the actual form
 	RE::TESRace* filterARMAByRace = nullptr;  //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
-	bool useEditorIDs=true; //True if power of 3 tweaks is installed allowing editor ids to be read in from memory
 	ExtraInfoEntry rootEntry("", "", priority_Default);
 }
 

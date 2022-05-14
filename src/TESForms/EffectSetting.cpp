@@ -72,17 +72,6 @@ void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		std::string hostile = BooleanToYesNoString(HasFlag(effectSetting->data.flags.underlying(), (int)RE::EffectSetting::EffectSettingData::Flag::kHostile));
 		CreateExtraInfoEntry(hostileEntry, GetTranslation("$FlagHostile"), hostile, priority_EffectSetting_Hostile);
 		resultArray->PushBack(hostileEntry);
-		/*
-
-
-
-		//RegisterNumber(pFxVal, "effectFlags", pEffectSetting->properties.flags); //I added the hostile flag. Need to check what else to add
-		RegisterNumber(pFxVal, "deliveryType", pEffectSetting->properties.deliveryType); //do these next 3 when I add spells
-		RegisterNumber(pFxVal, "castTime", pEffectSetting->properties.castingTime);
-		RegisterNumber(pFxVal, "delayTime", pEffectSetting->properties.delayTime);
-		RegisterNumber(pFxVal, "castType", pEffectSetting->properties.castType);*/
-
-		GetKeywords(resultArray, effectSetting);
 	}
 	logger::debug("GetExtraData: GetMagicEffectData End");
 }

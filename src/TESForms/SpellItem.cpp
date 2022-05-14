@@ -36,8 +36,6 @@ void GetSpellData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		CreateExtraInfoEntry(castTimeEntry, GetTranslation("$CastTime"), FloatToString(spellItem->data.chargeTime), priority_Spell_DeliveryType);
 		resultArray->PushBack(castTimeEntry);
 
-		GetKeywords(resultArray, spellItem);
-
 		logger::debug("GetSpellData: Ending spell item code");
 	}
 }

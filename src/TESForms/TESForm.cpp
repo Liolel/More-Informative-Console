@@ -525,8 +525,6 @@ void GetKeywords(ExtraInfoEntry* resultArray, RE::BGSKeywordForm* keywordForm)
 
 		CreateExtraInfoEntry(keywordsEntry, GetTranslation("$Keywords"), "", priority_Keywords);
 
-		logger::debug("GetKeywords Before crash");
-
 		for (uint32_t i = 0; i < keywordForm->numKeywords; i++) {
 			RE::BGSKeyword* keyword = *(keywordForm->GetKeywordAt(i));
 

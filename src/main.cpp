@@ -122,16 +122,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
 
-	//Check if power of 3 tweaks is installed
-	const auto tweaksHandle = GetModuleHandle(L"po3_Tweaks");
-	MICGlobals::useEditorIDs = tweaksHandle != nullptr;
-
-	//if we are using editor ids we need to register a listner to wait for all data to get loaded
-	if (true ) //MICGlobals::useEditorIDs)
-	{
-		auto messaging = SKSE::GetMessagingInterface();
-		messaging->RegisterListener(MessageHandler);
-	}
+	auto messaging = SKSE::GetMessagingInterface();
+	messaging->RegisterListener(MessageHandler);
 
 	logger::info("Plugin Initialization complete.");
 

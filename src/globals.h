@@ -7,7 +7,6 @@ namespace MICGlobals
 	extern bool readRaceSkins; //Enable/Disabling reading the skin entires for races. Used to prevent an infinite loop of reading Race->Armor-Arma-Race
 	extern bool minimizeFormDataRead;     //Enable/Disabling reading the caster entry for active effects. Used to prevent an infinite loop of reading Effect->Caster->Effect->Caster
 	extern RE::TESRace* filterARMAByRace;  //Used to filter ARMA forms for armors to only show ARMAs that can be used by a specific race.
-	extern bool useEditorIDs; //True if power of 3 tweaks is installed allowing editor ids to be read in from memory
 	extern ExtraInfoEntry rootEntry;
 }
 

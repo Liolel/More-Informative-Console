@@ -23,7 +23,5 @@ void GetAmmoData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		CreateExtraInfoEntry(valueEntry, GetTranslation("$Value"), IntToString(value), priority_Ammo_Value);
 		resultArray->PushBack(valueEntry);
-
-		GetKeywords(resultArray, ammo);
 	}
 }

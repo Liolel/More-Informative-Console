@@ -13,14 +13,8 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 	logger::debug("Starting GetRaceEntry");
 
 	RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
-	if (race) {
-		//editor ID
-		std::string editorID = race->GetFormEditorID();
-
-		ExtraInfoEntry* editorIDEntry;
-
-		CreateExtraInfoEntry(editorIDEntry, "EditorID", editorID, priority_EditorID);
-		resultArray->PushBack(editorIDEntry);
+	if (race) 
+	{
 
 		logger::debug("Getting Models");
 		//models
@@ -58,8 +52,6 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		std::string isChild = BooleanToYesNoString(HasFlag(flags, (int)RE::RACE_DATA::Flag::kChild));
 		CreateExtraInfoEntry(childEntry, GetTranslation("$RaceChild"), isChild, priority_Race_Child);
 		resultArray->PushBack(childEntry);
-
-		GetKeywords(resultArray, race);
 	}
 
 	logger::debug("Ending GetRaceEntry");
