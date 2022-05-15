@@ -48,6 +48,16 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_message)
 
 extern "C"
 {
+	DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+		SKSE::PluginVersionData v{};
+		v.pluginVersion = Version::ASINT;
+		v.PluginName("More Informative Console"sv);
+		v.AuthorName("Linthar"sv);
+		v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+		v.UsesAddressLibrary(true);
+		return v;
+	}();
+
 	DLLEXPORT auto SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_skse) -> bool
 	{	
 #ifndef NDEBUG
