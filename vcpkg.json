@@ -8,9 +8,10 @@
   "dependencies": [
     "boost-atomic",
     "boost-stl-interfaces",
+    "span-lite",
     "spdlog",
     "simpleini",
-	"rsm-binary-io",
-	"robin-hood-hashing"
+	"robin-hood-hashing",
+    "rsm-binary-io"
   ]
 }

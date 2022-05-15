@@ -70,7 +70,7 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	logger::debug(("GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID)).c_str());
 
 	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
-	auto extraInfoEntryCached = formExtraInfoCache->GetExtraInfoEntry(baseForm);
+	auto extraInfoEntryCached = !MICGlobals::minimizeFormDataRead ? formExtraInfoCache->GetExtraInfoEntry(baseForm) : nullptr;
 
 	if (extraInfoEntryCached == nullptr )
 	{
@@ -433,7 +433,7 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm*
 				{
 #ifndef SKYRIMVR
 					RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
-					logger::debug("GetCharacterData: Active Effects Gotten");
+					logger::debug("GetScripts: Active Effects Gotten");
 
 					if (activeEffects)
 					{
@@ -448,6 +448,19 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm*
 							GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
 						}
 					}
+#else
+					int total = 0;
+					logger::debug("GetScripts: Starting Active Effect");
+
+					actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
+						logger::debug("GetScripts: Visiting Active Effect {}", total++);
+						if (activeEffect) {
+							auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
+							GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
+						}
+						return RE::BSContainer::ForEachResult::kContinue;
+					});
+
 #endif
 				}
 			}

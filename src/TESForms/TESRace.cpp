@@ -26,7 +26,7 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		//Get the skin for this race
 		//We need to check that MICGlobals::readRaceSkins is true, because the armor object will look at the Armature objects which will look at the races that the Armature applies too.
-		if (MICGlobals::readRaceSkins && race->skin != nullptr) {
+		if ( race->skin != nullptr) {
 			logger::debug("Getting Skin");
 			RE::TESObjectARMO* skin = race->skin;
 			std::string skinName = GetName(skin);
@@ -45,7 +45,7 @@ void GetRaceEntry(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* playableEntry;
 		std::string isPlayable = BooleanToYesNoString(HasFlag(flags, (int)RE::RACE_DATA::Flag::kPlayable));
-		CreateExtraInfoEntry(playableEntry, GetTranslation("$RaceSkin"), isPlayable, priority_Race_Playable);
+		CreateExtraInfoEntry(playableEntry, GetTranslation("$RacePlayable"), isPlayable, priority_Race_Playable);
 		resultArray->PushBack(playableEntry);
 
 		ExtraInfoEntry* childEntry;
