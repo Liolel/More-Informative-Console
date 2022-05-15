@@ -11,6 +11,7 @@
     "span-lite",
     "spdlog",
     "simpleini",
-	"robin-hood-hashing"
+	"robin-hood-hashing",
+    "rsm-binary-io"
   ]
 }

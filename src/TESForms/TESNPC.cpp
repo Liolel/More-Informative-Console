@@ -205,6 +205,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 #else
 	int total = 0;
 	logger::debug("GetCharacterData: Starting Active Effect");
+
 	actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
 		logger::debug("GetCharacterData: Visiting Active Effect {}", total++);
 		if (activeEffect) {
@@ -212,16 +213,25 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 			if (activeEffect->effect) {
 				logger::debug("GetCharacterData: Active Effect MGEF found");
 				std::string effectActive;
+				priority priorityToUse;
+
 				RE::Effect* effect = activeEffect->effect;
+
 				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive)) {
 					effectActive = "Inactive";
+
+					priorityToUse = priority_MagicItem_Effect_Inactive;
 				} else {
 					effectActive = "Active";
+
+					priorityToUse = priority_MagicItem_Effect_Active;
 				}
 
 				logger::debug("ActiveEffect: {}, magnitude: {}, duration:{}, formID: {}", activeEffect->effect->baseEffect->GetFullName(), activeEffect->magnitude, activeEffect->duration, activeEffect->effect->baseEffect->formID);
 
-				GetEffectData(activeEffectsEntry, effect, effectActive);
+				auto caster = activeEffect->GetCasterActor().get();
+
+				GetEffectData(activeEffectsEntry, effect, effectActive, priorityToUse, caster );
 			}
 
 			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
@@ -377,6 +387,10 @@ void GetLevelData(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESNPC* npc
 	logger::debug("GetLevelData: End");
 }
 
+#ifdef SKYRIMVR
+#pragma warning(disable:4100) //the player parameter is unused in the VR branch, but we still need it defined as this codebase is shared with the SSE and AE branches that do use that parameter
+#endif
+
 void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player)
 {
 	logger::debug("Starting GetPerks");
@@ -428,6 +442,10 @@ void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE
 
 	logger::debug("Ending GetPerks");
 }
+
+#ifdef SKYRIMVR
+#pragma warning(default:4100)
+#endif
 
 void GetNPCAppearanceData(ExtraInfoEntry* resultArray, RE::TESNPC* npc)
 {
