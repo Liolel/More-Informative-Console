@@ -119,6 +119,9 @@ extern "C"
 
 		readINI();
 
+		auto translationCache = TranslationCache::GetSingleton();
+		translationCache->CacheTranslations();
+
 		logger::info("Establishing interfaces...");
 
 		SKSE::Init(a_skse);
@@ -127,6 +130,10 @@ extern "C"
 		scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
 
 		logger::info("Plugin Initialization complete.");
+
+		auto messaging = SKSE::GetMessagingInterface();
+		messaging->RegisterListener(MessageHandler);
+
 
 		return true;
 	}
