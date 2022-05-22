@@ -10,6 +10,7 @@
 #include "globals.h"
 #include "FormExtraInfoCache.h"
 #include "TranslationCache.h"
+#include <chrono>
 
 //4-23-2022: Checked for translations needed
 
@@ -39,7 +40,14 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 
 				MICGlobals::rootEntry.Clear();
 				formExtraInfoCache->ClearCache();
+
+				//auto start = std::chrono::high_resolution_clock::now();
 				GetFormData(&MICGlobals::rootEntry, baseForm, ref);
+				//auto end = std::chrono::high_resolution_clock::now();
+
+				//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+				
+				//logger::info("Runtime " + LongLongToString(duration.count()));
 
 				logger::debug("Get Form Information done");
 			}

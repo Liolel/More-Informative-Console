@@ -86,6 +86,13 @@ std::string IntToString(int number)
 	return ss.str();
 }
 
+std::string LongLongToString(long long number)
+{
+	std::ostringstream ss;
+	ss << number;
+	return ss.str();
+}
+
 std::string IntAsDoubleToString(double number)
 {
 	int numberInt = (int)number;

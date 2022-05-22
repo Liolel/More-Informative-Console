@@ -1,6 +1,7 @@
 #include "NameUtil.h"
 #include "GeneralUtil.h"
 #include "EditorIDCache.h"
+#include "globals.h"
 #include "TranslationCache.h"
 #include "SKSE/Logger.h"
 
@@ -285,14 +286,17 @@ std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 	//If the name is empty try getting the editor id
 	if( name == "")
 	{
-		auto editorIDCache = EditorIDCache::GetSingleton();
-
-		name = editorIDCache->GetEditorID(baseForm);
-
-		//if the editor id was not found use the form id as a final backup
-		if( name == "")
+		if (!MICOptions::DisableEditorIDs)
 		{
-			name = FormIDToString(baseForm->formID);
+			auto editorIDCache = EditorIDCache::GetSingleton();
+
+			name = editorIDCache->GetEditorID(baseForm);
+
+			//if the editor id was not found use the form id as a final backup
+			if (name == "")
+			{
+				name = FormIDToString(baseForm->formID);
+			}
 		}
 	}
 

@@ -32,6 +32,9 @@ void readINI()
 		MICOptions::FontSizeBaseInfo = ini.GetLongValue("UI", "FontSizeBaseInfo", false);
 		MICOptions::FontSizeConsoleText = ini.GetLongValue("UI", "FontSizeConsoleText", false);
 		MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
+		MICOptions::DisableEditorIDs = ini.GetBoolValue("Experimental", "DisableEditorIDs", false);
+		MICOptions::DisableScripts = ini.GetBoolValue("Experimental", "DisableTextures", false);
+		MICOptions::DisableTextures = ini.GetBoolValue("Experimental", "DisableScripts", false);
 	}
 }
 
@@ -117,14 +120,18 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	logger::info("Establishing interfaces...");
 
+	readINI();
+
 	SKSE::Init(a_skse);
 	const auto scaleform = SKSE::GetScaleformInterface();
 
 	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
-
-	auto messaging = SKSE::GetMessagingInterface();
-	messaging->RegisterListener(MessageHandler);
-
+	
+	if (!MICOptions::DisableEditorIDs)
+	{
+		auto messaging = SKSE::GetMessagingInterface();
+		messaging->RegisterListener(MessageHandler);
+	}
 	logger::info("Plugin Initialization complete.");
 
 	return true;

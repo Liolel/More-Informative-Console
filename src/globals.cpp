@@ -18,4 +18,7 @@ namespace MICOptions
 	extern int FontSizeBaseInfo = 16;     //Size of the font used in the base info
 	extern int FontSizeConsoleText = 16;  //Size of the font used in the console text
 	int BaseInfoFormat = 2;               //How much information to display in the base info window
+	extern int DisableEditorIDs = false;;
+	extern int DisableScripts = false;;
+	extern int DisableTextures = false;
 }

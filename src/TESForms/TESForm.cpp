@@ -70,20 +70,21 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	logger::debug(("GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID)).c_str());
 
 	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
-	auto extraInfoEntryCached = !MICGlobals::minimizeFormDataRead ? formExtraInfoCache->GetExtraInfoEntry(baseForm) : nullptr;
+	auto extraInfoEntryCached = formExtraInfoCache->GetExtraInfoEntry(baseForm);
 
 	if (extraInfoEntryCached == nullptr )
 	{
 		GetCommonFormData(resultArray, baseForm, refForm);
+		RE::FormType baseFormType = baseForm->GetFormType();
 
-		if (!MICGlobals::minimizeFormDataRead) //for the caster of an effect just getting the common form data should be enough information
+		if (!MICGlobals::minimizeFormDataRead
+			|| ( baseFormType != RE::FormType::NPC
+				 && baseFormType != RE::FormType::Race ) ) //for the caster of an effect just getting the common form data should be enough information
 		{
 			if (refForm != nullptr) 
 			{
 				GetReferenceFormData(resultArray, refForm);
 			}
-
-			RE::FormType baseFormType = baseForm->GetFormType();
 
 			if (baseForm != nullptr && baseFormType == RE::FormType::NPC && (refForm == nullptr || refForm->GetFormType() == RE::FormType::ActorCharacter)) {
 				logger::debug("GetExtraData: Get Form Data character found");
@@ -184,15 +185,19 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	resultArray->PushBack(nameArray);
 
-	auto editorIDCache = EditorIDCache::GetSingleton();
 
-	std::string editorID = editorIDCache->GetEditorID(baseForm);
-
-	if (editorID != "")
+	if (!MICOptions::DisableEditorIDs)
 	{
-		ExtraInfoEntry* editorIDEntry;
-		CreateExtraInfoEntry(editorIDEntry, GetTranslation("$EditorID"), editorID, priority_EditorID);
-		resultArray->PushBack(editorIDEntry);
+		auto editorIDCache = EditorIDCache::GetSingleton();
+
+		std::string editorID = editorIDCache->GetEditorID(baseForm);
+
+		if (editorID != "")
+		{
+			ExtraInfoEntry* editorIDEntry;
+			CreateExtraInfoEntry(editorIDEntry, GetTranslation("$EditorID"), editorID, priority_EditorID);
+			resultArray->PushBack(editorIDEntry);
+		}
 	}
 
 	//base formid
@@ -404,127 +409,133 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm*
 {
 	logger::debug("GetScript start");
 
-	//Get the VM handle for the form. Based on the HasVMAD method that is part of CommonLibSSEs implementation of TESFORM
-	RE::BSScript::Internal::VirtualMachine* vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
-
-	MICGlobals::minimizeFormDataRead = true;
-
-	if (vm) 
+	if (!MICOptions::DisableScripts)
 	{
-		RE::BSScript::IObjectHandlePolicy* policy = vm->GetObjectHandlePolicy();
-		if (policy) 
-		{
-			RE::VMHandle handle = policy->GetHandleForObject(baseForm->GetFormType(), baseForm);
-			GetScriptsForHandle(resultArray, vm, policy, handle, baseForm, nullptr);
-		}
 
-		if (refForm)
-		{
-			RE::VMHandle handle = policy->GetHandleForObject(refForm->GetFormType(), baseForm);
-			GetScriptsForHandle(resultArray, vm, policy, handle, refForm, nullptr);
+		//Get the VM handle for the form. Based on the HasVMAD method that is part of CommonLibSSEs implementation of TESFORM
+		RE::BSScript::Internal::VirtualMachine* vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 
-			if (refForm->GetFormType() == RE::FormType::ActorCharacter)
+		MICGlobals::minimizeFormDataRead = true;
+
+		if (vm)
+		{
+			RE::BSScript::IObjectHandlePolicy* policy = vm->GetObjectHandlePolicy();
+			if (policy)
 			{
-				//Check active effects if this is an actor
-				RE::Actor* actor = nullptr;
-				actor = static_cast<RE::Actor*>(refForm);
+				RE::VMHandle handle = policy->GetHandleForObject(baseForm->GetFormType(), baseForm);
+				GetScriptsForHandle(resultArray, vm, policy, handle, baseForm, nullptr);
+			}
 
-				if (actor)
+			if (refForm)
+			{
+				RE::VMHandle handle = policy->GetHandleForObject(refForm->GetFormType(), baseForm);
+				GetScriptsForHandle(resultArray, vm, policy, handle, refForm, nullptr);
+
+				if (refForm->GetFormType() == RE::FormType::ActorCharacter)
 				{
-#ifndef SKYRIMVR
-					RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
-					logger::debug("GetScripts: Active Effects Gotten");
+					//Check active effects if this is an actor
+					RE::Actor* actor = nullptr;
+					actor = static_cast<RE::Actor*>(refForm);
 
-					if (activeEffects)
+					if (actor)
 					{
-						RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
+#ifndef SKYRIMVR
+						RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
+						logger::debug("GetScripts: Active Effects Gotten");
 
-						for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr)
+						if (activeEffects)
 						{
-							//logger::debug("GetCharacterData: Starting Active Effect");
+							RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
 
-							RE::ActiveEffect* activeEffect = *(itr);
-							auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
-							GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
+							for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr)
+							{
+								//logger::debug("GetCharacterData: Starting Active Effect");
+
+								RE::ActiveEffect* activeEffect = *(itr);
+								auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
+								GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
+							}
 						}
-					}
 #else
-					int total = 0;
-					logger::debug("GetScripts: Starting Active Effect");
+						int total = 0;
+						logger::debug("GetScripts: Starting Active Effect");
 
-					actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
-						logger::debug("GetScripts: Visiting Active Effect {}", total++);
-						if (activeEffect) {
-							auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
-							GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
-						}
-						return RE::BSContainer::ForEachResult::kContinue;
-					});
+						actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
+							logger::debug("GetScripts: Visiting Active Effect {}", total++);
+							if (activeEffect) {
+								auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
+								GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
+							}
+							return RE::BSContainer::ForEachResult::kContinue;
+						});
 
 #endif
+					}
 				}
 			}
 		}
+
+		MICGlobals::minimizeFormDataRead = false;
 	}
-
-	MICGlobals::minimizeFormDataRead = false;
-
 	logger::debug("GetScript End");
 }
 
 void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect)
 {
-	//if (handle != policy->EmptyHandle())
-	while (handle != policy->EmptyHandle()) 
+	if (!MICOptions::DisableScripts)
 	{
-		//If we have a handle for the object the next step is to look if there are any scripts attached
+		//if (handle != policy->EmptyHandle())
+		while (handle != policy->EmptyHandle())
+		{
+			//If we have a handle for the object the next step is to look if there are any scripts attached
 
-		auto attachedScriptsIterator = vm->attachedScripts.find(handle);
+			auto attachedScriptsIterator = vm->attachedScripts.find(handle);
 
-		if (attachedScriptsIterator != vm->attachedScripts.end()) {
-			RE::BSTSmallSharedArray<RE::BSScript::Internal::AttachedScript>* scripts = &(*attachedScriptsIterator).second;
-			int numberOfScripts = scripts->size();
+			if (attachedScriptsIterator != vm->attachedScripts.end()) {
+				RE::BSTSmallSharedArray<RE::BSScript::Internal::AttachedScript>* scripts = &(*attachedScriptsIterator).second;
+				int numberOfScripts = scripts->size();
 
-			for (int i = 0; i < numberOfScripts; i++) {
-				auto script = (*scripts)[i].get();
+				for (int i = 0; i < numberOfScripts; i++) {
+					auto script = (*scripts)[i].get();
 
-				std::string scriptName = script->type->name.c_str();
-				//std::string scriptName = script->type->G
+					std::string scriptName = script->type->name.c_str();
+					//std::string scriptName = script->type->G
 
-				if (GetShouldDisplayScript(scriptName))
-				{
-					ExtraInfoEntry* scriptEntry;
-
-					CreateExtraInfoEntry(scriptEntry, scriptName, "", priority_Scripts_Script);
-
-					RE::TESForm* sourceForm = nullptr;
-
-					if (form)
+					if (GetShouldDisplayScript(scriptName))
 					{
-						sourceForm = form;
+						ExtraInfoEntry* scriptEntry;
+
+						CreateExtraInfoEntry(scriptEntry, scriptName, "", priority_Scripts_Script);
+
+						RE::TESForm* sourceForm = nullptr;
+
+						if (form)
+						{
+							sourceForm = form;
+						}
+						else if (activeEffect)
+						{
+							sourceForm = activeEffect->GetBaseObject();
+						}
+
+						if (sourceForm)
+						{
+							ExtraInfoEntry* sourceEntry;
+							std::string sourceName = GetName(sourceForm);
+							CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), sourceName, priority_Scripts_Source);
+
+							GetFormData(sourceEntry, sourceForm, nullptr);
+
+							scriptEntry->PushBack(sourceEntry);
+						}
+
+						resultArray->PushBack(scriptEntry);
 					}
-					else if (activeEffect)
-					{
-						sourceForm = activeEffect->GetBaseObject();
-					}
-
-					if (sourceForm)
-					{
-						ExtraInfoEntry* sourceEntry;
-						std::string sourceName = GetName(sourceForm);
-						CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), sourceName, priority_Scripts_Source);
-
-						GetFormData(sourceEntry, sourceForm, nullptr);
-
-						scriptEntry->PushBack(sourceEntry);
-					}
-
-					resultArray->PushBack(scriptEntry);
 				}
 			}
-		}
 
-		handle = policy->GetHandleScriptsMovedFrom(handle);
+			handle = policy->GetHandleScriptsMovedFrom(handle);
+		}
 	}
 }
 

@@ -210,7 +210,8 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 		logger::debug("GetCharacterData: Visiting Active Effect {}", total++);
 		if (activeEffect) {
 			ExtraInfoEntry* effectEntry;
-			if (activeEffect->effect) {
+			if (activeEffect->effect) 
+			{
 				logger::debug("GetCharacterData: Active Effect MGEF found");
 				std::string effectActive;
 				priority priorityToUse;
