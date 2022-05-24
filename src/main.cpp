@@ -129,17 +129,13 @@ extern "C"
 		const auto scaleform = SKSE::GetScaleformInterface();
 
 		scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
-
-		logger::info("Plugin Initialization complete.");
-
-	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
 	
-	if (!MICOptions::DisableEditorIDs)
-	{
-		auto messaging = SKSE::GetMessagingInterface();
-		messaging->RegisterListener(MessageHandler);
-	}
-	logger::info("Plugin Initialization complete.");
+		if (!MICOptions::DisableEditorIDs)
+		{
+			auto messaging = SKSE::GetMessagingInterface();
+			messaging->RegisterListener(MessageHandler);
+		}
+		logger::info("Plugin Initialization complete.");
 
 
 		return true;
