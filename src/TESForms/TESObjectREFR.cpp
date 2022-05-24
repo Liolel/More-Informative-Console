@@ -4,6 +4,7 @@
 #include "EditorIDCache.h"
 #include "Util/FilePathUtil.h"
 #include "TranslationCache.h"
+#include "globals.h"
 
 //4-30-2022: Checked for translations needed
 
@@ -11,15 +12,18 @@ void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refFor
 {
 	logger::debug("GetReferenceFormData Start");
 
-	//get the editor id if there is one
-	auto editorIDCache = EditorIDCache::GetSingleton();
-	std::string editorID = editorIDCache->GetEditorID(refForm);
-
-	if (editorID != "" )
+	if (!MICOptions::DisableEditorIDs)
 	{
-		ExtraInfoEntry* referenceEditorIDEntry;
-		CreateExtraInfoEntry(referenceEditorIDEntry, GetTranslation("$ReferenceEditorID"), editorID, priority_EditorIDReference);
-		resultArray->PushBack(referenceEditorIDEntry);
+		//get the editor id if there is one
+		auto editorIDCache = EditorIDCache::GetSingleton();
+		std::string editorID = editorIDCache->GetEditorID(refForm);
+
+		if (editorID != "")
+		{
+			ExtraInfoEntry* referenceEditorIDEntry;
+			CreateExtraInfoEntry(referenceEditorIDEntry, GetTranslation("$ReferenceEditorID"), editorID, priority_EditorIDReference);
+			resultArray->PushBack(referenceEditorIDEntry);
+		}
 	}
 
 	GetPositionData(resultArray, refForm);

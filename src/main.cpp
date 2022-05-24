@@ -33,6 +33,7 @@ void readINI()
 		MICOptions::FontSizeBaseInfo = ini.GetLongValue("UI", "FontSizeBaseInfo", false);
 		MICOptions::FontSizeConsoleText = ini.GetLongValue("UI", "FontSizeConsoleText", false);
 		MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
+		MICOptions::DisableEditorIDs = ini.GetBoolValue("Performance", "DisableEditorIDs", false);
 	}
 }
 
@@ -131,8 +132,14 @@ extern "C"
 
 		logger::info("Plugin Initialization complete.");
 
+	scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
+	
+	if (!MICOptions::DisableEditorIDs)
+	{
 		auto messaging = SKSE::GetMessagingInterface();
 		messaging->RegisterListener(MessageHandler);
+	}
+	logger::info("Plugin Initialization complete.");
 
 
 		return true;

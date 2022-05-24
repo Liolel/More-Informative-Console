@@ -70,20 +70,21 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 	logger::debug(("GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID)).c_str());
 
 	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
-	auto extraInfoEntryCached = !MICGlobals::minimizeFormDataRead ? formExtraInfoCache->GetExtraInfoEntry(baseForm) : nullptr;
+	auto extraInfoEntryCached = formExtraInfoCache->GetExtraInfoEntry(baseForm);
 
 	if (extraInfoEntryCached == nullptr )
 	{
 		GetCommonFormData(resultArray, baseForm, refForm);
+		RE::FormType baseFormType = baseForm->GetFormType();
 
-		if (!MICGlobals::minimizeFormDataRead) //for the caster of an effect just getting the common form data should be enough information
+		if (!MICGlobals::minimizeFormDataRead
+			|| ( baseFormType != RE::FormType::NPC
+				 && baseFormType != RE::FormType::Race ) ) //for the caster of an effect just getting the common form data should be enough information
 		{
 			if (refForm != nullptr) 
 			{
 				GetReferenceFormData(resultArray, refForm);
 			}
-
-			RE::FormType baseFormType = baseForm->GetFormType();
 
 			if (baseForm != nullptr && baseFormType == RE::FormType::NPC && (refForm == nullptr || refForm->GetFormType() == RE::FormType::ActorCharacter)) {
 				logger::debug("GetExtraData: Get Form Data character found");
@@ -184,15 +185,19 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	resultArray->PushBack(nameArray);
 
-	auto editorIDCache = EditorIDCache::GetSingleton();
 
-	std::string editorID = editorIDCache->GetEditorID(baseForm);
-
-	if (editorID != "")
+	if (!MICOptions::DisableEditorIDs)
 	{
-		ExtraInfoEntry* editorIDEntry;
-		CreateExtraInfoEntry(editorIDEntry, GetTranslation("$EditorID"), editorID, priority_EditorID);
-		resultArray->PushBack(editorIDEntry);
+		auto editorIDCache = EditorIDCache::GetSingleton();
+
+		std::string editorID = editorIDCache->GetEditorID(baseForm);
+
+		if (editorID != "")
+		{
+			ExtraInfoEntry* editorIDEntry;
+			CreateExtraInfoEntry(editorIDEntry, GetTranslation("$EditorID"), editorID, priority_EditorID);
+			resultArray->PushBack(editorIDEntry);
+		}
 	}
 
 	//base formid
@@ -409,10 +414,10 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm*
 
 	MICGlobals::minimizeFormDataRead = true;
 
-	if (vm) 
+	if (vm)
 	{
 		RE::BSScript::IObjectHandlePolicy* policy = vm->GetObjectHandlePolicy();
-		if (policy) 
+		if (policy)
 		{
 			RE::VMHandle handle = policy->GetHandleForObject(baseForm->GetFormType(), baseForm);
 			GetScriptsForHandle(resultArray, vm, policy, handle, baseForm, nullptr);
@@ -468,14 +473,13 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm*
 	}
 
 	MICGlobals::minimizeFormDataRead = false;
-
 	logger::debug("GetScript End");
 }
 
 void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect)
 {
 	//if (handle != policy->EmptyHandle())
-	while (handle != policy->EmptyHandle()) 
+	while (handle != policy->EmptyHandle())
 	{
 		//If we have a handle for the object the next step is to look if there are any scripts attached
 
