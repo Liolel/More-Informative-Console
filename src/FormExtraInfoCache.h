@@ -8,7 +8,7 @@ public:
 	static FormExtraInfoCache* GetSingleton();
 
 	void CacheExtraInfoEntry(RE::TESForm* form, ExtraInfoEntry* extraInfoEntry);
-	ExtraInfoEntry* GetExtraInfoEntry(RE::TESForm* form);
+	ExtraInfoEntry* GetExtraInfoEntry(RE::TESForm* form); 
 
 	void ClearCache();
 

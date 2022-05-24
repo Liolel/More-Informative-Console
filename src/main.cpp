@@ -32,9 +32,7 @@ void readINI()
 		MICOptions::FontSizeBaseInfo = ini.GetLongValue("UI", "FontSizeBaseInfo", false);
 		MICOptions::FontSizeConsoleText = ini.GetLongValue("UI", "FontSizeConsoleText", false);
 		MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
-		MICOptions::DisableEditorIDs = ini.GetBoolValue("Experimental", "DisableEditorIDs", false);
-		MICOptions::DisableScripts = ini.GetBoolValue("Experimental", "DisableTextures", false);
-		MICOptions::DisableTextures = ini.GetBoolValue("Experimental", "DisableScripts", false);
+		MICOptions::DisableEditorIDs = ini.GetBoolValue("Performance", "DisableEditorIDs", false);
 	}
 }
 
@@ -119,8 +117,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	logger::info("Establishing interfaces...");
-
-	readINI();
 
 	SKSE::Init(a_skse);
 	const auto scaleform = SKSE::GetScaleformInterface();

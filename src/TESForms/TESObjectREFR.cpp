@@ -27,11 +27,7 @@ void GetReferenceFormData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refFor
 	}
 
 	GetPositionData(resultArray, refForm);
-
-	if (!MICOptions::DisableTextures)
-	{
-		GetTextures(resultArray, refForm);
-	}
+	GetTextures(resultArray, refForm);
 
 	//Check if the refrence is Enabled
 	bool isDisabled = refForm->IsDisabled();

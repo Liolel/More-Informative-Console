@@ -11,6 +11,7 @@
 #include "FormExtraInfoCache.h"
 #include "TranslationCache.h"
 #include <chrono>
+#include "globals.h"
 
 //4-23-2022: Checked for translations needed
 
@@ -41,13 +42,18 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 				MICGlobals::rootEntry.Clear();
 				formExtraInfoCache->ClearCache();
 
-				//auto start = std::chrono::high_resolution_clock::now();
-				GetFormData(&MICGlobals::rootEntry, baseForm, ref);
-				//auto end = std::chrono::high_resolution_clock::now();
+				auto start = std::chrono::high_resolution_clock::now();
 
-				//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+				GetFormData(&MICGlobals::rootEntry, baseForm, ref);
 				
-				//logger::info("Runtime " + LongLongToString(duration.count()));
+				//in theory this should be in debug features instead of experimental but the extra logging impacts performance
+				//so there is no point checking performance when debugging is on
+				if (MICOptions::ExperimentalFeatures)
+				{
+					auto end = std::chrono::high_resolution_clock::now();
+					auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+					logger::info("Runtime " + LongLongToString(duration.count()) + " Microseconds");
+				}
 
 				logger::debug("Get Form Information done");
 			}
