@@ -222,14 +222,7 @@ std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 	{
 		auto displayData = static_cast<RE::ExtraTextDisplayData*> (refForm->extraList.GetByType(RE::ExtraDataType::kTextDisplayData) );
 
-		if (displayData->displayNameText)
-		{
-			name = displayData->displayNameText->fullName.c_str();
-		}
-		else
-		{
-			name = displayData->displayName;
-		}
+		name = displayData->displayName.c_str();
 	}
 	else
 	{
