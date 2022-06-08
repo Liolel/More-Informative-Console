@@ -425,7 +425,7 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm*
 
 		if (refForm)
 		{
-			RE::VMHandle handle = policy->GetHandleForObject(refForm->GetFormType(), baseForm);
+			RE::VMHandle handle = policy->GetHandleForObject(refForm->GetFormType(), refForm);
 			GetScriptsForHandle(resultArray, vm, policy, handle, refForm, nullptr);
 
 			if (refForm->GetFormType() == RE::FormType::ActorCharacter)
