@@ -170,6 +170,9 @@ enum priority
 	priority_Scripts_Scripts,
 	priority_Scripts_Script,
 	priority_Scripts_Source,
+	priority_Scripts_VariableProperty,
+	priority_Scripts_AliasName,
+	priority_Scripts_AliasQuest,
 	//Extra Data
 	priority_ExtraData_EnableParent_ParentForm,
 	priority_ExtraData_EnableParent_StateOppositeParent,

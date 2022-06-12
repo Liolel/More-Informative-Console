@@ -15,6 +15,7 @@
 #include "TESObjectWeap.h"
 #include "TESRace.h"
 #include "Util/NameUtil.h"
+#include "Util/ScriptUtil.h"
 #include "globals.h"
 #include "EditorIDCache.h"
 #include "FormExtraInfoCache.h"
@@ -233,11 +234,11 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	//mod location info
 	GetFormLocationData(resultArray, baseForm, refForm);
 
-	//Model information
-	GetModelTextures(resultArray, baseForm );
-
 	if (!MICGlobals::minimizeFormDataRead)
 	{
+		//Model information
+		GetModelTextures(resultArray, baseForm);
+
 		//Get scripts
 		ExtraInfoEntry* scriptsEntry;
 		CreateExtraInfoEntry(scriptsEntry, GetTranslation("$Scripts"), "", priority_Scripts_Scripts);
@@ -252,42 +253,42 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 		else {
 			delete (scriptsEntry);  //Free up the memory
 		}
-	}
 
-	//Enchantments. This will only catch enchantments that are part of the base form. Enchantments added by players will be covered elsewhere in the code
-	auto formWithEnchantment = baseForm ? baseForm->As<RE::TESEnchantableForm>() : nullptr;
-	if (formWithEnchantment && formWithEnchantment->formEnchanting)
-	{
-		logger::debug("GetCommonFormData: Checking enchantment");
-
-		auto enchantmentForm = formWithEnchantment->formEnchanting;
-
-		ExtraInfoEntry* enchantmentEntry;
-		std::string enchantmentName = GetName(enchantmentForm);
-
-		CreateExtraInfoEntry(enchantmentEntry, GetTranslation("$Enchantment"), enchantmentName, priority_Enchantment);
-		GetFormData(enchantmentEntry, enchantmentForm, nullptr);
-
-		if (refForm)
+		//Enchantments. This will only catch enchantments that are part of the base form. Enchantments added by players will be covered elsewhere in the code
+		auto formWithEnchantment = baseForm ? baseForm->As<RE::TESEnchantableForm>() : nullptr;
+		if (formWithEnchantment && formWithEnchantment->formEnchanting)
 		{
-			GetCharge(enchantmentEntry, &(refForm->extraList), formWithEnchantment, nullptr);
+			logger::debug("GetCommonFormData: Checking enchantment");
+
+			auto enchantmentForm = formWithEnchantment->formEnchanting;
+
+			ExtraInfoEntry* enchantmentEntry;
+			std::string enchantmentName = GetName(enchantmentForm);
+
+			CreateExtraInfoEntry(enchantmentEntry, GetTranslation("$Enchantment"), enchantmentName, priority_Enchantment);
+			GetFormData(enchantmentEntry, enchantmentForm, nullptr);
+
+			if (refForm)
+			{
+				GetCharge(enchantmentEntry, &(refForm->extraList), formWithEnchantment, nullptr);
+			}
+
+			resultArray->PushBack(enchantmentEntry);
 		}
 
-		resultArray->PushBack(enchantmentEntry);
-	}
+		//Keywords
+		auto keyWordForm = baseForm ? baseForm->As<RE::BGSKeywordForm>() : nullptr;
+		if (keyWordForm)
+		{
+			GetKeywords(resultArray, keyWordForm);
+		}
 
-	//Keywords
-	auto keyWordForm = baseForm ? baseForm->As<RE::BGSKeywordForm>() : nullptr;
-	if (keyWordForm)
-	{
-		GetKeywords(resultArray, keyWordForm);
-	}
-
-	//MagicItem
-	auto magicItem = baseForm ? baseForm->As<RE::MagicItem>() : nullptr;
-	if (magicItem)
-	{
-		GetMagicItemData(resultArray, magicItem);
+		//MagicItem
+		auto magicItem = baseForm ? baseForm->As<RE::MagicItem>() : nullptr;
+		if (magicItem)
+		{
+			GetMagicItemData(resultArray, magicItem);
+		}
 	}
 
 	logger::debug("GetCommonFormData: GetCommonFormData End");
@@ -403,133 +404,6 @@ void GetModInfoData(ExtraInfoEntry* resultArray, RE::TESForm* form, bool SkyrimE
 	}
 
 	logger::debug("GetExtraData: GetModInfoData end");
-}
-
-void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm)
-{
-	logger::debug("GetScript start");
-
-	//Get the VM handle for the form. Based on the HasVMAD method that is part of CommonLibSSEs implementation of TESFORM
-	RE::BSScript::Internal::VirtualMachine* vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
-
-	MICGlobals::minimizeFormDataRead = true;
-
-	if (vm)
-	{
-		RE::BSScript::IObjectHandlePolicy* policy = vm->GetObjectHandlePolicy();
-		if (policy)
-		{
-			RE::VMHandle handle = policy->GetHandleForObject(baseForm->GetFormType(), baseForm);
-			GetScriptsForHandle(resultArray, vm, policy, handle, baseForm, nullptr);
-		}
-
-		if (refForm)
-		{
-			RE::VMHandle handle = policy->GetHandleForObject(refForm->GetFormType(), refForm);
-			GetScriptsForHandle(resultArray, vm, policy, handle, refForm, nullptr);
-
-			if (refForm->GetFormType() == RE::FormType::ActorCharacter)
-			{
-				//Check active effects if this is an actor
-				RE::Actor* actor = nullptr;
-				actor = static_cast<RE::Actor*>(refForm);
-
-				if (actor)
-				{
-#ifndef SKYRIMVR
-					RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
-					logger::debug("GetScripts: Active Effects Gotten");
-
-					if (activeEffects)
-					{
-						RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
-
-						for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr)
-						{
-							//logger::debug("GetCharacterData: Starting Active Effect");
-
-							RE::ActiveEffect* activeEffect = *(itr);
-							auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
-							GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
-						}
-					}
-#else
-					int total = 0;
-					logger::debug("GetScripts: Starting Active Effect");
-
-					actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
-						logger::debug("GetScripts: Visiting Active Effect {}", total++);
-						if (activeEffect) {
-							auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
-							GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect);
-						}
-						return RE::BSContainer::ForEachResult::kContinue;
-					});
-
-#endif
-				}
-			}
-		}
-	}
-
-	MICGlobals::minimizeFormDataRead = false;
-	logger::debug("GetScript End");
-}
-
-void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect)
-{
-	//if (handle != policy->EmptyHandle())
-	while (handle != policy->EmptyHandle())
-	{
-		//If we have a handle for the object the next step is to look if there are any scripts attached
-
-		auto attachedScriptsIterator = vm->attachedScripts.find(handle);
-
-		if (attachedScriptsIterator != vm->attachedScripts.end()) {
-			RE::BSTSmallSharedArray<RE::BSScript::Internal::AttachedScript>* scripts = &(*attachedScriptsIterator).second;
-			int numberOfScripts = scripts->size();
-
-			for (int i = 0; i < numberOfScripts; i++) {
-				auto script = (*scripts)[i].get();
-
-				std::string scriptName = script->type->name.c_str();
-				//std::string scriptName = script->type->G
-
-				if (GetShouldDisplayScript(scriptName))
-				{
-					ExtraInfoEntry* scriptEntry;
-
-					CreateExtraInfoEntry(scriptEntry, scriptName, "", priority_Scripts_Script);
-
-					RE::TESForm* sourceForm = nullptr;
-
-					if (form)
-					{
-						sourceForm = form;
-					}
-					else if (activeEffect)
-					{
-						sourceForm = activeEffect->GetBaseObject();
-					}
-
-					if (sourceForm)
-					{
-						ExtraInfoEntry* sourceEntry;
-						std::string sourceName = GetName(sourceForm);
-						CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), sourceName, priority_Scripts_Source);
-
-						GetFormData(sourceEntry, sourceForm, nullptr);
-
-						scriptEntry->PushBack(sourceEntry);
-					}
-
-					resultArray->PushBack(scriptEntry);
-				}
-			}
-		}
-
-		handle = policy->GetHandleScriptsMovedFrom(handle);
-	}
 }
 
 //Get all keywords for forms that store keywords in the normal location

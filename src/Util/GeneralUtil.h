@@ -20,6 +20,7 @@ std::string DoubleToString(double number);
 std::string FormIDToString(int formID);
 
 std::string BooleanToYesNoString(bool boolean);
+std::string BooleanToTrueFalseString(bool boolean);
 
 /*
 int GetSmallestBitFlag(int flags);*/

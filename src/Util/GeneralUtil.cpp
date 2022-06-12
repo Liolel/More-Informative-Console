@@ -60,6 +60,7 @@ std::vector<std::string> ScriptsToSkip =
 "potion",
 "quest",
 "race",
+"referencealias",
 "scroll",
 "shout",
 "skse",
@@ -132,6 +133,21 @@ std::string BooleanToYesNoString(bool boolean)
 
 	else {
 		output = GetTranslation("$No");
+	}
+
+	return output;
+}
+
+std::string BooleanToTrueFalseString(bool boolean)
+{
+	std::string output = "";
+
+	if (boolean) {
+		output = GetTranslation("$True");
+	}
+
+	else {
+		output = GetTranslation("$False");
 	}
 
 	return output;

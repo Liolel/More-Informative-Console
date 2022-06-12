@@ -17,7 +17,4 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 void GetFormLocationData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
 void GetModInfoData(ExtraInfoEntry* resultArray, RE::TESForm* form, bool SkyrimESMNotDetectedBug);
 
-void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESForm* refForm);
-void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::VirtualMachine* vm, RE::BSScript::IObjectHandlePolicy* policy, RE::VMHandle handle, RE::TESForm* form, RE::ActiveEffect* activeEffect);
-
 void GetKeywords(ExtraInfoEntry* resultArray, RE::BGSKeywordForm* keywordForm);

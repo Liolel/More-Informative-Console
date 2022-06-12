@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(NAME "MoreInformativeConsole")
-set(VERSION 1.0.2)
+set(VERSION 1.1.0)
 
 # ---- Options ----
 
@@ -160,6 +160,8 @@ set(SOURCES
 	src/Util/NameUtil.cpp
 	src/Util/ScaleFormUtil.h
 	src/Util/ScaleFormUtil.cpp
+	src/Util/ScriptUtil.h
+	src/Util/ScriptUtil.cpp	
 	src/TESForms/BGSMusicTrack.cpp
 	src/TESForms/BGSMusicTrack.h
 	src/TESForms/BGSLocation.cpp
@@ -214,6 +216,8 @@ set(SOURCES
 	src/BSExtraData/ExtraRegionList.h	
 	src/BSExtraData/ExtraTeleport.cpp
 	src/BSExtraData/ExtraTeleport.h
+	src/BSExtraData/ExtraAliasInstanceArray.h
+	src/BSExtraData/ExtraAliasInstanceArray.cpp
 )
 
 source_group(
