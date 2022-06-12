@@ -6,6 +6,7 @@
 #include "ExtraLock.h"
 #include "ExtraRegionList.h"
 #include "ExtraTeleport.h"
+#include "ExtraAliasInstanceArray.h"
 #include "TESForms/TESForm.h"
 #include "TESForms/EnchantmentItem.h"
 #include "globals.h"
@@ -76,6 +77,12 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kRegionList);
 			ProcessRegionList(resultArray, data);
+		}
+
+		if (extraList->HasType(RE::ExtraDataType::kAliasInstanceArray))
+		{
+			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kAliasInstanceArray);
+			ProcessExtraAliasInstanceArray(resultArray, data);
 		}
 
 		if (extraList->HasType(RE::ExtraDataType::kEnchantment))

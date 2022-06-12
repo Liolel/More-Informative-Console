@@ -1,5 +1,6 @@
 #include "ScriptUtil.h"
 #include "TESForms/TESForm.h"
+#include "BSExtraData/ExtraAliasInstanceArray.h"
 #include "TranslationCache.h"
 #include "globals.h"
 #include "NameUtil.h"
@@ -145,7 +146,7 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 					{
 						//add information on quest later
 						ExtraInfoEntry* sourceEntry;
-						CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), alias->aliasName.c_str(), priority_Scripts_Source);
+						CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), GetTranslation("$Alias") + " : " + alias->aliasName.c_str(), priority_Scripts_Source);
 
 						GetAliasInformation(sourceEntry, alias);
 
@@ -281,7 +282,7 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 					else //all remaining vmHandle types are subclasses of BGSBaseAlias
 					{
 						alias = static_cast<RE::BGSBaseAlias*>(object->Resolve(vmHandleType));
-						value = alias->aliasName;
+						value = GetTranslation("$Alias") + " : " + alias->aliasName.c_str();
 					}
 				}
 				else
@@ -338,22 +339,4 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 	resultArray->PushBack(variableEntry);
 
 	return value;
-}
-
-void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias * alias)
-{
-	ExtraInfoEntry* aliasNameEntry;
-
-	CreateExtraInfoEntry(aliasNameEntry, GetTranslation("$AliasName"), alias->aliasName.c_str() , priority_Scripts_AliasName); //this gives number of properties
-	resultArray->PushBack(aliasNameEntry);
-
-	RE::TESQuest* owningQuest = alias->owningQuest;
-
-	if (owningQuest)
-	{
-		ExtraInfoEntry* aliasQuestEntry;
-		CreateExtraInfoEntry(aliasQuestEntry, GetTranslation("$AliasQuest"), GetName(owningQuest), priority_Scripts_AliasQuest);
-		GetFormData(aliasQuestEntry, owningQuest, nullptr);
-		resultArray->PushBack(aliasQuestEntry);
-	}
 }
