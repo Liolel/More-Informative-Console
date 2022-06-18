@@ -28,11 +28,16 @@ public:
 	int priority;  //Priority for use in sorting. Higher Priority entires move to the top of the list
 	bool disableSortingByName;
 
+	bool needsExpansion;
+	int subarrayCountOverride;
+	RE::BSScript::Object* scriptToExpand;
+
 private:
 
 	int parents;
 	bool isFinalized;
 	bool mayCopy;
+
 
 	std::vector<ExtraInfoEntry*> subarray;
 };

@@ -1,4 +1,5 @@
 #include "ExtraInfoEntry.h"
+#include "Util/ScriptUtil.h"
 #include "RE/Skyrim.h"
 #include "SKSE/API.h"
 #include <algorithm>
@@ -12,6 +13,9 @@ ExtraInfoEntry::ExtraInfoEntry(std::string entry1, std::string entry2, int prior
 	this->isFinalized = false;
 	this->mayCopy = true;
 	this->disableSortingByName = false;
+	this->needsExpansion = false;
+	this->subarrayCountOverride = 0;
+	this->scriptToExpand = nullptr;
 }
 
 void ExtraInfoEntry::Clear()
@@ -75,6 +79,12 @@ void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue* mainScaleFormArra
 
 	root->CreateArray(mainScaleFormArray);
 
+	if (needsExpansion && scriptToExpand ) 
+	{
+		GetVariablesAndPropertiesForScript(this, scriptToExpand);
+		Finalize();
+	}
+
 	if (!subarray.empty()) {
 		for (int i = 0; i < subarray.size(); i++) {
 			RE::GFxValue subArrayEntry;
@@ -90,7 +100,16 @@ void ExtraInfoEntry::CreateSecondaryScaleformArray(RE::GFxValue* scaleFormArray,
 
 	RE::GFxValue GFxExtraInfoName, GFxExtraInfoContents, GFxExtraInfoCount;
 
-	std::string arraySize = IntToString((int)subarray.size());
+	std::string arraySize = "";
+
+	if( needsExpansion ) 
+	{
+		arraySize = IntToString(subarrayCountOverride);
+	} 
+	else 
+	{
+		arraySize = IntToString((int)subarray.size());
+	}
 
 	GFxExtraInfoName.SetString(entry1.c_str());
 	GFxExtraInfoContents.SetString(entry2.c_str());

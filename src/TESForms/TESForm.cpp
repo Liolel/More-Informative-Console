@@ -65,22 +65,34 @@ int GetNumberOfSourceFiles(RE::TESForm* form)
 	return numberOfFiles;
 }
 
+//returns true if we should get expanded form data
+bool GetShouldGetExpandedFormData(RE::TESForm * baseForm)
+{
+	//RE::FormType baseFormType = baseForm->GetFormType();
+	return !MICGlobals::minimizeFormDataRead;
+   	       /*
+	       || (baseFormType != RE::FormType::NPC 
+	            && baseFormType != RE::FormType::Race 
+			    && baseFormType != RE::FormType::Quest);*/  //Only a few form types truely require minimization. The rest of the form types don't have massive amounts of information to read in
+}
+
 //general wrapper for all get form methods
 void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm)
 {
 	logger::debug(("GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID)).c_str());
 
+	bool getExpandedData = GetShouldGetExpandedFormData(baseForm);
+
 	auto formExtraInfoCache = FormExtraInfoCache::GetSingleton();
-	auto extraInfoEntryCached = formExtraInfoCache->GetExtraInfoEntry(baseForm);
+	auto extraInfoEntryCached = getExpandedData ? formExtraInfoCache->GetExtraInfoEntry(baseForm) : nullptr;  //for consitency don't check for a cached form when we are minimizing form data
 
 	if (extraInfoEntryCached == nullptr )
 	{
-		GetCommonFormData(resultArray, baseForm, refForm);
 		RE::FormType baseFormType = baseForm->GetFormType();
 
-		if (!MICGlobals::minimizeFormDataRead
-			|| ( baseFormType != RE::FormType::NPC
-				 && baseFormType != RE::FormType::Race ) ) //NPCs and Races are the only form types that truely require minimization. The rest of the form types don't have massive amounts of information to read in
+		GetCommonFormData(resultArray, baseForm, refForm);
+
+		if( getExpandedData ) 
 		{
 			if (refForm != nullptr) 
 			{
@@ -234,7 +246,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	//mod location info
 	GetFormLocationData(resultArray, baseForm, refForm);
 
-	if (!MICGlobals::minimizeFormDataRead )
+	if( GetShouldGetExpandedFormData( baseForm ) )
 	{
 		//Model information
 		GetModelTextures(resultArray, baseForm);
