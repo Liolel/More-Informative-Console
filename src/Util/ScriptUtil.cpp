@@ -192,6 +192,7 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 		ExtraInfoEntry* variablesAndProperties;
 		CreateExtraInfoEntry(variablesAndProperties, GetTranslation("$VariablesProperties") , "", priority_Scripts_Script); //this gives number of properties
 
+		/*
 		const auto vars = objectTypeInfo->GetVariableIter();
 		if (vars) {
 			for (std::uint32_t i = 0; i < objectTypeInfo->GetNumVariables(); ++i) {
@@ -203,7 +204,7 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 				std::string cleanVariableName = CleanVariableName(variableName);
 				GetVariableValue(variablesAndProperties, variable, cleanVariableName);
 			}
-		}
+		}*/
 
 		resultArray->PushBack(variablesAndProperties);
 	}
@@ -275,7 +276,7 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 
 				if (vmHandleTypeFound)
 				{
-					if (vmHandleType == 139) //Active Effect
+					if (vmHandleType == 142) //Active Effect
 					{
 
 					}

@@ -80,7 +80,7 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 
 		if (!MICGlobals::minimizeFormDataRead
 			|| ( baseFormType != RE::FormType::NPC
-				 && baseFormType != RE::FormType::Race ) ) //for the caster of an effect just getting the common form data should be enough information
+				 && baseFormType != RE::FormType::Race ) ) //NPCs and Races are the only form types that truely require minimization. The rest of the form types don't have massive amounts of information to read in
 		{
 			if (refForm != nullptr) 
 			{
@@ -234,7 +234,7 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 	//mod location info
 	GetFormLocationData(resultArray, baseForm, refForm);
 
-	if (!MICGlobals::minimizeFormDataRead)
+	if (!MICGlobals::minimizeFormDataRead )
 	{
 		//Model information
 		GetModelTextures(resultArray, baseForm);
