@@ -57,7 +57,7 @@ void GetCurrentMusic(ExtraInfoEntry* resultArray)
 		{
 			std::string musicTypeName = GetName(currentPriorityType);
 			ExtraInfoEntry* musicTypeEntry;
-			CreateExtraInfoEntry(musicTypeEntry, GetTranslation("MusicType"), musicTypeName, priority_WorldData_MusicType);
+			CreateExtraInfoEntry(musicTypeEntry, GetTranslation("$MusicType"), musicTypeName, priority_WorldData_MusicType);
 			GetFormData(musicTypeEntry, currentPriorityType, nullptr);
 			resultArray->PushBack(musicTypeEntry);
 

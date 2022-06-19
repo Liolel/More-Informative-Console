@@ -83,6 +83,7 @@ void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue* mainScaleFormArra
 	{
 		GetVariablesAndPropertiesForScript(this, scriptToExpand);
 		Finalize();
+		needsExpansion = false;
 	}
 
 	if (!subarray.empty()) {

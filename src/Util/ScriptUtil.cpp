@@ -13,8 +13,6 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 	//Get the VM handle for the form. Based on the HasVMAD method that is part of CommonLibSSEs implementation of TESFORM
 	RE::BSScript::Internal::VirtualMachine* vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 
-	MICGlobals::minimizeFormDataRead = true;
-
 	if (vm)
 	{
 		RE::BSScript::IObjectHandlePolicy* policy = vm->GetObjectHandlePolicy();
@@ -81,8 +79,7 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 			}
 		}
 	}
-
-	MICGlobals::minimizeFormDataRead = false;
+	
 	logger::debug("GetScript End");
 }
 
@@ -107,9 +104,6 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 
 				if (GetShouldDisplayScript(scriptName))
 				{
-					bool isInMinimizeMode = MICGlobals::minimizeFormDataRead;
-					MICGlobals::minimizeFormDataRead = true;
-
 					ExtraInfoEntry* scriptEntry;
 
 					CreateExtraInfoEntry(scriptEntry, scriptName, "", priority_Scripts_Script);
@@ -127,6 +121,10 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 
 					if (sourceForm)
 					{
+						bool isInMinimizeMode = MICGlobals::minimizeFormDataRead;
+
+						MICGlobals::minimizeFormDataRead = true;
+
 						ExtraInfoEntry* sourceEntry;
 						std::string sourceName = GetName(sourceForm);
 						CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), sourceName, priority_Scripts_Source);
@@ -134,6 +132,8 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 						GetFormData(sourceEntry, sourceForm, nullptr);
 
 						scriptEntry->PushBack(sourceEntry);
+
+						MICGlobals::minimizeFormDataRead = isInMinimizeMode;
 					}
 
 					else if (alias)
@@ -163,8 +163,6 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 					//GetVariablesAndPropertiesForScript(scriptEntry, script);
 
 					resultArray->PushBack(scriptEntry);
-	
-					MICGlobals::minimizeFormDataRead = isInMinimizeMode;
 				}
 			}
 		}
@@ -180,10 +178,28 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 
 	bool isInMinimizeMode = MICGlobals::minimizeFormDataRead;
 	MICGlobals::minimizeFormDataRead = true;
-
 	
-	if (objectTypeInfo)
+	int j = 0;
+
+	int totalVariables = objectTypeInfo->GetTotalNumVariables();
+
+	//variables are ordered from the topmost level down, but the object we get is for the lowest level child. 
+	//so we need to work our way up in levels from said child to the parent scripts, and then process them in reverse order
+	//which is why we are storing all of the levels in a stack
+	std::stack<RE::BSScript::ObjectTypeInfo*> objectTypeInfoStack;
+
+	while (objectTypeInfo) 
 	{
+		objectTypeInfoStack.push(objectTypeInfo);
+		objectTypeInfo = objectTypeInfo->GetParent();
+	}
+
+	while( !objectTypeInfoStack.empty() ) 
+	{
+		objectTypeInfo = objectTypeInfoStack.top();
+		objectTypeInfoStack.pop();
+		logger::info(objectTypeInfo->GetName());
+
 		//ExtraInfoEntry* numProperties;
 		//ExtraInfoEntry* numVariables;
 		//ExtraInfoEntry* totalVariables;
@@ -198,18 +214,66 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 
 		//logger::info(script->type->name.c_str());
 		
+		
 		const auto vars = objectTypeInfo->GetVariableIter();
 		if (vars) {
 			for (std::uint32_t i = 0; i < objectTypeInfo->GetNumVariables(); ++i) {
 				const auto& varTypeInfo = vars[i];
 				std::string variableName = varTypeInfo.name.c_str();
 
-				auto variable = &(script->variables[i]);
+				auto variable = &(script->variables[j]);
 
 				std::string cleanVariableName = CleanVariableName(variableName);
-				GetVariableValue(resultArray, variable, cleanVariableName);
+
+				logger::info(cleanVariableName + " " + IntToString(j) );
+				
+				if ( variable->IsArray() ) 
+				{
+					logger::info("Array");
+				}
+				if (variable->IsObject()  )
+				{
+					logger::info("Object");
+				}
+				if (variable->IsBool() ) 
+				{
+					logger::info("Bool");
+				}				
+				if (variable->IsInt() ) 
+				{
+					logger::info("Int");
+				}
+				if (variable->IsFloat() ) {
+					logger::info("Float");
+				}
+
+				GetVariableValue(resultArray, variable, cleanVariableName, false);
+
+				j++;
 			}
 		}
+
+		/*
+		const auto props = objectTypeInfo->GetPropertyIter();
+		if (props) {
+			for (std::uint32_t i = 0; i < objectTypeInfo->GetNumProperties(); ++i) {
+				const auto& varTypeInfo = props[i];
+				std::string variableName = varTypeInfo.name.c_str();
+				int index = props->info.autoVarIndex;
+
+				if (index >= 0) 
+				{
+					logger::info(IntToString(index));
+
+					auto variable = &(script->variables[index]);
+
+					std::string cleanVariableName = CleanVariableName(variableName);
+					GetVariableValue(resultArray, variable, cleanVariableName, false);
+				}
+			}
+		}*/
+
+		//go up a level 
 	}
 	
 	MICGlobals::minimizeFormDataRead = isInMinimizeMode;
@@ -229,10 +293,11 @@ std::string CleanVariableName(std::string variableName)
 	return variableName;
 }
 
-std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable * variable, std::string variableName)
+std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable * variable, std::string variableName, bool isInArray)
 {
 	RE::TESForm * form = nullptr;
 	RE::BGSBaseAlias* alias = nullptr;
+	RE::BSScript::Array* arrayVarible = nullptr;
 
 	std::string value = "";
 	if (variable->IsBool())
@@ -250,77 +315,92 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 	else if (variable->IsString())
 	{
 		value = variable->GetString();
-	}
-	else if (variable->IsObject())
+	} 
+	else if (variable->IsObject()) 
 	{
 		auto object = variable->GetObject();
 
-		if (object)
-		{
+		if (object && object->handle) {
 			auto vmHandle = object->handle;
 
 			auto vm = RE::BSScript::Internal::VirtualMachine::GetSingleton();
 			auto policy = vm ? vm->GetObjectHandlePolicy() : nullptr;
-			if (policy)
-			{
-				int vmHandleType = 139; //Handle types 0-138 are forms and can be handled with the same code so we don't need specific checks
+			if (policy) {
+				int vmHandleType = 139;  //Handle types 0-138 are forms and can be handled with the same code so we don't need specific checks
 				bool vmHandleTypeFound = false;
 
-				while (!vmHandleTypeFound
-					&& vmHandleType <= 142)
-				{
+				while (!vmHandleTypeFound && vmHandleType <= 142) {
 					vmHandleTypeFound = policy->HandleIsType(vmHandleType, vmHandle);
 
-					if (!vmHandleTypeFound)
-					{
+					if (!vmHandleTypeFound) {
 						vmHandleType++;
 					}
 				}
 
-				if (vmHandleTypeFound)
-				{
-					if (vmHandleType == 142) //Active Effect
+				if (vmHandleTypeFound) {
+					if (vmHandleType == 142)  //Active Effect
 					{
-
-					}
-					else //all remaining vmHandle types are subclasses of BGSBaseAlias
+					} else  //all remaining vmHandle types are subclasses of BGSBaseAlias
 					{
 						alias = static_cast<RE::BGSBaseAlias*>(object->Resolve(vmHandleType));
 						value = GetTranslation("$Alias") + " : " + alias->aliasName.c_str();
 					}
-				}
-				else
-				{
+				} else {
 					//logger::info("Type Found");
 
-					form = static_cast<RE::TESForm*>(object->Resolve(0)); //0 seems to always resolve regardless of the handle type
+					form = static_cast<RE::TESForm*>(object->Resolve(0));  //0 seems to always resolve regardless of the handle type
 					RE::TESObjectREFR* refForm = form ? form->As<RE::TESObjectREFR>() : nullptr;
 
-					if (refForm) 
-					{
+					if (refForm) {
 						form = refForm->data.objectReference;
 					}
 
-					if (form)
-					{
-						value = GetName(form, refForm );
+					if (form) {
+						value = GetName(form, refForm);
 					}
 				}
 
-
+			} 
+			else {
+				value = GetTranslation("$PropertyNone");
 			}
 		}
-
-		else
+	}
+	else if ( variable->IsArray() )
+	{
+		//I'm not sure if the above checks include NoneArrays so add a safety check here just in case
+		if( variable->IsNoneArray() ) 
 		{
 			value = GetTranslation("$PropertyNone");
 		}
+		else 
+		{
+			auto arrayVariablePointer = variable->GetArray();
+			if (arrayVariablePointer) 
+			{
+				arrayVarible = arrayVariablePointer.get();
+			}
+
+			value = GetTranslation("$PropertyArray");
+		}
 	}
+	else
+	{
+		value = GetTranslation("$PropertyNone");
+	}	
 
 	//object type
 	//get vm handle. VM handle can be used to get a form
 
 	ExtraInfoEntry* variableEntry;
+
+	//rerannage the values inside array to look better
+	if (isInArray) 
+	{
+		variableName = value;
+		value = "";
+	}
+
 	CreateExtraInfoEntry(variableEntry, variableName, value, priority_Scripts_VariableProperty); //this gives number of properties
 
 	if (form)
@@ -344,6 +424,25 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 	else if (alias)
 	{
 		GetAliasInformation(variableEntry, alias);
+	} 
+	else if ( arrayVarible ) 
+	{
+		for (auto i = arrayVarible->begin(); i != arrayVarible->end(); i++ )
+		{
+			RE::BSScript::Variable* variableInArray = i;
+
+			if (variableInArray ) 
+			{
+				GetVariableValue(variableEntry, variableInArray, "", true);
+			} 
+			else //I don't think this is possible but add an empty entry if the pointer somehow doesn't point to a variable
+			{
+				ExtraInfoEntry* variableInArrayEntry;
+				CreateExtraInfoEntry(variableInArrayEntry, "", "", priority_Scripts_VariableProperty); 
+				variableEntry->PushBack(variableInArrayEntry);
+			}
+
+		}
 	}
 
 	resultArray->PushBack(variableEntry);
