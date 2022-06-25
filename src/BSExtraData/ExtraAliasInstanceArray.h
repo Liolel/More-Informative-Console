@@ -3,4 +3,4 @@
 #include "ExtraInfoEntry.h"
 
 void ProcessExtraAliasInstanceArray(ExtraInfoEntry* resultArray, RE::BSExtraData* data);
-void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias* alias);
+void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias* alias, bool getOwningQuest );

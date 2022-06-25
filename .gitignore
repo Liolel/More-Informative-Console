@@ -3,3 +3,4 @@ vcpkg_installed
 *.dll
 *.zip
 .vs
+contrib

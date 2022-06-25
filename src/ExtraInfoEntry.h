@@ -171,6 +171,9 @@ enum priority
 	priority_ExtraLock_Key,
 	//Container
 	priority_Container_IsSafe,
+	//Quests
+	priority_Quest_Status,
+	priority_Quest_CurrentStage,
 	//Scripts
 	priority_Scripts_Scripts,
 	priority_Scripts_Script,

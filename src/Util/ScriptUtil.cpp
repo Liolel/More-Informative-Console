@@ -142,7 +142,7 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 						ExtraInfoEntry* sourceEntry;
 						CreateExtraInfoEntry(sourceEntry, GetTranslation("$Source"), GetTranslation("$Alias") + " : " + alias->aliasName.c_str(), priority_Scripts_Source);
 
-						GetAliasInformation(sourceEntry, alias);
+						GetAliasInformation(sourceEntry, alias, true);
 
 						scriptEntry->PushBack(sourceEntry);
 					}
@@ -225,6 +225,7 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 
 				std::string cleanVariableName = CleanVariableName(variableName);
 
+				/*
 				logger::info(cleanVariableName + " " + IntToString(j) );
 				
 				if ( variable->IsArray() ) 
@@ -245,7 +246,7 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 				}
 				if (variable->IsFloat() ) {
 					logger::info("Float");
-				}
+				}*/
 
 				GetVariableValue(resultArray, variable, cleanVariableName, false);
 
@@ -423,7 +424,7 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 	}
 	else if (alias)
 	{
-		GetAliasInformation(variableEntry, alias);
+		GetAliasInformation(variableEntry, alias, true);
 	} 
 	else if ( arrayVarible ) 
 	{

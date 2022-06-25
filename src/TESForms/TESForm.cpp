@@ -13,6 +13,7 @@
 #include "TESObjectCONT.h"
 #include "TESObjectREFR.h"
 #include "TESObjectWeap.h"
+#include "TESQuest.h"
 #include "TESRace.h"
 #include "Util/NameUtil.h"
 #include "Util/ScriptUtil.h"
@@ -154,6 +155,10 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 			else if (baseFormType == RE::FormType::Location) {
 				logger::debug("GetExtraData: Get Form Data LCTN found");
 				GetLocationEntry(resultArray, baseForm);
+			} 
+			else if (baseFormType == RE::FormType::Quest) {
+				logger::debug("GetExtraData: Get Form Data Quest found");
+				GetQuestInformation(resultArray, baseForm);
 			}
 
 			//reset any filtering
