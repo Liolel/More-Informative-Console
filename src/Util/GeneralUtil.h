@@ -27,3 +27,5 @@ int GetSmallestBitFlag(int flags);*/
 
 bool HasFlag(int Flags, int flag);
 bool GetShouldDisplayScript(std::string scriptName);
+
+std::string ToLower(std::string stringToEdit);

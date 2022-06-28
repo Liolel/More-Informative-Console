@@ -6,12 +6,14 @@
 #include "Scaleform/MICScaleform_GetReferenceInfo.h"
 #include "Scaleform/MICScaleform_Log.h"
 #include "Scaleform/MICScaleform_RetrieveExtraData.h"
+#include "Scaleform/MICScaleform_GetQuestData.h"
 
 MICScaleform_GetReferenceInfo* getReferenceInfo = nullptr;
 MICScaleform_GetIniOptions* getIniOptions = nullptr;
 MICScaleform_RetrieveExtraData* retrieveExtraData = nullptr;
 MICScaleform_GetExtraData* getExtraData = nullptr;
 MICScaleform_Log* MICScaleformlog = nullptr;
+MICScaleform_GetQuestData* getQuestData = nullptr;
 
 //// core hook
 bool moreInformativeConsoleScaleForm::InstallHooks(RE::GFxMovieView* a_view, RE::GFxValue*)
@@ -36,6 +38,10 @@ bool moreInformativeConsoleScaleForm::InstallHooks(RE::GFxMovieView* a_view, RE:
 
 	if (MICScaleformlog == nullptr) {
 		MICScaleformlog = new MICScaleform_Log;
+	}
+	
+	if (getQuestData == nullptr) {
+		getQuestData = new MICScaleform_GetQuestData;
 	}
 
 	RE::GFxValue globals;
@@ -67,6 +73,10 @@ bool moreInformativeConsoleScaleForm::InstallHooks(RE::GFxMovieView* a_view, RE:
 		RE::GFxValue fnValue5;
 		a_view->CreateFunction(&fnValue5, MICScaleformlog);
 		MIC.SetMember("MICScaleform_Log", fnValue5);
+
+		RE::GFxValue fnValue6;
+		a_view->CreateFunction(&fnValue6, getQuestData);
+		MIC.SetMember("MICScaleform_GetQuestData", fnValue6);
 
 		//Store object with functions
 		globals.SetMember("MIC", MIC);

@@ -186,6 +186,9 @@ enum priority
 	priority_Alias_AliasType,
 	priority_Alias_AliasQuest,
 	priority_Alias_AliasTarget,
+	//Global
+	priorty_Global_Type,
+	priorty_Global_Value,
 	//Extra Data
 	priority_ExtraData_EnableParent_ParentForm,
 	priority_ExtraData_EnableParent_StateOppositeParent,

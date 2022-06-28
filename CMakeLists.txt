@@ -162,6 +162,8 @@ set(SOURCES
 	src/MIC_Scaleform.h
 	src/Scaleform/MICScaleform_GetExtraData.cpp
 	src/Scaleform/MICScaleform_GetExtraData.h
+	src/Scaleform/MICScaleform_GetQuestData.cpp
+	src/Scaleform/MICScaleform_GetQuestData.h
 	src/Scaleform/MICScaleform_GetIniOptions.cpp
 	src/Scaleform/MICScaleform_GetIniOptions.h
 	src/Scaleform/MICScaleform_GetReferenceInfo.cpp
@@ -198,6 +200,8 @@ set(SOURCES
 	src/TESForms/TESAmmo.h
 	src/TESForms/TESForm.cpp
 	src/TESForms/TESForm.h
+	src/TESForms/TESGlobal.cpp
+	src/TESForms/TESGlobal.h	
 	src/TESForms/TESModel.cpp
 	src/TESForms/TESModel.h
 	src/TESForms/TESModelTextureSwap.cpp
@@ -218,6 +222,8 @@ set(SOURCES
 	src/TESForms/TESObjectWEAP.h
 	src/TESForms/TESRace.cpp
 	src/TESForms/TESRace.h
+	src/TESForms/TESQuest.cpp
+	src/TESForms/TESQuest.h	
 	src/BSExtraData/BSExtraData.cpp
 	src/BSExtraData/BSExtraData.h
 	src/BSExtraData/ExtraContainerChanges.cpp

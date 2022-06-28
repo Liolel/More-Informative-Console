@@ -18,5 +18,7 @@ namespace MICOptions
 	extern int FontSizeBaseInfo = 16;     //Size of the font used in the base info
 	extern int FontSizeConsoleText = 16;  //Size of the font used in the console text
 	int BaseInfoFormat = 2;               //How much information to display in the base info window
-	extern int DisableEditorIDs = false; //Disable fetching editor ids
+	extern bool DisableEditorIDs = false; //Disable fetching editor ids
+	extern bool DisableScriptsAliases = false;            //disable scripts and aliases for all objects
+	extern bool DisableScriptsAliasesPlayerOnly = true;  //disalbe scripts and aliases only when the player is selected
 }

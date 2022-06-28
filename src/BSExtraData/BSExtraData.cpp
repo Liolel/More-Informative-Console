@@ -79,7 +79,10 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			ProcessRegionList(resultArray, data);
 		}
 
-		if (extraList->HasType(RE::ExtraDataType::kAliasInstanceArray))
+		if ( extraList->HasType(RE::ExtraDataType::kAliasInstanceArray )
+			 && ( !MICOptions::DisableScriptsAliases  //if getting aliases are allowed
+				  && ( refForm->formID != 0x0000014 || 
+					   !MICOptions::DisableScriptsAliasesPlayerOnly) ) )
 		{
 			RE::BSExtraData* data = extraList->GetByType(RE::ExtraDataType::kAliasInstanceArray);
 			ProcessExtraAliasInstanceArray(resultArray, data);

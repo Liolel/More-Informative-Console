@@ -42,6 +42,7 @@ std::vector<std::string> ScriptsToSkip =
 "formtype",
 "game",
 "gamedata",
+"globalvariable",
 "headpart",
 "ingredient",
 "input",
@@ -160,9 +161,16 @@ bool HasFlag(int Flags, int flag)
 
 bool GetShouldDisplayScript( std::string scriptName )
 {
-	std::for_each(scriptName.begin(), scriptName.end(), [](char& c) {
+	scriptName = ToLower(scriptName);
+
+	return std::find(ScriptsToSkip.begin(), ScriptsToSkip.end(), scriptName) == ScriptsToSkip.end();
+}
+
+std::string ToLower(std::string stringToEdit)
+{
+	std::for_each(stringToEdit.begin(), stringToEdit.end(), [](char& c) {
 		c = (char)::tolower(c);
 	});
 
-	return std::find(ScriptsToSkip.begin(), ScriptsToSkip.end(), scriptName) == ScriptsToSkip.end();
+	return stringToEdit;
 }

@@ -9,7 +9,11 @@ void GetQuestInformation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		std::string status = "";
 
-		if (quest->IsRunning() ) 
+		if (!(quest->alreadyRun))
+		{
+			status = GetTranslation("$QuestStatusInactive");
+		}
+		else if (quest->IsRunning() ) 
 		{
 			status = GetTranslation("$QuestStatusRunning");
 		}
@@ -21,10 +25,6 @@ void GetQuestInformation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		{
 			status = GetTranslation("$QuestStatusStopped");
 		} 
-		else 
-		{
-			status = GetTranslation("$QuestStatusInactive");
-		}
 
 		CreateExtraInfoEntry(statusEntry, GetTranslation("$QuestStatus"), status, priority_Quest_Status);
 		resultArray->PushBack(statusEntry);

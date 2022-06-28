@@ -6,6 +6,7 @@
 #include "MagicItem.h"
 #include "SpellItem.h"
 #include "TESAmmo.h"
+#include "TESGlobal.h"
 #include "TESModelTextureSwap.h"
 #include "TESObjectARMA.h"
 #include "TESObjectARMO.h"
@@ -69,8 +70,8 @@ int GetNumberOfSourceFiles(RE::TESForm* form)
 //returns true if we should get expanded form data
 bool GetShouldGetExpandedFormData(RE::TESForm * baseForm)
 {
-	//RE::FormType baseFormType = baseForm->GetFormType();
-	return !MICGlobals::minimizeFormDataRead;
+	return !MICGlobals::minimizeFormDataRead 
+		   || baseForm->formType == RE::FormType::Global; //For globals we always care about the vakue and they are small enough to not be a performance problem
    	       /*
 	       || (baseFormType != RE::FormType::NPC 
 	            && baseFormType != RE::FormType::Race 
@@ -159,7 +160,11 @@ void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObje
 			else if (baseFormType == RE::FormType::Quest) {
 				logger::debug("GetExtraData: Get Form Data Quest found");
 				GetQuestInformation(resultArray, baseForm);
-			}
+			} 
+			else if (baseFormType == RE::FormType::Global) {
+				logger::debug("GetExtraData: Get Form Data Global found");
+				GetGlobalInformation(resultArray, baseForm);
+			} 
 
 			//reset any filtering
 			MICGlobals::filterARMAByRace = nullptr;
