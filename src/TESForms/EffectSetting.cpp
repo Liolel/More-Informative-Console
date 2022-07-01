@@ -3,7 +3,9 @@
 #include "TESForm.h"
 #include "Util/NameUtil.h"
 #include "TranslationCache.h"
+#include "globals.h"
 #include <Util/GeneralUtil.h>
+#include <math.h>
 
 //4-24-2022: Checked for translations needed
 
@@ -74,4 +76,132 @@ void GetMagicEffectData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		resultArray->PushBack(hostileEntry);
 	}
 	logger::debug("GetExtraData: GetMagicEffectData End");
+}
+
+
+void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, RE::Actor* caster, bool isFromActiveEffect, float durationFloat, float elapsedTime, bool isActive, float magnitude )
+{
+	logger::debug("GetEffectData Start");
+
+	//Get data for the actual effect
+	RE::EffectSetting* effectSetting = effect->baseEffect;
+	GetFormData(resultArray, effectSetting, nullptr);
+
+	//Magnitude
+	ExtraInfoEntry* areaEntry;
+
+	int area = effect->effectItem.area;
+	CreateExtraInfoEntry(areaEntry, GetTranslation("$Area"), IntToString(area), priority_Effect_Area);
+	areaEntry->SetMayCopy(false);
+	resultArray->PushBack(areaEntry);
+
+	if (isFromActiveEffect)
+	{
+		//Magnitude
+		ExtraInfoEntry* magnitudeEntry;
+
+		magnitude = std::abs(magnitude);
+
+		CreateExtraInfoEntry(magnitudeEntry, GetTranslation("$Magnitude"), FloatToString(magnitude), priority_Effect_Magnitude);
+		magnitudeEntry->SetMayCopy(false);
+		resultArray->PushBack(magnitudeEntry);
+
+		if (durationFloat > 0.0)
+		{
+			durationFloat = durationFloat - elapsedTime;
+		}
+
+		//Duration
+		ExtraInfoEntry* durationEntry;
+
+		CreateExtraInfoEntry(durationEntry, GetTranslation("$Duration"), FloatToString(durationFloat), priority_Effect_Duration);
+		durationEntry->SetMayCopy(false);
+		resultArray->PushBack(durationEntry);
+
+		//Active
+		ExtraInfoEntry* activeEntry;
+		CreateExtraInfoEntry(activeEntry, GetTranslation("$EffectActive"), BooleanToYesNoString(isActive), priority_Effect_Active);
+		activeEntry->SetMayCopy(false);
+		resultArray->PushBack(activeEntry);
+	}
+	else
+	{
+		//Magnitude
+		ExtraInfoEntry* magnitudeEntry;
+
+		float magnitude = effect->effectItem.magnitude;
+		CreateExtraInfoEntry(magnitudeEntry, GetTranslation("$Magnitude"), FloatToString(magnitude), priority_Effect_Magnitude);
+		magnitudeEntry->SetMayCopy(false);
+		resultArray->PushBack(magnitudeEntry);
+
+		//Duration
+		ExtraInfoEntry* durationEntry;
+
+		int durationInt = effect->effectItem.duration;
+		CreateExtraInfoEntry(durationEntry, GetTranslation("$Duration"), IntToString(durationInt), priority_Effect_Duration);
+		durationEntry->SetMayCopy(false);
+		resultArray->PushBack(durationEntry);
+	}
+
+	//Caster
+	if (!MICGlobals::minimizeFormDataRead)
+	{
+		if (caster)
+		{
+			auto baseFormCaster = caster->GetActorBase();
+
+			if (baseFormCaster)
+			{
+				MICGlobals::minimizeFormDataRead = true;
+				ExtraInfoEntry* casterEntry;
+				std::string casterName = GetName(baseFormCaster);
+				CreateExtraInfoEntry(casterEntry, GetTranslation("$Caster"), casterName, priority_Effect_Caster);
+				GetFormData(casterEntry, baseFormCaster, caster);
+				resultArray->PushBack(casterEntry);
+				MICGlobals::minimizeFormDataRead = false;
+			}
+		}
+	}
+}
+
+
+void GetActiveEffectData(ExtraInfoEntry* resultArray, RE::ActiveEffect* activeEffect)
+{
+	logger::debug("EffectSetting: Active Effect MGEF found");
+
+	std::string effectActive;
+
+	RE::Effect* effect = activeEffect->effect;
+	priority priorityToUse;
+
+	bool active = IsEffectActive(activeEffect);
+
+	if (!active)
+	{
+		effectActive = GetTranslation("$EffectInactive");
+		priorityToUse = priority_MagicItem_Effect_Inactive;
+	}
+	else
+	{
+		effectActive = GetTranslation("$EffectActive");
+		priorityToUse = priority_MagicItem_Effect_Active;
+	}
+
+	auto caster = activeEffect->GetCasterActor().get();
+
+	ExtraInfoEntry* effectEntry;
+
+	RE::EffectSetting* effectSetting = effect->baseEffect;
+	std::string effectName = GetName(effectSetting);
+
+	CreateExtraInfoEntry(effectEntry, effectName, effectActive, priorityToUse);
+
+	GetEffectData(effectEntry, effect, caster, true, activeEffect->duration, activeEffect->elapsedSeconds, active, activeEffect->magnitude );
+
+	resultArray->PushBack(effectEntry);
+}
+
+bool IsEffectActive(RE::ActiveEffect* activeEffect)
+{
+	return !(HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive));
 }

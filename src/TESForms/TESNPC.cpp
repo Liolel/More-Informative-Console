@@ -3,6 +3,7 @@
 #include "TESForm.h"
 #include "Util/NameUtil.h"
 #include "globals.h"
+#include "EffectSetting.h"
 #include "TranslationCache.h"
 #include <Util/GeneralUtil.h>
 
@@ -169,33 +170,15 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 
 			RE::ActiveEffect* activeEffect = *(itr);
 
-			ExtraInfoEntry* effectEntry;
-
-			if (activeEffect && activeEffect->effect) {
-				logger::debug("GetCharacterData: Active Effect MGEF found");
-
-				std::string effectActive;
-
-				RE::Effect* effect = activeEffect->effect;
-				priority priorityToUse;
-
-				if (HasFlag(activeEffect->flags.underlying(), (int)RE::ActiveEffect::Flag::kInactive)) 
-				{
-					effectActive = GetTranslation("$EffectInactive");
-					priorityToUse = priority_MagicItem_Effect_Inactive;
-				} else {
-					effectActive = GetTranslation("$EffectActive");
-					priorityToUse = priority_MagicItem_Effect_Active;
-				}
-
-				auto caster = activeEffect->GetCasterActor().get();
-
-				GetEffectData(activeEffectsEntry, effect, effectActive, priorityToUse, caster );				
+			if (activeEffect && activeEffect->effect) 
+			{
+				GetActiveEffectData(activeEffectsEntry, activeEffect);
 			}
 
 			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
 			else {
-				CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
+				ExtraInfoEntry* effectEntry;
+				CreateExtraInfoEntry(effectEntry, GetTranslation("$UnknownEffectType"), "", priority_MagicItem_Effect);
 				activeEffectsEntry->PushBack(effectEntry);
 			}
 
@@ -387,10 +370,6 @@ void GetLevelData(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESNPC* npc
 
 	logger::debug("GetLevelData: End");
 }
-
-#ifdef SKYRIMVR
-#pragma warning(disable:4100) //the player parameter is unused in the VR branch, but we still need it defined as this codebase is shared with the SSE and AE branches that do use that parameter
-#endif
 
 void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player)
 {

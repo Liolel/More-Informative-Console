@@ -1,4 +1,4 @@
-﻿---
+---
 AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: 'false'
@@ -27,7 +27,7 @@ BitFieldColonSpacing: After
 BraceWrapping:
     AfterCaseLabel: 'true'
     AfterClass: 'true'
-    AfterControlStatement: 'false'
+    AfterControlStatement: 'true'
     AfterEnum: 'true'
     AfterFunction: 'true'
     AfterNamespace: 'true'
@@ -35,9 +35,9 @@ BraceWrapping:
     AfterUnion: 'true'
     AfterExternBlock: 'true'
     BeforeCatch: 'false'
-    BeforeElse: 'false'
+    BeforeElse: 'true'
     BeforeLambdaBody: 'false'
-    BeforeWhile: 'false'
+    BeforeWhile: 'true'
     IndentBraces: 'false'
     SplitEmptyFunction: 'false'
     SplitEmptyRecord: 'false'

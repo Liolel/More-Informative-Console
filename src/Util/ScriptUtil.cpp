@@ -6,6 +6,7 @@
 #include "TESForms/TESGlobal.h"
 #include "NameUtil.h"
 #include "GeneralUtil.h"
+#include "TESForms/EffectSetting.h"
 
 void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm)
 {
@@ -178,7 +179,6 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 	}
 }
 
-
 void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScript::Object * script )
 {
 	RE::BSScript::ObjectTypeInfo * objectTypeInfo = script->GetTypeInfo();
@@ -206,21 +206,6 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 		objectTypeInfo = objectTypeInfoStack.top();
 		objectTypeInfoStack.pop();
 		logger::info(objectTypeInfo->GetName());
-
-		//ExtraInfoEntry* numProperties;
-		//ExtraInfoEntry* numVariables;
-		//ExtraInfoEntry* totalVariables;
-
-		//CreateExtraInfoEntry(numProperties, "Properties", IntToString( objectTypeInfo->GetNumProperties() ), priority_Scripts_Script); //this gives number of properties
-		//CreateExtraInfoEntry(numVariables, "Variables", IntToString(objectTypeInfo->GetNumVariables()), priority_Scripts_Script); //this gives number of properties + variables in script
-		//CreateExtraInfoEntry(totalVariables, "Total", IntToString(objectTypeInfo->GetTotalNumVariables()), priority_Scripts_Script); //this gives number of properties and variables in script and parents
-
-		//resultArray->PushBack(numProperties);
-		//resultArray->PushBack(numVariables);
-		//resultArray->PushBack(totalVariables);
-
-		//logger::info(script->type->name.c_str());
-		
 		
 		const auto vars = objectTypeInfo->GetVariableIter();
 		if (vars) {
@@ -232,56 +217,11 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 
 				std::string cleanVariableName = CleanVariableName(variableName);
 
-				/*
-				logger::info(cleanVariableName + " " + IntToString(j) );
-				
-				if ( variable->IsArray() ) 
-				{
-					logger::info("Array");
-				}
-				if (variable->IsObject()  )
-				{
-					logger::info("Object");
-				}
-				if (variable->IsBool() ) 
-				{
-					logger::info("Bool");
-				}				
-				if (variable->IsInt() ) 
-				{
-					logger::info("Int");
-				}
-				if (variable->IsFloat() ) {
-					logger::info("Float");
-				}*/
-
 				GetVariableValue(resultArray, variable, cleanVariableName, false);
 
 				j++;
 			}
 		}
-
-		/*
-		const auto props = objectTypeInfo->GetPropertyIter();
-		if (props) {
-			for (std::uint32_t i = 0; i < objectTypeInfo->GetNumProperties(); ++i) {
-				const auto& varTypeInfo = props[i];
-				std::string variableName = varTypeInfo.name.c_str();
-				int index = props->info.autoVarIndex;
-
-				if (index >= 0) 
-				{
-					logger::info(IntToString(index));
-
-					auto variable = &(script->variables[index]);
-
-					std::string cleanVariableName = CleanVariableName(variableName);
-					GetVariableValue(resultArray, variable, cleanVariableName, false);
-				}
-			}
-		}*/
-
-		//go up a level 
 	}
 	
 	MICGlobals::minimizeFormDataRead = isInMinimizeMode;
@@ -306,6 +246,7 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 	RE::TESForm * form = nullptr;
 	RE::BGSBaseAlias* alias = nullptr;
 	RE::BSScript::Array* arrayVarible = nullptr;
+	RE::ActiveEffect* activeEffect = nullptr;
 
 	std::string value = "";
 	if (variable->IsBool())
@@ -337,10 +278,12 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 				int vmHandleType = 139;  //Handle types 0-138 are forms and can be handled with the same code so we don't need specific checks
 				bool vmHandleTypeFound = false;
 
-				while (!vmHandleTypeFound && vmHandleType <= 142) {
+				while (!vmHandleTypeFound && vmHandleType <= 142)
+				{
 					vmHandleTypeFound = policy->HandleIsType(vmHandleType, vmHandle);
 
-					if (!vmHandleTypeFound) {
+					if (!vmHandleTypeFound) 
+					{
 						vmHandleType++;
 					}
 				}
@@ -348,12 +291,17 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 				if (vmHandleTypeFound) {
 					if (vmHandleType == 142)  //Active Effect
 					{
-					} else  //all remaining vmHandle types are subclasses of BGSBaseAlias
+						activeEffect = static_cast<RE::ActiveEffect*>(object->Resolve(vmHandleType));
+						value = GetName(activeEffect->GetBaseObject());
+					} 
+					else  //all remaining vmHandle types are subclasses of BGSBaseAlias
 					{
 						alias = static_cast<RE::BGSBaseAlias*>(object->Resolve(vmHandleType));
 						value = GetTranslation("$Alias") + " : " + alias->aliasName.c_str();
 					}
-				} else {
+				} 
+				else 
+				{
 					//logger::info("Type Found");
 
 					form = static_cast<RE::TESForm*>(object->Resolve(0));  //0 seems to always resolve regardless of the handle type
@@ -378,7 +326,8 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 				}
 
 			} 
-			else {
+			else 
+			{
 				value = GetTranslation("$PropertyNone");
 			}
 		}
@@ -442,6 +391,16 @@ std::string GetVariableValue(ExtraInfoEntry* resultArray, RE::BSScript::Variable
 	{
 		GetAliasInformation(variableEntry, alias, true);
 	} 
+	
+	else if (activeEffect)
+	{
+		//get the information we need to call the GetEffectData method
+		bool active = IsEffectActive(activeEffect);
+		RE::Effect* effect = activeEffect->effect;
+		auto caster = activeEffect->GetCasterActor().get();
+
+		GetEffectData(variableEntry, effect, caster, true, activeEffect->duration, activeEffect->elapsedSeconds, active, activeEffect->magnitude);
+	}
 	else if ( arrayVarible ) 
 	{
 		for (auto i = arrayVarible->begin(); i != arrayVarible->end(); i++ )

@@ -143,6 +143,7 @@ enum priority
 	priority_Effect_Duration,
 	priority_Effect_Area,
 	priority_Effect_Caster,
+	priority_Effect_Active,
 	//EffectSetting
 	priority_EffectSetting_EffectType,
 	priority_EffectSetting_Skill,
