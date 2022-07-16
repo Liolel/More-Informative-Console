@@ -15,11 +15,7 @@ void GetTextureSet(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		ExtraInfoEntry* textureSetEntry;
 		CreateExtraInfoEntry(textureSetEntry, GetTranslation("$TextureSet"), "", priority_TextureSet);
 
-#ifndef SKYRIMVR
-		int totalTextures = RE::BGSTextureSet::Textures::kTotal;
-#else  //VR appears to not use all 9 and results in a crash
 		int totalTextures = RE::BGSTextureSet::Textures::kUsedTotal;
-#endif
 
 		for (int i = 0; i < totalTextures; i++) {
 			RE::TESTexture* texture = &textureSet->textures[i];

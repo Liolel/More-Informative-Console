@@ -6,6 +6,7 @@ set(VERSION 1.1.0)
 
 option(COPY_BUILD "Copy the build output to the Skyrim directory." OFF)
 option(BUILD_SKYRIMVR "Build for Skyrim VR" OFF)
+option(BUILD_SKYRIMAE "Build for Skyrim AE" OFF)
 
 # ---- Cache build vars ----
 
@@ -31,7 +32,14 @@ macro(find_commonlib_path)
 	endif()
 endmacro()
 
-if(BUILD_SKYRIMVR)
+if(BUILD_SKYRIMAE)
+	add_compile_definitions(SKYRIM_AE)
+	set(CommonLibName "CommonLibSSE")
+	set_from_environment(SkyrimAEPath)
+	set(SkyrimPath ${SkyrimAEPath})
+	set(SkyrimVersion "Skyrim AE")
+	set(VERSION ${VERSION}.${AE_VERSION})
+elseif(BUILD_SKYRIMVR)
 	add_compile_definitions(SKYRIMVR)
 	set(CommonLibName "CommonLibVR")
 	set_from_environment(SkyrimVRPath)
@@ -94,6 +102,16 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif()
 
 # ---- Globals ----
+
+add_compile_definitions(
+	SKSE_SUPPORT_XBYAK
+)
+
+if (BUILD_SKYRIMAE)
+	add_compile_definitions(
+		SKYRIM_SUPPORT_AE
+	)
+endif()
 
 if (MSVC)
 	add_compile_definitions(

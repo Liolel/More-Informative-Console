@@ -12,6 +12,7 @@
     "spdlog",
     "simpleini",
 	"robin-hood-hashing",
-    "rsm-binary-io"
+    "rsm-binary-io",
+    "xbyak"	
   ]
 }
