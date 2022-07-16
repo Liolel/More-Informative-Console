@@ -76,10 +76,8 @@ void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias* al
 
 			auto baseForm = target ? target->data.objectReference : nullptr;
 				
-
 			if (target  ) 
-			{
-				RE::TESForm* baseForm = target->data.objectReference;
+			{				
 				CreateExtraInfoEntry(aliasTargetEntry, GetTranslation("$AliasTarget"), GetName(baseForm, target), priority_Alias_AliasTarget);
 
 				bool isminimizeFormDataRead = MICGlobals::minimizeFormDataRead;

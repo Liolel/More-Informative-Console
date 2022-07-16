@@ -39,7 +39,7 @@ void GetQuestInformation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		
 		logger::debug("GetQuestInformation: Starting Aliases");
 
-		for (int i = 0; i < quest->aliases.size(); i++) 
+		for (std::uint32_t i = 0; i < quest->aliases.size(); i++) 
 		{
 			RE::BGSBaseAlias* alias = quest->aliases[i];
 

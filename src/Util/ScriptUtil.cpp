@@ -27,7 +27,7 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 				GetScriptsForHandle(resultArray, vm, policy, handle, baseForm, nullptr, nullptr);
 
 				if (refForm) {
-					RE::VMHandle handle = policy->GetHandleForObject(refForm->GetFormType(), refForm);
+					handle = policy->GetHandleForObject(refForm->GetFormType(), refForm);
 					GetScriptsForHandle(resultArray, vm, policy, handle, refForm, nullptr, nullptr);
 
 					if (refForm->GetFormType() == RE::FormType::ActorCharacter) {
@@ -187,8 +187,6 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 	MICGlobals::minimizeFormDataRead = true;
 	
 	int j = 0;
-
-	int totalVariables = objectTypeInfo->GetTotalNumVariables();
 
 	//variables are ordered from the topmost level down, but the object we get is for the lowest level child. 
 	//so we need to work our way up in levels from said child to the parent scripts, and then process them in reverse order
