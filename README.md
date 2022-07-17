@@ -23,6 +23,7 @@ cd More-Informative-Console
 ### CommonLibSSE or CommonLibVR
 ```
 # pull CommonLibSSE and CommonLibVR
+# For CommonLibSSE use PowerOfThree's fork
 # alternatively, override by setting environment variable `CommonLibSSEPath` or `CommonLibVRPath` if you need something different from extern
 git submodule update --init --recursive
 
@@ -36,7 +37,10 @@ cmake -B build -S .
 ```
 cmake -B build -S . -DBUILD_SKYRIMVR=ON
 ```
-Open build/ExampleProject.sln in Visual Studio.
+
+#### AE
+```
+cmake -B build -S . -DBUILD_SKYRIMAE=ON
 
 ### Building in Visual Studio
 1. Select Configuration and Platform (e.g., Release/x64)

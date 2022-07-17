@@ -52,6 +52,7 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 								}
 							}
 #else
+							
 							int total = 0;
 							logger::debug("GetScripts: Starting Active Effect");
 
@@ -61,9 +62,9 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 									auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
 									GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect, nullptr);
 								}
-								return RE::BSContainer::ForEachResult::kContinue;
+								return RE::BSContainer::ForEachResult::kStop;  //This looks wrong, but the version of CommonLibSSE I'm compiling against has the values of kStop and KContinue backwards.
 							});
-
+							
 #endif
 						}
 					}
