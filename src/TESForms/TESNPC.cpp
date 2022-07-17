@@ -424,7 +424,7 @@ void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE
 }
 
 #ifdef SKYRIMVR
-#pragma warning(default:4100)
+#pragma warning(default:4100) //the player parameter is unused in the VR branch, but we still need it defined as this codebase is shared with the SSE and AE branches that do use that parameter
 #endif
 
 void GetNPCAppearanceData(ExtraInfoEntry* resultArray, RE::TESNPC* npc)

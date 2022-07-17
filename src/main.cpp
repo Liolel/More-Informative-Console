@@ -48,47 +48,21 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_message)
 	}
 }
 
+#ifdef SKYRIM_AE
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+	SKSE::PluginVersionData v;
+	v.PluginVersion(Version::MAJOR);
+	v.PluginName("More Informative Console");
+	v.AuthorName("Linthar");
+	v.UsesAddressLibrary(true);
+	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+
+	return v;
+}();
+#else
+
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
-#ifndef NDEBUG
-	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-#else
-	auto path = logger::log_directory();
-	if (!path) {
-		return false;
-	}
-
-	*path /= Version::PROJECT;
-	*path += ".log"sv;
-	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-#endif
-
-	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
-
-#ifndef NDEBUG
-	log->set_level(spdlog::level::trace);
-#else
-	log->set_level(spdlog::level::info);
-	log->flush_on(spdlog::level::info);
-	readINI();
-	//Set the logger print level based on if debug mode is enabled
-	if (MICOptions::MICDebugMode) {
-		log->set_level(spdlog::level::debug);
-		log->flush_on(spdlog::level::debug);
-	}
-
-	else {
-		log->set_level(spdlog::level::info);
-		log->flush_on(spdlog::level::info);
-	}
-#endif
-
-	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
-
-	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
-	logger::info("Initalizing");
-
 	a_info->infoVersion = SKSE::PluginInfo::kVersion;
 	a_info->name = Version::PROJECT.data();
 	a_info->version = Version::MAJOR;
@@ -110,15 +84,56 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 		return false;
 	}
 
-	auto translationCache = TranslationCache::GetSingleton();
-	translationCache->CacheTranslations();
-
 	return true;
 }
+#endif
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	logger::info("Establishing interfaces...");
+
+	#ifndef NDEBUG
+	auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+#else
+	auto path = logger::log_directory();
+	if (!path)
+	{
+		return false;
+	}
+
+	*path /= Version::PROJECT;
+	*path += ".log"sv;
+	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+#endif
+
+	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+
+#ifndef NDEBUG
+	log->set_level(spdlog::level::trace);
+#else
+	log->set_level(spdlog::level::info);
+	log->flush_on(spdlog::level::info);
+	readINI();
+	//Set the logger print level based on if debug mode is enabled
+	if (MICOptions::MICDebugMode)
+	{
+		log->set_level(spdlog::level::debug);
+		log->flush_on(spdlog::level::debug);
+	}
+
+	else
+	{
+		log->set_level(spdlog::level::info);
+		log->flush_on(spdlog::level::info);
+	}
+#endif
+
+	spdlog::set_default_logger(std::move(log));
+	spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
+
+	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
+	logger::info("Initalizing");
+
 
 	SKSE::Init(a_skse);
 	const auto scaleform = SKSE::GetScaleformInterface();
@@ -130,6 +145,10 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		auto messaging = SKSE::GetMessagingInterface();
 		messaging->RegisterListener(MessageHandler);
 	}
+
+	auto translationCache = TranslationCache::GetSingleton();
+	translationCache->CacheTranslations();
+
 	logger::info("Plugin Initialization complete.");
 
 	return true;
