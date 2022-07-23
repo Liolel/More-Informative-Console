@@ -204,7 +204,7 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 	{
 		objectTypeInfo = objectTypeInfoStack.top();
 		objectTypeInfoStack.pop();
-		logger::info(objectTypeInfo->GetName());
+		logger::debug(objectTypeInfo->GetName());
 		
 		const auto vars = objectTypeInfo->GetVariableIter();
 		if (vars) {
