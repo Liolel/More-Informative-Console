@@ -80,6 +80,10 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 			ExtraInfoEntry modifierRoot("", "", priority_Default);
 			ExtraInfoEntry phenomeRoot("", "", priority_Default);
 
+			expressionsRoot.disableSortingByName = true;
+			modifierRoot.disableSortingByName = true;
+			phenomeRoot.disableSortingByName = true;
+
 			RE::Actor* actor = static_cast<RE::Actor*>(ref);
 
 			GetMFGInformation(&expressionsRoot, &modifierRoot, &phenomeRoot, actor);
