@@ -46,7 +46,7 @@ bool moreInformativeConsoleScaleForm::InstallHooks(RE::GFxMovieView* a_view, RE:
 
 	RE::GFxValue globals;
 
-	logger::debug(a_view->GetMovieDef()->GetFileURL());
+	logger::debug("{}", a_view->GetMovieDef()->GetFileURL());
 	bool result = a_view->GetVariable(&globals, "_global");
 	if (result) {
 

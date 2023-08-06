@@ -81,7 +81,7 @@ bool GetShouldGetExpandedFormData(RE::TESForm * baseForm)
 //general wrapper for all get form methods
 void GetFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjectREFR* refForm)
 {
-	logger::debug(("GetExtraData: Get Form Data Start " + GetFormTypeName((int)baseForm->formType.underlying()) + " " + FormIDToString(baseForm->formID)).c_str());
+	logger::debug("GetExtraData: Get Form Data Start {} {}", GetFormTypeName((int)baseForm->formType.underlying()), FormIDToString(baseForm->formID) );
 
 	bool getExpandedData = GetShouldGetExpandedFormData(baseForm);
 
@@ -356,7 +356,7 @@ void GetFormLocationData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE:
 
 		GetModInfoData(allModsTouchingReferenceHolder, refForm, SkyrimESMNotDetectedBug);
 
-		logger::debug("GetExtraData: Ref Last Modified By " + refLastDefinedIn);
+		logger::debug("GetExtraData: Ref Last Modified By {}", refLastDefinedIn);
 
 		formLocationHolder->PushBack(allModsTouchingReferenceHolder);
 	}
@@ -393,7 +393,7 @@ void GetFormLocationData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE:
 
 		GetModInfoData(allModsTouchingBaseHolder, baseFormToCheck, false);
 
-		logger::debug("GetExtraData: Base Last Modified By " + baseLastDefinedIn);
+		logger::debug("GetExtraData: Base Last Modified By {}", baseLastDefinedIn);
 
 		formLocationHolder->PushBack(allModsTouchingBaseHolder);
 	}

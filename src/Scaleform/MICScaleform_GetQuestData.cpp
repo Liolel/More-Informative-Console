@@ -23,7 +23,7 @@ void MICScaleform_GetQuestData::Call(Params& a_params)
 	std::string questEditorIdToFind = modeGFX->GetString();
 	questEditorIdToFind = ToLower(questEditorIdToFind);
 
-	logger::info(questEditorIdToFind.c_str());
+	logger::info("{}", questEditorIdToFind);
 
 	RE::TESDataHandler * datahandler = RE::TESDataHandler::GetSingleton();
 
@@ -38,7 +38,7 @@ void MICScaleform_GetQuestData::Call(Params& a_params)
 	{
 		RE::TESQuest* quest = static_cast<RE::TESQuest*>(questArray[i]);
 
-		logger::info(quest->formEditorID.c_str());
+		logger::info("{}", quest->formEditorID.c_str());
 
 		if (quest )
 		{

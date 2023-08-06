@@ -75,7 +75,7 @@ void ExtraInfoEntry::SetMayCopy(bool valueToSet )
 
 void ExtraInfoEntry::CreatePrimaryScaleformArray(RE::GFxValue* mainScaleFormArray, RE::GFxMovie* root)
 {
-	logger::debug("Creating scaleform array " + IntToString( (int)subarray.size() ) );
+	logger::debug("Creating scaleform array {}", IntToString( (int)subarray.size() ) );
 
 	root->CreateArray(mainScaleFormArray);
 

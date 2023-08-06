@@ -52,7 +52,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 				{
 					auto end = std::chrono::high_resolution_clock::now();
 					auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-					logger::info("Runtime " + LongLongToString(duration.count()) + " Microseconds");
+					logger::info("Runtime {} Microseconds", LongLongToString(duration.count() ) );
 				}
 
 				logger::debug("Get Form Information done");

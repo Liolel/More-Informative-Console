@@ -8,7 +8,7 @@
 
 void MICScaleform_RetrieveExtraData::Call(Params& a_params)
 {
-	logger::debug( ("RetrieveExtraData: Invoke Start, NumArgs " + IntToString(a_params.argCount) ).c_str() );
+	logger::debug( "RetrieveExtraData: Invoke Start, NumArgs {}", IntToString(a_params.argCount).c_str() );
 
 	RE::GFxMovie* movie = a_params.movie;
 	RE::GFxValue* indexArray = &a_params.args[0];
@@ -39,12 +39,12 @@ void MICScaleform_RetrieveExtraData::Call(Params& a_params)
 //Recursively travel through the extra info structure to find the desired entry
 ExtraInfoEntry* MICScaleform_RetrieveExtraData::TraverseExtraInfoEntries(ExtraInfoEntry* currentEntry, RE::GFxValue* indexArray, uint32_t currentIndex)
 {
-	logger::debug( ("Traverse Current Index " + IntToString(currentIndex) ).c_str() );
+	logger::debug( "Traverse Current Index {}", IntToString(currentIndex) );
 
 	RE::GFxValue indexToSelect;
 	indexArray->GetElement(currentIndex, &indexToSelect);
 
-	logger::debug(("Traverse Current Index " + std::to_string(currentIndex) + " indexToSelect " + std::to_string(indexToSelect.GetNumber())).c_str());
+	logger::debug("Traverse Current Index {} indexToSelect {}", std::to_string(currentIndex), std::to_string(indexToSelect.GetNumber() ) );
 
 	ExtraInfoEntry* nextEntry = currentEntry->GetChild((int)indexToSelect.GetNumber());
 

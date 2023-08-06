@@ -10,7 +10,7 @@
 
 void GetModelTextures(ExtraInfoEntry* resultArray, RE::TESForm* baseForm )
 {
-	logger::debug(("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType.underlying())).c_str());
+	//logger::debug(("Starting GetModelTextures " + GetFormTypeName((int)baseForm->formType.underlying())).c_str());
 	switch (baseForm->GetFormType())
 	{
 		case RE::FormType::Static:

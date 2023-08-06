@@ -35,9 +35,9 @@ void AddModelEntry(ExtraInfoEntry* resultArray, std::string modelType, RE::TESMo
 			
 			resultArray->PushBack(modelEntry);
 
-			RE::TESDataHandler* handler = RE::TESDataHandler::GetSingleton();
+			//RE::TESDataHandler* handler = RE::TESDataHandler::GetSingleton();
 
-			logger::debug(IntToString( handler->compiledFileCollection.smallFiles.size()).c_str() ) ;
+			//logger::debug(IntToString( handler->compiledFileCollection.smallFiles.size()).c_str() ) ;
 			//logger::debug(IntToString(handler->files.end).c_str());
 		}
 	}

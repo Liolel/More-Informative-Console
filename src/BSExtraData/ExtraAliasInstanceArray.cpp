@@ -36,7 +36,7 @@ void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias* al
 	ExtraInfoEntry* aliasNameEntry;
 	std::string aliasName = alias->aliasName.c_str();
 
-	logger::debug("Starting Alias " + aliasName );
+	logger::debug("Starting Alias {}", aliasName );
 
 	CreateExtraInfoEntry(aliasNameEntry, GetTranslation("$AliasName"), aliasName, priority_Alias_AliasName); //this gives number of properties
 	resultArray->PushBack(aliasNameEntry);

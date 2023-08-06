@@ -55,7 +55,7 @@ std::string TranslationCache::GetTranslation(std::string key)
 
 	if (translation == "")
 	{
-		logger::info("Translation Key " + key + " not found");
+		logger::info("Translation Key {} not found", key );
 	}
 
 	return translation;
