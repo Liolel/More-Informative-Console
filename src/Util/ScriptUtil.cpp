@@ -109,7 +109,7 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 
 				std::string scriptName = script->type->name.c_str();
 				//std::string scriptName = script->type->G
-				logger::debug("Found Script " + scriptName );
+				logger::debug("Found Script %s", scriptName );
 
 				if (GetShouldDisplayScript(scriptName))
 				{
@@ -204,7 +204,7 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 	{
 		objectTypeInfo = objectTypeInfoStack.top();
 		objectTypeInfoStack.pop();
-		logger::debug(objectTypeInfo->GetName());
+		logger::debug("%s", objectTypeInfo->GetName());
 		
 		const auto vars = objectTypeInfo->GetVariableIter();
 		if (vars) {

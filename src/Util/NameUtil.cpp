@@ -312,7 +312,7 @@ std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 			}
 		}
 	}
-	logger::debug(("GetExtraData: GetName End: " + name).c_str());
+	logger::debug("GetExtraData: GetName End: %s", name);
 	
 	return name;
 }

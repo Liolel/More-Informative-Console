@@ -100,17 +100,14 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 
 	logger::debug("GetSpellsForNPC: Starting Added Spells");
 
-	RE::Actor::ACTOR_RUNTIME_DATA runTimeData = actor->GetActorRuntimeData();
-
-	if (actor) 
-	{
-		int numberOfAddedSpells = runTimeData.addedSpells.size();
+	if (actor) {
+		int numberOfAddedSpells = actor->addedSpells.size();
 
 		//Added Spells
 		for (int i = 0; i < numberOfAddedSpells; i++) {
 			ExtraInfoEntry* spellEntry;
 
-			RE::SpellItem* spell = runTimeData.addedSpells[i];
+			RE::SpellItem* spell = actor->addedSpells[i];
 
 			if (spell)
 			{
@@ -127,8 +124,7 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 
 	logger::debug("GetSpellsForNPC: Starting Base Spells");
 
-	if (actorBase->actorEffects) 
-	{
+	if (actorBase->actorEffects) {
 		//Actor Base Spells
 		int numberOfBaseSpells = actorBase->actorEffects->numSpells;
 
@@ -161,10 +157,9 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	ExtraInfoEntry* activeEffectsEntry;
 
 	CreateExtraInfoEntry(activeEffectsEntry, GetTranslation("$Effects"), "", priority_Actor_Effects);
-	RE::Actor::ACTOR_RUNTIME_DATA runTimeData = actor->GetActorRuntimeData();
 
 #ifndef SKYRIMVR
-	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
+	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
 	logger::debug("GetCharacterData: Active Effects Gotten");
 
 	if (activeEffects) {
@@ -221,9 +216,9 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	logger::debug("GetActorData: Active Effects Done");
 
 	//Add Health/Magicka/Stamina to the main subarray
-	GetActorValue(resultArray, actor, runTimeData, actorValueHealthIndex, priority_Actor_Health);
-	GetActorValue(resultArray, actor, runTimeData, actorValueMagickaIndex, priority_Actor_Magicka);
-	GetActorValue(resultArray, actor, runTimeData, actorValueStaminaIndex, priority_Actor_Stamina);
+	GetActorValue(resultArray, actor, actorValueHealthIndex, priority_Actor_Health);
+	GetActorValue(resultArray, actor, actorValueMagickaIndex, priority_Actor_Magicka);
+	GetActorValue(resultArray, actor, actorValueStaminaIndex, priority_Actor_Stamina);
 
 	//Get all actor values in a subarray
 	ExtraInfoEntry* actorValueArray;
@@ -231,42 +226,43 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	actorValueArray->disableSortingByName = true; //for actor values specifically we want to keep the sorting of the index numbers
 
 	for (int i = 0; i < totalNumberOfActorValues; i++) {
-		GetActorValue(actorValueArray, actor, runTimeData, i, priority_Actor_ActorValues_ActorValue);
+		GetActorValue(actorValueArray, actor, i, priority_Actor_ActorValues_ActorValue);
 	}
 
 	resultArray->PushBack(actorValueArray);
 
 	logger::debug("GetActorData: actor values gotten");
 
-	RE::TESForm* currentPackage = actor->GetCurrentPackage();
+	RE::AIProcess* aiProcess = actor->currentProcess;
 
-	if (currentPackage) 
-	{
-		logger::debug("GetActorData: Found current package");
+	if (aiProcess) {
+		RE::TESForm* currentPackage = aiProcess->currentPackage.package;
 
-		std::string packageName = GetName(currentPackage);
+		if (currentPackage) {
+			logger::debug("GetActorData: Found current package");
 
-		//Placeholder for seeing what has editor IDs
-		ExtraInfoEntry* packageEntry;
+			std::string packageName = GetName(currentPackage);
 
-		CreateExtraInfoEntry(packageEntry, GetTranslation("$CurrentPackage"), packageName, priority_Actor_CurrentPackage);
+			//Placeholder for seeing what has editor IDs
+			ExtraInfoEntry* packageEntry;
 
-		GetFormData(packageEntry, currentPackage, nullptr);
+			CreateExtraInfoEntry(packageEntry, GetTranslation("$CurrentPackage"), packageName, priority_Actor_CurrentPackage);
 
-		resultArray->PushBack(packageEntry);
+			GetFormData(packageEntry, currentPackage, nullptr);
+
+			resultArray->PushBack(packageEntry);
+		}
 	}
 
 	//Check if a npc is protected/essential
 	ExtraInfoEntry* protectionEntry;
 	std::string protectionStatus;
 
-	if (HasFlag(runTimeData.boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kEssential))
-	{
+	if (HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kEssential)) {
 		protectionStatus = GetTranslation("$ProtectionEssential");
 	}
 
-	else if (HasFlag(runTimeData.boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kProtected))
-	{
+	else if (HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kProtected)) {
 		protectionStatus = GetTranslation("$ProtectionProtected");
 	}
 
@@ -280,7 +276,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	logger::debug("GetActorData: End");
 }
 
-void GetActorValue(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::Actor::ACTOR_RUNTIME_DATA runTimeData, int id, priority actorValuePriority)
+void GetActorValue(ExtraInfoEntry* resultArray, RE::Actor* actor, int id, priority actorValuePriority)
 {
 	logger::debug("GetExtraData: GetActover Value Start");
 
@@ -289,9 +285,9 @@ void GetActorValue(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::Actor::ACT
 
 	if (id < totalNumberOfActorValues) {
 		std::string valueName = GetActorValueName(id);
-		float baseValue = runTimeData.avStorage.baseValues.entries[id];
-		float currentValue = runTimeData.avStorage.modifiers.entries[id].modifiers[RE::ACTOR_VALUE_MODIFIERS::kTemporary];
-		float maxValue = runTimeData.avStorage.modifiers.entries[id].modifiers[RE::ACTOR_VALUE_MODIFIERS::kPermanent];
+		float baseValue = actor->GetBaseActorValue(actorValue);
+		float currentValue = actor->GetActorValue(actorValue);
+		float maxValue = actor->GetPermanentActorValue(actorValue);
 
 		CreateExtraInfoEntry(actorValueEntry, valueName, FloatToString(currentValue), actorValuePriority);
 
