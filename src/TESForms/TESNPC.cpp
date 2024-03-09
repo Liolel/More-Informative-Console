@@ -7,6 +7,8 @@
 #include "TranslationCache.h"
 #include <Util/GeneralUtil.h>
 
+#pragma warning(disable: 4100)
+
 //Adapted from SKSE source code
 
 //4-30-2022: Checked for translations needed
@@ -85,6 +87,37 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 			GetNPCAppearanceData(resultArray, npc);
 
 			GetFactionsForNPC(resultArray, actor, actorBase);
+
+			logger::debug("GetCharacterData: Getting npc information");
+
+			//Get class and combat style
+			ExtraInfoEntry* classEntry;
+
+			RE::TESClass* npcClass = npc->npcClass;
+
+			if (npcClass)
+			{
+				std::string className = GetName(npcClass);
+
+				CreateExtraInfoEntry(classEntry, GetTranslation("$Class"), className, priority_Actor_Class);
+				GetFormData(classEntry, npcClass, nullptr);
+
+				resultArray->PushBack(classEntry);
+			}
+
+			ExtraInfoEntry* combatStyleEntry;
+
+			RE::TESCombatStyle* combatStyle = npc->combatStyle;
+
+			if (combatStyle)
+			{
+				std::string combatStyleName = GetName( combatStyle);
+
+				CreateExtraInfoEntry(combatStyleEntry, GetTranslation("$CombatStyle"), combatStyleName, priority_Actor_CombatStyle);
+				GetFormData(combatStyleEntry, combatStyle, nullptr);
+
+				resultArray->PushBack(combatStyleEntry);
+			}
 		}
 	}
 
@@ -99,15 +132,16 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 	CreateExtraInfoEntry(allSpellsEntry, GetTranslation("$Spells"), "", priority_Actor_Spells);
 
 	logger::debug("GetSpellsForNPC: Starting Added Spells");
-
-	if (actor) {
-		int numberOfAddedSpells = actor->addedSpells.size();
+	
+	if (actor) 
+	{
+		int numberOfAddedSpells = actor->GetActorRuntimeData().addedSpells.size();
 
 		//Added Spells
 		for (int i = 0; i < numberOfAddedSpells; i++) {
 			ExtraInfoEntry* spellEntry;
 
-			RE::SpellItem* spell = actor->addedSpells[i];
+			RE::SpellItem* spell = actor->GetActorRuntimeData().addedSpells[i];
 
 			if (spell)
 			{
@@ -124,7 +158,8 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 
 	logger::debug("GetSpellsForNPC: Starting Base Spells");
 
-	if (actorBase->actorEffects) {
+	if (actorBase->actorEffects) 
+	{
 		//Actor Base Spells
 		int numberOfBaseSpells = actorBase->actorEffects->numSpells;
 
@@ -153,13 +188,13 @@ void GetSpellsForNPC(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESActor
 
 void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 {
+	
 	//Create a subarray to hold all the active effects for an actor
 	ExtraInfoEntry* activeEffectsEntry;
 
 	CreateExtraInfoEntry(activeEffectsEntry, GetTranslation("$Effects"), "", priority_Actor_Effects);
 
-#ifndef SKYRIMVR
-	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
+	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
 	logger::debug("GetCharacterData: Active Effects Gotten");
 
 	if (activeEffects) {
@@ -185,36 +220,11 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 			logger::debug("GetCharacterData: Ending Active Effect");
 		}
 	}
-#else
-	int total = 0;
-	logger::debug("GetCharacterData: Starting Active Effect");
-	//logger::debug("GetCharacterData Num Effects: " + actor->GetMagicTarget()->ForEachActiveEffect( RE::MagicTarget::GetEffectCount() );
-
-	actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult 
-	{
-		logger::debug("GetCharacterData: End Visiting Active Effects Total {}", total);
-		if (activeEffect && activeEffect->effect) 
-		{
-			logger::debug("GetCharacterData: Active Effect MGEF found");
-			GetActiveEffectData(activeEffectsEntry, activeEffect);
-		}
-		//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
-		else
-		{
-			ExtraInfoEntry* effectEntry;
-			CreateExtraInfoEntry(effectEntry, GetTranslation("$UnknownEffectType"), "", priority_MagicItem_Effect);
-			activeEffectsEntry->PushBack(effectEntry);
-			logger::debug("GetCharacterData: Ending Active Effect");
-		}
-		return RE::BSContainer::ForEachResult::kStop; //This looks wrong, but the version of CommonLibSSE I'm compiling against has the values of kStop and KContinue backwards.
-	});
-
-#endif
 
 	resultArray->PushBack(activeEffectsEntry);
 
 	logger::debug("GetActorData: Active Effects Done");
-
+	
 	//Add Health/Magicka/Stamina to the main subarray
 	GetActorValue(resultArray, actor, actorValueHealthIndex, priority_Actor_Health);
 	GetActorValue(resultArray, actor, actorValueMagickaIndex, priority_Actor_Magicka);
@@ -228,41 +238,40 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 	for (int i = 0; i < totalNumberOfActorValues; i++) {
 		GetActorValue(actorValueArray, actor, i, priority_Actor_ActorValues_ActorValue);
 	}
-
+	
 	resultArray->PushBack(actorValueArray);
-
+	
 	logger::debug("GetActorData: actor values gotten");
+	
+	RE::TESForm* currentPackage = actor->GetCurrentPackage();
 
-	RE::AIProcess* aiProcess = actor->currentProcess;
+	if (currentPackage) 
+	{
+		logger::debug("GetActorData: Found current package");
 
-	if (aiProcess) {
-		RE::TESForm* currentPackage = aiProcess->currentPackage.package;
+		std::string packageName = GetName(currentPackage);
 
-		if (currentPackage) {
-			logger::debug("GetActorData: Found current package");
+		//Placeholder for seeing what has editor IDs
+		ExtraInfoEntry* packageEntry;
 
-			std::string packageName = GetName(currentPackage);
+		CreateExtraInfoEntry(packageEntry, GetTranslation("$CurrentPackage"), packageName, priority_Actor_CurrentPackage);
 
-			//Placeholder for seeing what has editor IDs
-			ExtraInfoEntry* packageEntry;
+		GetFormData(packageEntry, currentPackage, nullptr);
 
-			CreateExtraInfoEntry(packageEntry, GetTranslation("$CurrentPackage"), packageName, priority_Actor_CurrentPackage);
-
-			GetFormData(packageEntry, currentPackage, nullptr);
-
-			resultArray->PushBack(packageEntry);
-		}
+		resultArray->PushBack(packageEntry);
 	}
 
 	//Check if a npc is protected/essential
 	ExtraInfoEntry* protectionEntry;
 	std::string protectionStatus;
 
-	if (HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kEssential)) {
+	if (HasFlag(actor->GetActorRuntimeData().boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kEssential))
+	{
 		protectionStatus = GetTranslation("$ProtectionEssential");
 	}
 
-	else if (HasFlag(actor->boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kProtected)) {
+	else if (HasFlag(actor->GetActorRuntimeData().boolFlags.underlying(), (int)RE::Actor::BOOL_FLAGS::kProtected))
+	{
 		protectionStatus = GetTranslation("$ProtectionProtected");
 	}
 
@@ -278,16 +287,20 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 
 void GetActorValue(ExtraInfoEntry* resultArray, RE::Actor* actor, int id, priority actorValuePriority)
 {
-	logger::debug("GetExtraData: GetActover Value Start");
+	logger::debug( "GetExtraData: GetActover Value Start {}", GetActorValueName(id));
 
 	RE::ActorValue actorValue = (RE::ActorValue)id;
 	ExtraInfoEntry* actorValueEntry;
 
-	if (id < totalNumberOfActorValues) {
+	if (id < totalNumberOfActorValues )
+	{
 		std::string valueName = GetActorValueName(id);
-		float baseValue = actor->GetBaseActorValue(actorValue);
-		float currentValue = actor->GetActorValue(actorValue);
-		float maxValue = actor->GetPermanentActorValue(actorValue);
+
+		float baseValue = actor->AsActorValueOwner()->GetBaseActorValue(actorValue);
+
+		float currentValue = actor->AsActorValueOwner()->GetActorValue(actorValue);
+
+		float maxValue = actor->AsActorValueOwner()->GetPermanentActorValue(actorValue);
 
 		CreateExtraInfoEntry(actorValueEntry, valueName, FloatToString(currentValue), actorValuePriority);
 
@@ -352,10 +365,6 @@ void GetLevelData(ExtraInfoEntry* resultArray, RE::Actor* actor, RE::TESNPC* npc
 	logger::debug("GetLevelData: End");
 }
 
-#ifdef SKYRIMVR
-#	pragma warning(disable: 4100)  //the player parameter is unused in the VR branch, but we still need it defined as this codebase is shared with the SSE and AE branches that do use that parameter
-#endif
-
 void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE::PlayerCharacter* player)
 {
 	logger::debug("Starting GetPerks");
@@ -380,7 +389,8 @@ void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE
 		}
 	}
 
-#ifndef SKYRIMVR  // player->addedPerks isn't an iteratable in VR and is still undiscovered
+	#ifndef ENABLE_SKYRIM_VR  //Non-VR - Perks are still not reversed engineered for VR
+
 	if (player != nullptr) {
 		logger::debug(" GetPerks: Starting Player Perks ");
 		int numPlayerPerks = player->addedPerks.size();
@@ -401,7 +411,8 @@ void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE
 			}
 		}
 	}
-#endif
+
+	#endif
 
 	resultArray->PushBack(perks);
 
@@ -506,7 +517,7 @@ void GetMFGInformation(ExtraInfoEntry* expressionsRoot, ExtraInfoEntry* modifier
 
 		for (int i = 0; i < numberOfMFGExpressions; i++) {
 			ExtraInfoEntry* expressionEntry;
-			std::string expressionName = GetTranslation("$mfgExpression") + IntToString(i) + " " + GetMFGExpressionName(i);
+			std::string expressionName = GetTranslation("$mfgExpression") + " " + IntToString(i) + " " + GetMFGExpressionName(i);
 			std::string value = FloatToString(expressions->values[i] * 100);
 
 			CreateExtraInfoEntry(expressionEntry, expressionName, value, priority_MFG_Expression);
@@ -517,7 +528,7 @@ void GetMFGInformation(ExtraInfoEntry* expressionsRoot, ExtraInfoEntry* modifier
 
 		for (int i = 0; i < numberOfMFGModifiers; i++) {
 			ExtraInfoEntry* modifierEntry;
-			std::string modifierName = GetTranslation("$mfgModifier") + IntToString(i) + " " + GetMFGModiferName(i);
+			std::string modifierName = GetTranslation("$mfgModifier") + " " + IntToString(i) + " " + GetMFGModiferName(i);
 			std::string value = FloatToString(modifiers->values[i] * 100);
 
 			CreateExtraInfoEntry(modifierEntry, modifierName, value, priority_MFG_Modifier);
@@ -528,7 +539,7 @@ void GetMFGInformation(ExtraInfoEntry* expressionsRoot, ExtraInfoEntry* modifier
 
 		for (int i = 0; i < numberOfMFGPhenomes; i++) {
 			ExtraInfoEntry* phenomeEntry;
-			std::string modifierName = GetTranslation("$mfgPhoneme") + IntToString(i) + " " + GetMFGPhenomeName(i);
+			std::string modifierName = GetTranslation("$mfgPhoneme") + " " + IntToString(i) + " " + GetMFGPhenomeName(i);
 			std::string value = FloatToString(phenomes->values[i] * 100);
 
 			CreateExtraInfoEntry(phenomeEntry, modifierName, value, priority_MFG_Phenome);

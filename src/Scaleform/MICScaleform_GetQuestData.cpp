@@ -31,7 +31,7 @@ void MICScaleform_GetQuestData::Call(Params& a_params)
 
 	RE::BSTArray<RE::TESForm*> questArray = datahandler->GetFormArray(RE::FormType::Quest);
 
-	std::uint32_t i = 0;
+	UINT32 i = 0;
 
 	while (i < questArray.size()
 		   && !matchingQuest) 

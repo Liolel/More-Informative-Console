@@ -7,6 +7,5 @@
 
 void MICScaleform_Log::Call(Params& a_params)
 {
-	std::string logString = a_params.args[0].GetString();
-	logger::debug("%s", logString);
+	logger::debug("%s", a_params.args[0].GetString());
 }

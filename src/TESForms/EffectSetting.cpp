@@ -129,8 +129,8 @@ void GetEffectData(ExtraInfoEntry* resultArray, RE::Effect* effect, RE::Actor* c
 		//Magnitude
 		ExtraInfoEntry* magnitudeEntry;
 
-		float effectMagnitude = effect->effectItem.magnitude;
-		CreateExtraInfoEntry(magnitudeEntry, GetTranslation("$Magnitude"), FloatToString(effectMagnitude), priority_Effect_Magnitude);
+		magnitude = effect->effectItem.magnitude;
+		CreateExtraInfoEntry(magnitudeEntry, GetTranslation("$Magnitude"), FloatToString(magnitude), priority_Effect_Magnitude);
 		magnitudeEntry->SetMayCopy(false);
 		resultArray->PushBack(magnitudeEntry);
 

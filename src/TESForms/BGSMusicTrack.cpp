@@ -29,6 +29,12 @@ void GetCurrentMusic(ExtraInfoEntry* resultArray)
 			if (baseForm)
 			{
 				RE::BGSMusicType* musicType = static_cast<RE::BGSMusicType*>(baseForm);
+
+				if (not musicType)
+				{
+					continue;
+				}
+
 				RE::BSIMusicType::MUSIC_STATUS musicStatus = musicType->typeStatus.get();
 
 				if (musicStatus == RE::BSIMusicType::MUSIC_STATUS::kPlaying)
@@ -74,13 +80,20 @@ void GetCurrentMusic(ExtraInfoEntry* resultArray)
 				if (musicForm)
 				{
 					RE::BGSMusicTrackFormWrapper* musicFormWrapper = static_cast<RE::BGSMusicTrackFormWrapper*>(musicForm);
+
+					if (not musicFormWrapper)
+					{
+						continue;
+					}
+
 					RE::BSIMusicTrack::MUSIC_STATUS musicStatus = musicFormWrapper->GetMusicStatus();
 
 					if (musicStatus == RE::BSIMusicTrack::MUSIC_STATUS::kPlaying)
 					{
 						RE::BSIMusicTrack* bsiMusicTrack = static_cast<RE::BSIMusicTrack*>(musicFormWrapper);
 
-						if (currentPriorityTrack == bsiMusicTrack)
+						if (bsiMusicTrack
+							and currentPriorityTrack == bsiMusicTrack)
 						{
 							std::string musicTrackName = GetName(musicFormWrapper);
 							ExtraInfoEntry* musicTrackEntry;

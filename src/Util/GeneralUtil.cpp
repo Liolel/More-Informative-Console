@@ -118,9 +118,11 @@ std::string DoubleToString(double number)
 
 std::string FormIDToString(int formID)
 {
+	int MaxPath = 260;
+
 	std::ostringstream ss;
-	std::unique_ptr<char[]> sResult(new char[RE::WinAPI::MAX_PATH]);
-	sprintf_s(sResult.get(), RE::WinAPI::MAX_PATH, "%08X", formID);
+	std::unique_ptr<char[]> sResult(new char[MaxPath]);
+	sprintf_s(sResult.get(), MaxPath, "%08X", formID);
 	return sResult.get();
 }
 

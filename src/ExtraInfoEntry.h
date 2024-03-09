@@ -86,6 +86,8 @@ enum priority
 	priority_Actor_Factions,
 	priority_Actor_Factions_Faction,
 	priority_Actor_CurrentPackage,
+	priority_Actor_Class,
+	priority_Actor_CombatStyle,
 	priority_Actor_Appearance,
 	priority_Actor_Appearance_Weight,
 	priority_Actor_Appearance_Height,
@@ -115,6 +117,9 @@ enum priority
 	//Cell
 	priority_Cell_Coordinate,
 	priority_Cell_Owner,
+	priority_Cell_LandscapeTextures,
+	priority_Cell_LightningTemplate,
+	priority_Cell_AcousticSpace,
 	//Location
 	priority_Location_ParentLocation,
 	priority_Location_Cleared,
@@ -218,6 +223,8 @@ enum priority
 	priority_WorldData_MusicType,
 	priority_WorldData_MusicTrack,
 	priority_WorldData_Weather,
+	priority_WorldData_ActiveImagespace,
+	priority_WorldData_LandscapeTextureAtReference,
 	//MFG
 	priority_MFG_Expression,
 	priority_MFG_Modifier,

@@ -36,8 +36,7 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 						actor = static_cast<RE::Actor*>(refForm);
 
 						if (actor) {
-#ifndef SKYRIMVR
-							RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->GetActiveEffectList();
+							RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
 							logger::debug("GetScripts: Active Effects Gotten");
 
 							if (activeEffects) {
@@ -51,21 +50,6 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 									GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect, nullptr);
 								}
 							}
-#else
-							
-							int total = 0;
-							logger::debug("GetScripts: Starting Active Effect");
-
-							actor->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
-								logger::debug("GetScripts: Visiting Active Effect {}", total++);
-								if (activeEffect) {
-									auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
-									GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect, nullptr);
-								}
-								return RE::BSContainer::ForEachResult::kStop;  //This looks wrong, but the version of CommonLibSSE I'm compiling against has the values of kStop and KContinue backwards.
-							});
-							
-#endif
 						}
 					}
 
@@ -109,7 +93,7 @@ void GetScriptsForHandle(ExtraInfoEntry* resultArray, RE::BSScript::Internal::Vi
 
 				std::string scriptName = script->type->name.c_str();
 				//std::string scriptName = script->type->G
-				logger::debug("Found Script %s", scriptName );
+				logger::debug("Found Script {}", scriptName );
 
 				if (GetShouldDisplayScript(scriptName))
 				{
@@ -204,7 +188,7 @@ void GetVariablesAndPropertiesForScript(ExtraInfoEntry* resultArray, RE::BSScrip
 	{
 		objectTypeInfo = objectTypeInfoStack.top();
 		objectTypeInfoStack.pop();
-		logger::debug("%s", objectTypeInfo->GetName());
+		logger::info("{}", objectTypeInfo->GetName());
 		
 		const auto vars = objectTypeInfo->GetVariableIter();
 		if (vars) {

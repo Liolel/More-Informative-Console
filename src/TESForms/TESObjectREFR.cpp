@@ -98,7 +98,7 @@ void GetTextures(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 		RE::BSVisit::TraverseScenegraphGeometries(reference3d, [&](RE::BSGeometry* a_geometry) -> RE::BSVisit::BSVisitControl
 		{
 			//go from the geometry object to the texture set if it has one
-			const auto effect = a_geometry->properties[RE::BSGeometry::States::kEffect];
+			const auto effect = a_geometry->GetGeometryRuntimeData().properties[RE::BSGeometry::States::kEffect];
 			const auto lightingShader = netimmerse_cast<RE::BSLightingShaderProperty*>(effect.get());
 			if (lightingShader)
 			{

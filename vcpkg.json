@@ -13,6 +13,10 @@
     "simpleini",
 	"robin-hood-hashing",
     "rsm-binary-io",
-    "xbyak"	
+    "xbyak",	
+	"directxmath",
+    "directxtk",
+	"catch2",
+    "rapidcsv"
   ]
 }
