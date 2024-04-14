@@ -26,29 +26,48 @@ void GetScripts(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::TESObjec
 				RE::VMHandle handle = policy->GetHandleForObject(baseForm->GetFormType(), baseForm);
 				GetScriptsForHandle(resultArray, vm, policy, handle, baseForm, nullptr, nullptr);
 
-				if (refForm) {
+				if (refForm) 
+				{
 					handle = policy->GetHandleForObject(refForm->GetFormType(), refForm);
 					GetScriptsForHandle(resultArray, vm, policy, handle, refForm, nullptr, nullptr);
 
-					if (refForm->GetFormType() == RE::FormType::ActorCharacter) {
+					if (refForm->GetFormType() == RE::FormType::ActorCharacter) 
+					{
 						//Check active effects if this is an actor
 						RE::Actor* actor = nullptr;
 						actor = static_cast<RE::Actor*>(refForm);
 
-						if (actor) {
-							RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
-							logger::debug("GetScripts: Active Effects Gotten");
+						if (actor) 
+						{
+							if (!REL::Module::IsVR() )
+							{
+								RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
+								logger::debug("GetScripts: Active Effects Gotten");
 
-							if (activeEffects) {
-								RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
+								if (activeEffects)
+								{
+									RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
 
-								for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr) {
-									//logger::debug("GetCharacterData: Starting Active Effect");
+									for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr)
+									{
+										//logger::debug("GetCharacterData: Starting Active Effect");
 
-									RE::ActiveEffect* activeEffect = *(itr);
-									auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
-									GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect, nullptr);
+										RE::ActiveEffect* activeEffect = *(itr);
+										auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
+										GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect, nullptr);
+									}
 								}
+							}
+							else
+							{
+								actor->AsMagicTarget()->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
+									if (activeEffect)
+									{
+										auto handleActiveEffect = policy->GetHandleForObject(RE::ActiveEffect::VMTYPEID, activeEffect);
+										GetScriptsForHandle(resultArray, vm, policy, handleActiveEffect, nullptr, activeEffect, nullptr);
+									}
+									return RE::BSContainer::ForEachResult::kContinue;
+								});
 							}
 						}
 					}

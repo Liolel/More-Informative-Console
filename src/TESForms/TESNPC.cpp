@@ -202,60 +202,66 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 
 	CreateExtraInfoEntry(activeEffectsEntry, GetTranslation("$Effects"), "", priority_Actor_Effects);
 
-	/*
-	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
-	logger::debug("GetCharacterData: Active Effects Gotten");
-
-	if (activeEffects) {
-		RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
-
-		for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr) {
-			logger::debug("GetCharacterData: Starting Active Effect");
-
-			RE::ActiveEffect* activeEffect = *(itr);
-
-			if (activeEffect && activeEffect->effect) 
-			{
-				GetActiveEffectData(activeEffectsEntry, activeEffect);
-			}
-
-			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
-			else {
-				ExtraInfoEntry* effectEntry;
-				CreateExtraInfoEntry(effectEntry, GetTranslation("$UnknownEffectType"), "", priority_MagicItem_Effect);
-				activeEffectsEntry->PushBack(effectEntry);
-			}
-
-			logger::debug("GetCharacterData: Ending Active Effect");
-		}
-	}*/
-
 	int total = 0;
 	logger::debug("GetCharacterData: Starting Active Effect");
 
-	//this specific technique is needed to get active effects in a VR friendly manner
-	actor->AsMagicTarget()->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult 
+	//VR needs different logic to access active effects from all other versions
+	if (!REL::Module::IsVR())
 	{
-		logger::debug("GetCharacterData: Visiting Active Effect {}", total++);
-		if (activeEffect)
+		RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
+		logger::debug("GetCharacterData: Active Effects Gotten");
+
+		if (activeEffects)
 		{
-			if (activeEffect->effect)
-			{
-				GetActiveEffectData(activeEffectsEntry, activeEffect);
-			}
+			RE::BSSimpleList<RE::ActiveEffect*>::iterator itrEnd = activeEffects->end();
 
-			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
-			else
+			for (RE::BSSimpleList<RE::ActiveEffect*>::iterator itr = activeEffects->begin(); itr != itrEnd; ++itr)
 			{
-				ExtraInfoEntry* effectEntry;
-				CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
-				activeEffectsEntry->PushBack(effectEntry);
+				logger::debug("GetCharacterData: Starting Active Effect");
+
+				RE::ActiveEffect* activeEffect = *(itr);
+
+				if (activeEffect && activeEffect->effect)
+				{
+					GetActiveEffectData(activeEffectsEntry, activeEffect);
+				}
+
+				//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
+				else
+				{
+					ExtraInfoEntry* effectEntry;
+					CreateExtraInfoEntry(effectEntry, GetTranslation("$UnknownEffectType"), "", priority_MagicItem_Effect);
+					activeEffectsEntry->PushBack(effectEntry);
+				}
+
+				logger::debug("GetCharacterData: Ending Active Effect");
 			}
-			logger::debug("GetCharacterData: Ending Active Effect");
 		}
-		return RE::BSContainer::ForEachResult::kContinue;
-	});
+	}
+	else
+	{
+		//this specific technique is needed to get active effects in a VR friendly manner
+		actor->AsMagicTarget()->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult {
+			logger::debug("GetCharacterData: Visiting Active Effect {}", total++);
+			if (activeEffect)
+			{
+				if (activeEffect->effect)
+				{
+					GetActiveEffectData(activeEffectsEntry, activeEffect);
+				}
 
+				//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
+				else
+				{
+					ExtraInfoEntry* effectEntry;
+					CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
+					activeEffectsEntry->PushBack(effectEntry);
+				}
+				logger::debug("GetCharacterData: Ending Active Effect");
+			}
+			return RE::BSContainer::ForEachResult::kContinue;
+		});
+	}
 
 	resultArray->PushBack(activeEffectsEntry);
 
