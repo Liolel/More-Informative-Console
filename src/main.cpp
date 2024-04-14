@@ -42,58 +42,20 @@ namespace
 			MICOptions::FontSizeBaseInfo = ini.GetLongValue("UI", "FontSizeBaseInfo", false);
 			MICOptions::FontSizeConsoleText = ini.GetLongValue("UI", "FontSizeConsoleText", false);
 			MICOptions::BaseInfoFormat = ini.GetLongValue("UI", "BaseInfoFormat", false);
-			MICOptions::DisableEditorIDs = ini.GetBoolValue("Performance", "DisableEditorIDs", false);
 			MICOptions::DisableScriptsAliases = ini.GetBoolValue("Performance", "DisableScriptsAliases", false);
 			MICOptions::DisableScriptsAliasesPlayerOnly = ini.GetBoolValue("Performance", "DisableScriptsAliasesPlayerOnly", false);
-		}
-	}
-
-	void MessageHandler(SKSE::MessagingInterface::Message* a_message)
-	{
-		logger::info("Processed message");
-		if (a_message->type == SKSE::MessagingInterface::kDataLoaded)
-		{
-			auto editorIDCache = EditorIDCache::GetSingleton();
-			editorIDCache->CacheEditorIDs();
-			logger::info("Cached editor ids");
+			MICOptions::IsVR = REL::Module::IsVR();
 		}
 	}
 }
 
-
-namespace Plugin
-{
-	using namespace std::literals;
-
-	inline constexpr REL::Version VERSION
-	{
-		// clang-format off
-		1,
-		2,
-		0,
-		// clang-format on
-	};
-
-	inline constexpr auto NAME = "@PROJECT_NAME@"sv;
-}
-
-extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
-	SKSE::PluginVersionData v;
-	v.PluginVersion( Plugin::VERSION );
-	v.PluginName("More Informative Console");
-	v.AuthorName("Linthar");
-	v.UsesAddressLibrary();
-	v.HasNoStructUse();
-	return v;
-}();
-
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface*, SKSE::PluginInfo* pluginInfo)
-{
-	pluginInfo->name = SKSEPlugin_Version.pluginName;
-	pluginInfo->infoVersion = SKSE::PluginInfo::kVersion;
-	pluginInfo->version = SKSEPlugin_Version.pluginVersion;
-	return true;
-}
+SKSEPluginInfo(
+	.Version = REL::Version{ 1, 2, 0, 0},
+	.Name = "More Informative Console",
+	.Author = "Linthar",
+	.StructCompatibility = SKSE::StructCompatibility::Independent,
+	.RuntimeCompatibility = SKSE::VersionIndependence::AddressLibrary
+);
 
 SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 {
@@ -150,10 +112,6 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 
 		scaleform->Register(moreInformativeConsoleScaleForm::InstallHooks, "MIC");
 
-		if (!MICOptions::DisableEditorIDs) {
-			auto messaging = SKSE::GetMessagingInterface();
-			messaging->RegisterListener(MessageHandler);
-		}
 		logger::info("Plugin Initialization complete.");
 
 		return true;

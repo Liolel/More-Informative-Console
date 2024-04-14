@@ -118,6 +118,14 @@ void GetCharacterData(ExtraInfoEntry* resultArray, RE::TESForm* refForm, RE::TES
 
 				resultArray->PushBack(combatStyleEntry);
 			}
+
+			
+			ExtraInfoEntry* respawnsEntry;
+
+			bool respawns = npc->Respawns();
+			CreateExtraInfoEntry(respawnsEntry, GetTranslation("$Respawns"), BooleanToYesNoString(respawns), priority_Actor_Respawns);
+
+			resultArray->PushBack(respawnsEntry);
 		}
 	}
 
@@ -194,6 +202,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 
 	CreateExtraInfoEntry(activeEffectsEntry, GetTranslation("$Effects"), "", priority_Actor_Effects);
 
+	/*
 	RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = actor->AsMagicTarget()->GetActiveEffectList();
 	logger::debug("GetCharacterData: Active Effects Gotten");
 
@@ -219,7 +228,34 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 
 			logger::debug("GetCharacterData: Ending Active Effect");
 		}
-	}
+	}*/
+
+	int total = 0;
+	logger::debug("GetCharacterData: Starting Active Effect");
+
+	//this specific technique is needed to get active effects in a VR friendly manner
+	actor->AsMagicTarget()->VisitActiveEffects([&](RE::ActiveEffect* activeEffect) -> RE::BSContainer::ForEachResult 
+	{
+		logger::debug("GetCharacterData: Visiting Active Effect {}", total++);
+		if (activeEffect)
+		{
+			if (activeEffect->effect)
+			{
+				GetActiveEffectData(activeEffectsEntry, activeEffect);
+			}
+
+			//This is only reached if there is an active effect without a actual corrosponding effect. Probally impossible but here's some code to handle it just in case
+			else
+			{
+				ExtraInfoEntry* effectEntry;
+				CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
+				activeEffectsEntry->PushBack(effectEntry);
+			}
+			logger::debug("GetCharacterData: Ending Active Effect");
+		}
+		return RE::BSContainer::ForEachResult::kContinue;
+	});
+
 
 	resultArray->PushBack(activeEffectsEntry);
 
@@ -389,30 +425,35 @@ void GetPerksForNPC(ExtraInfoEntry* resultArray, RE::TESActorBase* actorBase, RE
 		}
 	}
 
-	#ifndef ENABLE_SKYRIM_VR  //Non-VR - Perks are still not reversed engineered for VR
-
 	if (player != nullptr) {
 		logger::debug(" GetPerks: Starting Player Perks ");
-		int numPlayerPerks = player->addedPerks.size();
+		
+		//perk logic does not work in VR
+		if (!REL::Module::IsVR())
+		{
+			auto addedPerks = player->GetPlayerRuntimeData().addedPerks;
 
-		for (int i = 0; i < numPlayerPerks; i++) {
-			RE::BGSPerk* perk = player->addedPerks[i]->perk;
+			int numPlayerPerks = addedPerks.size();
 
-			if (perk) {
-				std::string name = GetName(perk);
+			for (int i = 0; i < numPlayerPerks; i++)
+			{
+				RE::BGSPerk* perk = addedPerks[i]->perk;
 
-				ExtraInfoEntry* perkEntry;
+				if (perk)
+				{
+					std::string name = GetName(perk);
 
-				CreateExtraInfoEntry(perkEntry, name, "", priority_Actor_Perks_Perk);
+					ExtraInfoEntry* perkEntry;
 
-				GetFormData(perkEntry, perk, nullptr);
+					CreateExtraInfoEntry(perkEntry, name, "", priority_Actor_Perks_Perk);
 
-				perks->PushBack(perkEntry);
+					GetFormData(perkEntry, perk, nullptr);
+
+					perks->PushBack(perkEntry);
+				}
 			}
 		}
 	}
-
-	#endif
 
 	resultArray->PushBack(perks);
 

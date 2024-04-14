@@ -88,6 +88,7 @@ enum priority
 	priority_Actor_CurrentPackage,
 	priority_Actor_Class,
 	priority_Actor_CombatStyle,
+	priority_Actor_Respawns,
 	priority_Actor_Appearance,
 	priority_Actor_Appearance_Weight,
 	priority_Actor_Appearance_Height,

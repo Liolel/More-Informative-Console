@@ -1,0 +1,20 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+	   "cacheVariables": {
+			"BUILD_SKYRIM": true,
+				"ENABLE_SKYRIM_AE": "ON",
+				"ENABLE_SKYRIM_SE": "ON",
+				"ENABLE_SKYRIM_VR": "ON"						 }
+    }
+  ]
+}
