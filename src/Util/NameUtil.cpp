@@ -217,102 +217,83 @@ std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 
 	std::string name = "";
 
-	if ( baseForm )
+	if (refForm
+		&& refForm->extraList.HasType(RE::ExtraDataType::kTextDisplayData) )
 	{
-		//if the reference has been renamed
-		if (refForm
-			&& refForm->extraList.HasType(RE::ExtraDataType::kTextDisplayData) )
-		{
-			auto displayData = static_cast<RE::ExtraTextDisplayData*> (refForm->extraList.GetByType(RE::ExtraDataType::kTextDisplayData) );
+		auto displayData = static_cast<RE::ExtraTextDisplayData*> (refForm->extraList.GetByType(RE::ExtraDataType::kTextDisplayData) );
 
-			name = displayData->displayName.c_str();
+		name = displayData->displayName.c_str();
+	}
+	else
+	{
+		auto fullName = baseForm ? baseForm->As<RE::TESFullName>() : nullptr;
+		if (fullName)
+		{
+			name = fullName->fullName.c_str();
 		}
 		else
 		{
-			auto fullName = baseForm ? baseForm->As<RE::TESFullName>() : nullptr;
-			if (fullName)
+			//Handle special cases
+			switch (baseForm->GetFormType())
 			{
-				name = fullName->fullName.c_str();
-			}
-			else
-			{
-				//Handle special cases
-				switch (baseForm->GetFormType() )
+				case RE::FormType::Race:
 				{
-					case RE::FormType::Race:
+					logger::debug("GetExtraData: GetName Race");
+					RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
+					if (race)
 					{
-						logger::debug("GetExtraData: GetName Race");
-						RE::TESRace* race = static_cast<RE::TESRace*>(baseForm);
-						if (race)
-						{
-							name = race->GetFormEditorID();
-						}
-
-						break;
+						name = race->GetFormEditorID();
 					}
 
-					case RE::FormType::MusicType:
-					{
-						logger::debug("GetExtraData: GetName MusicTrack");
-						RE::BGSMusicType* musicType = static_cast<RE::BGSMusicType*>(baseForm);
-						if (musicType)
-						{
-							name = musicType->formEditorID.c_str();
-						}
+					break;
+				}
 
-						break;
+				case RE::FormType::MusicType:
+				{
+					logger::debug("GetExtraData: GetName MusicTrack");
+					RE::BGSMusicType* musicType = static_cast<RE::BGSMusicType*>(baseForm);
+					if (musicType)
+					{
+						name = musicType->formEditorID.c_str();
 					}
 
-					case RE::FormType::Keyword:
+					break;
+				}
+
+				case RE::FormType::Keyword:
+				{
+					logger::debug("GetExtraData: GetName Keyword");
+					RE::BGSKeyword* keyword = static_cast<RE::BGSKeyword*>(baseForm);
+					if (keyword)
 					{
-						logger::debug("GetExtraData: GetName Keyword");
-						RE::BGSKeyword* keyword = static_cast<RE::BGSKeyword*>(baseForm);
-						if (keyword)
-						{
-							name = keyword->formEditorID.c_str();
-						}
-
-						break;
+						name = keyword->formEditorID.c_str();
 					}
-					//normally the reference should be passed as refForm and not baseForm. But for scripts we might only have the reference passed
-					//in which case we need to look up the base object to get the actual name
-					case RE::FormType::ActorCharacter:
-					case RE::FormType::Reference:
-					{
-						logger::debug("GetExtraData: GetName Reference");
-						RE::TESObjectREFR* objectReference = static_cast<RE::TESObjectREFR*>(baseForm);
-					
-						if (objectReference
-							&& objectReference->data.objectReference )
-						{
-							name = GetName(objectReference->data.objectReference, nullptr);
-						}
 
-						break;
-					}
-			}
-
-			}
+					break;
+				}
 		}
 
-		//If the name is empty try getting the editor id
-		if( name == "")
+		}
+	}
+
+	//If the name is empty try getting the editor id
+	if( name == "")
+	{
+		if (!MICOptions::DisableEditorIDs)
 		{
-			if (!MICOptions::DisableEditorIDs)
+			auto editorIDCache = EditorIDCache::GetSingleton();
+
+			name = editorIDCache->GetEditorID(baseForm);
+
+			//if the editor id was not found use the form id as a final backup
+			if (name == "")
 			{
-				auto editorIDCache = EditorIDCache::GetSingleton();
-
-				name = editorIDCache->GetEditorID(baseForm);
-
-				//if the editor id was not found use the form id as a final backup
-				if (name == "")
-				{
-					name = FormIDToString(baseForm->formID);
-				}
+				name = FormIDToString(baseForm->formID);
 			}
 		}
 	}
-	logger::debug(("GetExtraData: GetName End: " + name).c_str());
+
+	logger::debug( "GetExtraData: GetName End: {}", name );
 	
 	return name;
 }

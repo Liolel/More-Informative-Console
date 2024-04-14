@@ -34,7 +34,7 @@ void GetGlobalInformation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 float GetGlobalValue(RE::TESForm* baseForm)
 {
-	float value = -9999.9F;
+	float value = (float)- 9999.9;
 
 	if (baseForm->formType = RE::FormType::Global) 
 	{

@@ -112,7 +112,7 @@ void GetEquipment(ExtraInfoEntry* resultArray, RE::ExtraContainerChanges* contai
 	}
 
 	//shout
-	RE::TESForm* shout = actor->selectedPower;
+	RE::TESForm* shout = actor->GetCurrentShout();
 
 	if (shout != nullptr)
 	{

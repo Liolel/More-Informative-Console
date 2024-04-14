@@ -23,4 +23,5 @@ void MICScaleform_GetIniOptions::Call(Params& a_params)
 	RegisterNumber(results, "WindowHeight", MICOptions::WindowHeight);
 	RegisterNumber(results, "WindowWidth", MICOptions::WindowWidth);
 	RegisterNumber(results, "BaseInfoFormat", MICOptions::BaseInfoFormat);
+	RegisterNumber(results, "IsVR", MICOptions::IsVR);
 }

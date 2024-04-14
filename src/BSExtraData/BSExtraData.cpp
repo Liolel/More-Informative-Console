@@ -110,6 +110,27 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 			}
 		}
 
+		if (extraList->HasType(RE::ExtraDataType::kCellAcousticSpace))
+		{
+			auto acousticSpaceExtra = extraList->GetByType<RE::ExtraCellAcousticSpace>();
+			if (acousticSpaceExtra)
+			{
+				auto acousticSpace = acousticSpaceExtra->space;
+
+				if (acousticSpace )
+				{
+					ExtraInfoEntry* acousticSpaceEntry;
+					std::string acousticSpaceName = GetName(acousticSpace);
+
+					CreateExtraInfoEntry(acousticSpaceEntry, GetTranslation("$AcousticSpace"), acousticSpaceName, priority_Enchantment);
+					GetFormData(acousticSpaceEntry, acousticSpace, nullptr);
+
+					resultArray->PushBack(acousticSpaceEntry);
+				}
+			}
+		}
+
+
 		if ( MICOptions::ExperimentalFeatures )
 		{
 				

@@ -1,23 +1,65 @@
 #pragma once
 #include <vector>
+#include <libloaderapi.h>
 #include "robin_hood.h"
 #include "RE/Skyrim.h"
+
 
 class EditorIDCache
 {
 public:
 	static EditorIDCache* GetSingleton();
 
-	void CacheEditorIDs();
 	std::string GetEditorID(RE::TESForm* form);
-
-private:
-	std::vector<std::vector<robin_hood::unordered_flat_map<int, std::string >>> formIDToEditorIDMap; //First index is mod index (first two digits of load id )
-																								     //Second is based on form type
-																									 //then map is for all forms of that mod and type
-	robin_hood::unordered_flat_map<int, std::string > cachedEditorIDs; //Fetching Editor IDs is slow, and there are a lot of editor ids that need to be checked multiple times
-																	   //(For example commonly used keywords/races used in a lot of ARMA etc ).
-																	   //These are also a very small subset of the total number of editor ids, so we can store them after reading in for faster lookup
-																       //with minimal memory consumption
 };
 
+//Taken from https://github.com/powerof3/CLibUtil/blob/master/include/CLIBUtil/editorID.hpp
+namespace clib_util::editorID
+{
+	using _GetFormEditorID = const char* (*)(std::uint32_t);
+
+	inline std::string get_editorID(const RE::TESForm* a_form)
+	{
+		switch (a_form->GetFormType())
+		{
+		case RE::FormType::Keyword:
+		case RE::FormType::LocationRefType:
+		case RE::FormType::Action:
+		case RE::FormType::MenuIcon:
+		case RE::FormType::Global:
+		case RE::FormType::HeadPart:
+		case RE::FormType::Race:
+		case RE::FormType::Sound:
+		case RE::FormType::Script:
+		case RE::FormType::Navigation:
+		case RE::FormType::Cell:
+		case RE::FormType::WorldSpace:
+		case RE::FormType::Land:
+		case RE::FormType::NavMesh:
+		case RE::FormType::Dialogue:
+		case RE::FormType::Quest:
+		case RE::FormType::Idle:
+		case RE::FormType::AnimatedObject:
+		case RE::FormType::ImageAdapter:
+		case RE::FormType::VoiceType:
+		case RE::FormType::Ragdoll:
+		case RE::FormType::DefaultObject:
+		case RE::FormType::MusicType:
+		case RE::FormType::StoryManagerBranchNode:
+		case RE::FormType::StoryManagerQuestNode:
+		case RE::FormType::StoryManagerEventNode:
+		case RE::FormType::SoundRecord:
+			return a_form->GetFormEditorID();
+		default:
+			{
+				static auto tweaks = GetModuleHandle("po3_Tweaks");
+				static auto func = reinterpret_cast<_GetFormEditorID>(GetProcAddress(tweaks, "GetFormEditorID"));
+				if (func)
+				{
+					return func(a_form->formID);
+				}
+				return {};
+			}
+		}
+	}
+}

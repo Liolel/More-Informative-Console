@@ -23,5 +23,6 @@ namespace MICOptions
 	extern int FontSizeConsoleText; //Size of the font used in the console text
 	extern bool DisableEditorIDs; //disable checking editor ids
 	extern bool DisableScriptsAliases; //disable scripts and aliases for all objects
-	extern bool DisableScriptsAliasesPlayerOnly; //disalbe scripts and aliases only when the player is selected
+	extern bool DisableScriptsAliasesPlayerOnly; //disable scripts and aliases only when the player is selected
+	extern bool IsVR; //true if the version is Skyrim VR
 }

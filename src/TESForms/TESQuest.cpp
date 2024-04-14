@@ -13,6 +13,10 @@ void GetQuestInformation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		{
 			status = GetTranslation("$QuestStatusInactive");
 		}
+		else if (quest->IsRunning() ) 
+		{
+			status = GetTranslation("$QuestStatusRunning");
+		}
 		else if (quest->IsCompleted() ) 
 		{
 			status = GetTranslation("$QuestStatusCompleted");
@@ -21,10 +25,6 @@ void GetQuestInformation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 		{
 			status = GetTranslation("$QuestStatusStopped");
 		} 
-		else if (quest->IsRunning())
-		{
-			status = GetTranslation("$QuestStatusRunning");
-		}
 
 		CreateExtraInfoEntry(statusEntry, GetTranslation("$QuestStatus"), status, priority_Quest_Status);
 		resultArray->PushBack(statusEntry);
@@ -35,10 +35,11 @@ void GetQuestInformation(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		ExtraInfoEntry* aliasesEntry;
 		CreateExtraInfoEntry(aliasesEntry, GetTranslation("$Aliases"), "", priorty_Aliases);
+
 		
 		logger::debug("GetQuestInformation: Starting Aliases");
 
-		for (std::uint32_t i = 0; i < quest->aliases.size(); i++) 
+		for (UINT32 i = 0; i < quest->aliases.size(); i++) 
 		{
 			RE::BGSBaseAlias* alias = quest->aliases[i];
 

@@ -20,5 +20,6 @@ namespace MICOptions
 	int BaseInfoFormat = 2;               //How much information to display in the base info window
 	extern bool DisableEditorIDs = false; //Disable fetching editor ids
 	extern bool DisableScriptsAliases = false;            //disable scripts and aliases for all objects
-	extern bool DisableScriptsAliasesPlayerOnly = true;  //disalbe scripts and aliases only when the player is selected
+	extern bool DisableScriptsAliasesPlayerOnly = true;  //disable scripts and aliases only when the player is selected
+	extern bool IsVR = false;
 }

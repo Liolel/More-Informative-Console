@@ -36,7 +36,7 @@ void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias* al
 	ExtraInfoEntry* aliasNameEntry;
 	std::string aliasName = alias->aliasName.c_str();
 
-	logger::debug("Starting Alias " + aliasName );
+	logger::debug("Starting Alias {}", aliasName );
 
 	CreateExtraInfoEntry(aliasNameEntry, GetTranslation("$AliasName"), aliasName, priority_Alias_AliasName); //this gives number of properties
 	resultArray->PushBack(aliasNameEntry);
@@ -48,6 +48,7 @@ void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias* al
 		ExtraInfoEntry* aliasQuestEntry;
 		CreateExtraInfoEntry(aliasQuestEntry, GetTranslation("$AliasQuest"), GetName(owningQuest), priority_Alias_AliasQuest);
 		GetFormData(aliasQuestEntry, owningQuest, nullptr);
+
 		resultArray->PushBack(aliasQuestEntry);
 	}
 
@@ -76,8 +77,10 @@ void GetAliasInformation(ExtraInfoEntry* resultArray, const RE::BGSBaseAlias* al
 
 			auto baseForm = target ? target->data.objectReference : nullptr;
 				
+
 			if (target  ) 
-			{				
+			{
+				baseForm = target->data.objectReference;
 				CreateExtraInfoEntry(aliasTargetEntry, GetTranslation("$AliasTarget"), GetName(baseForm, target), priority_Alias_AliasTarget);
 
 				bool isminimizeFormDataRead = MICGlobals::minimizeFormDataRead;

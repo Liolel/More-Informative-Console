@@ -13,6 +13,8 @@
 #include <chrono>
 #include "globals.h"
 
+#pragma warning(disable: 4834)
+
 //4-23-2022: Checked for translations needed
 
 void MICScaleform_GetExtraData::Call(Params& a_params)
@@ -52,7 +54,7 @@ void MICScaleform_GetExtraData::Call(Params& a_params)
 				{
 					auto end = std::chrono::high_resolution_clock::now();
 					auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-					logger::info("Runtime " + LongLongToString(duration.count()) + " Microseconds");
+					logger::info("Runtime {} Microseconds", LongLongToString(duration.count() ) );
 				}
 
 				logger::debug("Get Form Information done");
@@ -145,7 +147,7 @@ void GetWorldData(ExtraInfoEntry* resultArray)
 	RE::PlayerCharacter* pc = RE::PlayerCharacter::GetSingleton();
 
 	if (pc) {
-		logger::debug("Starting Worldspace");
+		logger::debug("GetExtraData Starting Worldspace");
 
 		RE::TESWorldSpace* currentWorldSpace = pc->GetWorldspace();
 		;
@@ -161,6 +163,7 @@ void GetWorldData(ExtraInfoEntry* resultArray)
 		}
 
 		GetCurrentCellForWorldData(resultArray, pc);
+		GetLandscapeTextureAtReference(resultArray, pc);
 	}
 
 	GetCurrentMusic(resultArray);
@@ -179,4 +182,46 @@ void GetWorldData(ExtraInfoEntry* resultArray)
 		GetFormData(weatherEntry, weather, nullptr);
 		resultArray->PushBack(weatherEntry);
 	}
+
+	//Active image spaces
+	auto tes = RE::TES::GetSingleton();
+
+	if( tes )
+	{
+		ExtraInfoEntry* imageSpaceModifiersEntry;
+		CreateExtraInfoEntry(imageSpaceModifiersEntry, GetTranslation("$ImageSpaceModifiers"), "", priority_WorldData_ActiveImagespace);
+
+		logger::debug("GetExtraData Starting Image space ");
+
+		auto end = tes->activeImageSpaceModifiers.end();
+
+		for( auto it = tes->activeImageSpaceModifiers.begin(); it != end; it++)
+		{
+			auto activeModifier = it->get();
+			if (not activeModifier)
+			{
+				continue;
+			}
+
+			auto instanceForm = activeModifier->IsForm();
+
+			if (not instanceForm
+				|| not instanceForm->imod)
+			{
+				continue;
+			}
+
+			auto imageSpaceForm =instanceForm->imod;
+
+			ExtraInfoEntry* imageSpaceModifierEntry;
+			std::string imageSpaceModifierName = GetName(imageSpaceForm, nullptr);
+
+			CreateExtraInfoEntry(imageSpaceModifierEntry, imageSpaceModifierName, "", priority_Default );
+			GetFormData(imageSpaceModifierEntry, imageSpaceForm, nullptr);
+			imageSpaceModifiersEntry->PushBack(imageSpaceModifierEntry);
+		}
+
+		resultArray->PushBack(imageSpaceModifiersEntry);
+	}
+
 }

@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef GetObject
+#undef GetObject
+#endif
+
+
 #include "RE/Skyrim.h"
 #include "ExtraInfoEntry.h"
 
