@@ -50,7 +50,7 @@ namespace
 }
 
 SKSEPluginInfo(
-	.Version = REL::Version{ 1, 2, 0, 0},
+	.Version = REL::Version{ 1, 2, 1, 0},
 	.Name = "More Informative Console",
 	.Author = "Linthar",
 	.StructCompatibility = SKSE::StructCompatibility::Independent,
