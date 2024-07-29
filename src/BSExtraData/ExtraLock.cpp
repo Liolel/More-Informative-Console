@@ -20,12 +20,6 @@ void ProcessLockData(ExtraInfoEntry* resultArray, RE::BSExtraData* data, RE::TES
 
 		CreateExtraInfoEntry(lockEntry, GetTranslation("$Lock"), "", priority_ExtraLock_Lock);
 
-		/*
-		bool isLocked = HasFlag((int)lock->flags, (int)RE::REFR_LOCK::Flag::kLocked);
-		ExtraInfoEntry* isLockedEntry;
-		CreateExtraInfoEntry(isLockedEntry, "Is locked", BooleanToYesNoString(isLocked), priority_Lock_IsLocked);
-		lockEntry->PushBack(isLockedEntry);*/
-
 		RE::LOCK_LEVEL lockLevel = lock->GetLockLevel( refForm );
 		std::string lockLevelName = GetLockLevelName(lockLevel);
 

@@ -212,7 +212,6 @@ void GetCommonFormData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm, RE::T
 
 	resultArray->PushBack(nameArray);
 
-
 	if (!MICOptions::DisableEditorIDs)
 	{
 		auto editorIDCache = EditorIDCache::GetSingleton();
@@ -443,11 +442,11 @@ void GetKeywords(ExtraInfoEntry* resultArray, RE::BGSKeywordForm* keywordForm)
 		CreateExtraInfoEntry(keywordsEntry, GetTranslation("$Keywords"), "", priority_Keywords);
 
 		for (uint32_t i = 0; i < keywordForm->numKeywords; i++) {
-			RE::BGSKeyword* keyword = *(keywordForm->GetKeywordAt(i));
 
-			//if (keyword && ((keyword->formID & 0xFF000000) != 0xFF000000))  //There was a strange Keyword with a formid starting with FF that is causing a crash. There must be some skse plugin reponsible for this
-			//																//as it can't be created by normal methods. For now I want to filter those keywords out
-			//{
+			RE::BGSKeyword* keyword = keywordForm->GetKeywordAt(i).value_or( nullptr );
+
+			if (keyword)
+			{
 				ExtraInfoEntry* keywordEntry;
 				std::string keywordName = GetName(keyword);
 
@@ -455,8 +454,8 @@ void GetKeywords(ExtraInfoEntry* resultArray, RE::BGSKeywordForm* keywordForm)
 
 				GetFormData(keywordEntry, keyword, nullptr);
 
-				keywordsEntry->PushBack(keywordEntry);
-			//}
+				keywordsEntry->PushBack(keywordEntry);				
+			}
 		}
 
 		resultArray->PushBack(keywordsEntry);

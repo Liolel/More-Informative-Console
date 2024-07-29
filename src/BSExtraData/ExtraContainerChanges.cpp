@@ -390,7 +390,7 @@ void GetEnchantments(ExtraInfoEntry* resultArray, RE::InventoryEntryData* invent
 						ExtraInfoEntry* enchantmentEntry;
 						std::string enchantmentName = GetName(enchantmentForm);
 
-						CreateExtraInfoEntry(enchantmentEntry, "Enchantment", enchantmentName, priority_Enchantment);
+						CreateExtraInfoEntry(enchantmentEntry, "$Enchantment", enchantmentName, priority_Enchantment);
 						GetFormData(enchantmentEntry, enchantmentForm, nullptr);
 						GetCharge(enchantmentEntry, extraList, nullptr, extraEnchantment);
 						enchantmentEntry->SetMayCopy(false);

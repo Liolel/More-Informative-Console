@@ -135,7 +135,7 @@ void ProcessExtraDataList(ExtraInfoEntry* resultArray, RE::ExtraDataList* extraL
 		{
 				
 			ExtraInfoEntry* extraDataTypes;
-			CreateExtraInfoEntry(extraDataTypes, "Extra Data", "", priority_ExtraData);
+			CreateExtraInfoEntry(extraDataTypes, "$ExtraData", "", priority_ExtraData);
 
 			for (int i = 1; i <= numberOfExtraDataTypes; i++)
 			{

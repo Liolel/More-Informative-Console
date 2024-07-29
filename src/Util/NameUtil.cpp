@@ -263,8 +263,9 @@ std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 				case RE::FormType::Keyword:
 				{
 					logger::debug("GetExtraData: GetName Keyword");
+
 					RE::BGSKeyword* keyword = static_cast<RE::BGSKeyword*>(baseForm);
-					if (keyword)
+					if ( keyword )
 					{
 						name = keyword->formEditorID.c_str();
 					}
@@ -277,7 +278,7 @@ std::string GetName(RE::TESForm* baseForm, RE::TESObjectREFR* refForm )
 	}
 
 	//If the name is empty try getting the editor id
-	if( name == "")
+	if (name == "" )
 	{
 		if (!MICOptions::DisableEditorIDs)
 		{

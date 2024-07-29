@@ -254,7 +254,7 @@ void GetActorData(ExtraInfoEntry* resultArray, RE::Actor* actor)
 				else
 				{
 					ExtraInfoEntry* effectEntry;
-					CreateExtraInfoEntry(effectEntry, "Unknown Effect Type", "", priority_MagicItem_Effect);
+					CreateExtraInfoEntry(effectEntry, "$UnknownEffectType", "", priority_MagicItem_Effect);
 					activeEffectsEntry->PushBack(effectEntry);
 				}
 				logger::debug("GetCharacterData: Ending Active Effect");
