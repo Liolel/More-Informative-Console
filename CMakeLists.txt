@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(NAME "MoreInformativeConsole")
-set(VERSION 1.2.1)
+set(VERSION 1.2.2)
 
 # ---- Options ----
 
