@@ -16,6 +16,7 @@ std::string IntAsDoubleToString(double number);  //This is for converting number
 std::string LongLongToString(long long number);
 
 std::string FloatToString(float number);
+std::string RadianToDegreeString(double radian);
 std::string DoubleToString(double number);
 std::string FormIDToString(int formID);
 

@@ -67,17 +67,17 @@ void GetPositionData(ExtraInfoEntry* resultArray, RE::TESObjectREFR* refForm)
 	//rotation
 	float xRot = refForm->data.angle.x;
 	ExtraInfoEntry* xRotationEntry;
-	CreateExtraInfoEntry(xRotationEntry, GetTranslation("$ReferenceRotationX"), FloatToString(xRot), priority_Position_XRotation);
+	CreateExtraInfoEntry(xRotationEntry, GetTranslation("$ReferenceRotationX"), RadianToDegreeString(xRot), priority_Position_XRotation);
 	positionEntry->PushBack(xRotationEntry);
 
 	float yRot = refForm->data.angle.y;
 	ExtraInfoEntry* yRotationEntry;
-	CreateExtraInfoEntry(yRotationEntry, GetTranslation("$ReferenceRotationY"), FloatToString(yRot), priority_Position_YRotation);
+	CreateExtraInfoEntry(yRotationEntry, GetTranslation("$ReferenceRotationY"), RadianToDegreeString(yRot), priority_Position_YRotation);
 	positionEntry->PushBack(yRotationEntry);
 
 	float zRot = refForm->data.angle.z;
 	ExtraInfoEntry* zRotationEntry;
-	CreateExtraInfoEntry(zRotationEntry, GetTranslation("$ReferenceRotationZ"), FloatToString(zRot), priority_Position_ZRotation);
+	CreateExtraInfoEntry(zRotationEntry, GetTranslation("$ReferenceRotationZ"), RadianToDegreeString(zRot), priority_Position_ZRotation);
 	positionEntry->PushBack(zRotationEntry);
 
 	resultArray->PushBack(positionEntry);

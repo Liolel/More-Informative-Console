@@ -109,6 +109,20 @@ std::string FloatToString(float number)
 	return ss.str();
 }
 
+std::string RadianToDegreeString(double radian )
+{
+	double pi = 3.14159;
+	double degree = radian * (180 / pi);
+
+	//convert negative rotation into positive rotation for easier comparision
+	if (degree < 0)
+	{
+		degree = 360 + degree; //plus sign is because we are working with a negative. 
+	}
+
+	return DoubleToString(degree);
+}
+
 std::string DoubleToString(double number)
 {
 	std::ostringstream ss;

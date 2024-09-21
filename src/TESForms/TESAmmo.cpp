@@ -7,7 +7,8 @@
 void GetAmmoData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 {
 	RE::TESAmmo* ammo = static_cast<RE::TESAmmo*>(baseForm);
-	if (ammo) {
+	if (ammo) 
+	{		
 		//damage
 		float damage = ammo->data.damage;
 
@@ -23,5 +24,7 @@ void GetAmmoData(ExtraInfoEntry* resultArray, RE::TESForm* baseForm)
 
 		CreateExtraInfoEntry(valueEntry, GetTranslation("$Value"), IntToString(value), priority_Ammo_Value);
 		resultArray->PushBack(valueEntry);
+
+		GetKeywords(resultArray, ammo->AsKeywordForm() );
 	}
 }
